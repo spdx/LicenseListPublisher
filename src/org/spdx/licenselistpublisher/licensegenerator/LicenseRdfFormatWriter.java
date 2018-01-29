@@ -40,16 +40,19 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 	private File rdfTurtle;
 	private File rdfNt;
 	private LicenseContainer container;
+	private File rdfJsonLd;
 
 	/**
 	 * @param rdfXml File to store RDF XML formatted license list
 	 * @param rdfTurtle File to store RDF Turtle formatted license list
 	 * @param rdfNt File to store RDF Nt formatted license list
+	 * @param rdfJsonLd File to store JSON-LD formatted license list
 	 */
-	public LicenseRdfFormatWriter(File rdfXml, File rdfTurtle, File rdfNt) {
+	public LicenseRdfFormatWriter(File rdfXml, File rdfTurtle, File rdfNt, File rdfJsonLd) {
 		this.rdfXml = rdfXml;
 		this.rdfTurtle = rdfTurtle;
 		this.rdfNt = rdfNt;
+		this.rdfJsonLd = rdfJsonLd;
 		container = new LicenseContainer();// Create model container to hold licenses and exceptions
 	}
 
@@ -105,7 +108,7 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 			throw new LicenseGeneratorException("SPDX Analysis error cloning license: "+e.getMessage(),e);
 		}
 		String licBaseFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(license.getLicenseId());
-		writeRdf(onlyThisLicense, rdfXml, rdfTurtle, rdfNt, licBaseFileName);
+		writeRdf(onlyThisLicense, rdfXml, rdfTurtle, rdfNt, rdfJsonLd, licBaseFileName);
 		try {
 			license.createResource(container);
 		} catch (InvalidSPDXAnalysisException e) {
@@ -119,10 +122,12 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 	 * @param rdfXml Folder for the RdfXML representation
 	 * @param rdfTurtle Folder for the Turtle representation
 	 * @param rdfNt Folder for the NT representation
+	 * @param rdfJsonLd Folder for the JSON-LD representation
 	 * @param name Name of the file
 	 * @throws LicenseGeneratorException 
 	 */
-	private static void writeRdf(IModelContainer container, File rdfXml, File rdfTurtle, File rdfNt, String name) throws LicenseGeneratorException {
+	private static void writeRdf(IModelContainer container, File rdfXml, File rdfTurtle, 
+			File rdfNt, File rdfJsonLd, String name) throws LicenseGeneratorException {
 		if (rdfXml != null) {
 			writeRdf(container, rdfXml.getPath() + File.separator + name + ".rdf", "RDF/XML-ABBREV");
 		}
@@ -131,6 +136,9 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 		}
 		if (rdfNt != null) {
 			writeRdf(container, rdfNt.getPath() + File.separator + name + ".nt", "NT");
+		}
+		if (rdfJsonLd != null) {
+			writeRdf(container,rdfJsonLd.getPath() + File.separator + name + ".jsonld", "JSON-LD");
 		}
 	}
 	
@@ -172,7 +180,7 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 
 	@Override
 	public void writeToC() throws IOException, LicenseGeneratorException {
-		writeRdf(container, rdfXml, rdfTurtle, rdfNt, "licenses");
+		writeRdf(container, rdfXml, rdfTurtle, rdfNt, rdfJsonLd, "licenses");
 	}
 
 	@Override
@@ -186,7 +194,7 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 		} catch (InvalidSPDXAnalysisException e) {
 			throw new LicenseGeneratorException("SPDX Analysis error cloning exception: "+e.getMessage(),e);
 		}
-		writeRdf(onlyThisException, rdfXml, rdfTurtle, rdfNt, exceptionHtmlFileName);
+		writeRdf(onlyThisException, rdfXml, rdfTurtle, rdfNt, rdfJsonLd, exceptionHtmlFileName);
 		try {
 			exception.createResource(container);
 		} catch (InvalidSPDXAnalysisException e) {
