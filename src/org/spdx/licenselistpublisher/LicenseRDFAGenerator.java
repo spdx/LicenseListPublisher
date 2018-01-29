@@ -115,6 +115,7 @@ public class LicenseRDFAGenerator {
 	private static final String RDFTURTLE_FOLDER_NAME = "rdfturtle";
 	private static final String RDFNT_FOLDER_NAME = "rdfnt";
 	private static final String TABLE_OF_CONTENTS_FILE_NAME = "licenses.md";
+	private static final String RDF_JSON_LD_FOLDER_NAME = "jsonld";
 	
 	/**
 	 * @param args Arg 0 is either an input spreadsheet or a directory of licenses in XML format, arg 1 is the directory for the output html files
@@ -295,7 +296,11 @@ public class LicenseRDFAGenerator {
 			if (!rdfNt.isDirectory() && !rdfNt.mkdir()) {
 				throw new LicenseGeneratorException("Error: RDF NT folder is not a directory");
 			}
-			writers.add(new LicenseRdfFormatWriter(rdfXml, rdfTurtle, rdfNt));
+			File rdfJsonLd  = new File(dir.getPath() + File.separator +  RDF_JSON_LD_FOLDER_NAME);
+			if (!rdfJsonLd.isDirectory() && !rdfJsonLd.mkdir()) {
+				throw new LicenseGeneratorException("Error: RDF JSON-LD folder is not a directory");
+			}
+			writers.add(new LicenseRdfFormatWriter(rdfXml, rdfTurtle, rdfNt, rdfJsonLd));
 			File markdownFile = new File(dir.getPath() + File.separator +  TABLE_OF_CONTENTS_FILE_NAME);
 			if (!markdownFile.isFile() && !markdownFile.createNewFile()) {
 				throw new LicenseGeneratorException("Error: Unable to create markdown file");
