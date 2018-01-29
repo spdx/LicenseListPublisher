@@ -1,0 +1,11 @@
+.classpath
+.project
+.settings/
+*.launch
+/bin
+/target
+/reports
+/release.properties
+/pom.xml.releaseBackup
+maven-eclipse.xml
+dependency-reduced-pom.xml
