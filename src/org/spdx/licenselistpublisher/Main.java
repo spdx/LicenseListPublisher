@@ -24,7 +24,7 @@ public class Main {
 		
 		if ("LicenseListPublisher".equals(spdxTool)) {
 			LicenseListPublisher.main(args);
-		} else if ("LicenseRDFAGenerator ".equals(spdxTool)) {
+		} else if ("LicenseRDFAGenerator".equals(spdxTool)) {
 			LicenseRDFAGenerator.main(args);
 		} else {
 			usage();
