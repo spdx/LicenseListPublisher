@@ -119,10 +119,13 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 				appendOptionalText(element, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags);
 			} else if (LICENSEXML_ELEMENT_BREAK.equals(tagName)) {
 				if (includeHtmlTags) {
-					sb.append("<br>");
+					sb.append("<br />");
 				}
 				addNewline(sb, indentCount);
-				appendElementChildrenText(element, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags);
+				// There really shouldn't be any children as the tag must be an empty element for HTML, but this currently isn't enforced in the schema
+				if (element.getChildNodes().getLength() > 0) {
+					throw new LicenseXmlException("Non-empty <br> tag found");
+				}
 			} else if (LICENSEXML_ELEMENT_PARAGRAPH.equals(tagName)) {
 				if (includeHtmlTags) {
 					appendParagraphTag(sb, indentCount);
