@@ -173,8 +173,7 @@ public class LicenseXmlDocument {
 		NodeList licenseElements = rootElement.getElementsByTagName(SpdxRdfConstants.LICENSEXML_ELEMENT_LICENSE);
 		for (int i = 0; i < licenseElements.getLength(); i++) {
 			Element licenseElement = (Element)(licenseElements.item(i));
-			if (!licenseElement.hasAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_DEPRECATED) ||
-					"false".equals(licenseElement.getAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_DEPRECATED).toLowerCase())) {
+			if (!licenseElement.hasAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_DEPRECATED_VERSION)) {
 				retval.add(getListedLicense(licenseElement));
 			}
 		}
@@ -184,8 +183,7 @@ public class LicenseXmlDocument {
 	private SpdxListedLicense getListedLicense(Element licenseElement) throws InvalidSPDXAnalysisException, LicenseXmlException {
 		String name = licenseElement.getAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_NAME);
 		String id = licenseElement.getAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_ID);
-		boolean deprecated = licenseElement.hasAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_DEPRECATED) &&
-				"true".equals(licenseElement.getAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_DEPRECATED).toLowerCase());
+		boolean deprecated = licenseElement.hasAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_DEPRECATED_VERSION);
 		NodeList textNodes = licenseElement.getElementsByTagName(SpdxRdfConstants.LICENSEXML_ELEMENT_TEXT);
 		if (textNodes.getLength() != 1) {
 			throw new LicenseXmlException("Invalid number of text elements.  Expected 1 - found "+textNodes.getLength());
@@ -305,8 +303,7 @@ public class LicenseXmlDocument {
 		NodeList licenseElements = rootElement.getElementsByTagName(SpdxRdfConstants.LICENSEXML_ELEMENT_LICENSE);
 		for (int i = 0; i < licenseElements.getLength(); i++) {
 			Element licenseElement = (Element)(licenseElements.item(i));
-			if (licenseElement.hasAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_DEPRECATED) &&
-					"true".equals(licenseElement.getAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_DEPRECATED).toLowerCase())) {
+			if (licenseElement.hasAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_DEPRECATED_VERSION)) {
 				String deprecatedVersion = null;
 				if (licenseElement.hasAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_DEPRECATED_VERSION)) {
 					deprecatedVersion = licenseElement.getAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_DEPRECATED_VERSION);
