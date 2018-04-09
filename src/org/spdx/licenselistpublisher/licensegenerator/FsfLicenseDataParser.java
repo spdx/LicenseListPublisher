@@ -59,16 +59,18 @@ public class FsfLicenseDataParser {
 	static final String PROP_USE_ONLY_LOCAL_FILE = "LocalFsfFreeJson";
 	static final String PROP_FSF_FREE_JSON_URL = "FsfFreeJsonUrl";
 	
-	static final String DEFAULT_FSF_JSON_URL = "https://raw.githubusercontent.com/wking/fsf-api/gh-pages-json-ld/licenses-full.json"; //"https://wking.github.io/fsf-api/licenses-full.json";
+	static final String DEFAULT_FSF_JSON_URL = "https://wking.github.io/fsf-api/licenses-full.json";
 	static final String FSF_JSON_FILE_PATH = "resources" + File.separator + "licenses-full.json";
-	static final String FSF_JSON_CLASS_PATH = "resources/licenses-full.json";
+	static final String FSF_JSON_CLASS_PATH = "licenses-full.json";
 
 	static final String FSF_JSON_NAMESPACE = "http://tremily.us/fsf/schema/";
 	static final String PROPERTY_TAGS = "license.jsonldtags";
 	private static final String PROPERTY_KEYWORDS = "keywords";
 	private static final String SCHEMA_ORG_NAMESPACE = "https://schema.org/";
+	@SuppressWarnings("unused")
 	private static final String PROPERTY_SPDXID = "license.jsonldspdx";
 	private static final String PROPERTY_IDENTIFIER = "identifier";
+	@SuppressWarnings("unused")
 	private static final String PROPERTY_IDENTIFIERS = "license.jsonldidentifiers";
 		
 	private static FsfLicenseDataParser fsfLicenseDataParser = null;
@@ -106,10 +108,14 @@ public class FsfLicenseDataParser {
 			}
 			if (input == null) {
 				try {
-					input = new FileInputStream(FSF_JSON_FILE_PATH);
-				} catch (FileNotFoundException e) {
-					throw new LicenseGeneratorException("Unable to open reader for the FSF API");
+					input = this.getClass().getResourceAsStream(FSF_JSON_CLASS_PATH);
+				} catch (Exception e) {
+					input = null;
 				}
+			}
+			
+			if (input == null) {
+				throw new LicenseGeneratorException("Unable to open input JSON file for FSF License Data");
 			}
 
 			Model model = ModelFactory.createDefaultModel();
