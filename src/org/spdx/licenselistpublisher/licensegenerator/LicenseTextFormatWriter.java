@@ -21,7 +21,9 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.spdx.rdfparser.license.LicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
@@ -35,6 +37,8 @@ import org.spdx.rdfparser.license.SpdxListedLicense;
  */
 public class LicenseTextFormatWriter implements ILicenseFormatWriter {
 
+	private static final int MAX_LINE_CHARS = 80;
+	private static final int TYPICAL_WORD_CHARS = 8;
 	private File textFolder;
 	private Charset utf8 = Charset.forName("UTF-8");
 
@@ -69,7 +73,30 @@ public class LicenseTextFormatWriter implements ILicenseFormatWriter {
 			licBaseHtmlFileName = "deprecated_" + licBaseHtmlFileName;
 		}
 		Path textFilePath = Paths.get(textFolder.getPath(), licBaseHtmlFileName + ".txt");
-		Files.write(textFilePath, Arrays.asList(license.getLicenseText().split("\\n")), utf8);
+		String[] lines = license.getLicenseText().split("\\n");
+		List<String> wordWrappedLines = new ArrayList<String>();
+		for (String line:lines) {
+			if (line.length() < MAX_LINE_CHARS) {
+				wordWrappedLines.add(line);
+			} else {
+				String[] words = line.split(" ");
+				StringBuilder currentLine = new StringBuilder();
+				for (String word:words)
+				{
+					if (currentLine.length() > MAX_LINE_CHARS - TYPICAL_WORD_CHARS) {
+						wordWrappedLines.add(currentLine.toString());
+						currentLine.setLength(0);
+					} else if (currentLine.length() > 0) {
+						currentLine.append(' ');
+					}
+					currentLine.append(word);
+				}
+				if (currentLine.length() > 0) {
+					wordWrappedLines.add(currentLine.toString());
+				}
+			}
+		}
+		Files.write(textFilePath, wordWrappedLines, utf8);
 	}
 
 	@Override
