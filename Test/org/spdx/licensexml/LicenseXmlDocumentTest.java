@@ -49,38 +49,38 @@ public class LicenseXmlDocumentTest {
 	static final String TEST_FILE_PATH = "TestFiles" + File.separator + "test-license.xml";
 	private static final String TEST_LICENSE_COMMENT = "Test note";
 	private static final String TEST_LICENSE_ID = "test-id";
-	private static final String TEST_LICENSE_TEXT = "Test Copyright\nparagraph 1" +
-			"\n   1.\n   List item 1\n   2.\n   List item 2\n" +
+	private static final String TEST_LICENSE_TEXT = "Test Copyright\n\nparagraph 1" +
+			"\n\n   1.\n\n   List item 1\n\n   2.\n\n   List item 2\n\n" +
 			"Last Paragraph Alternate Text Non matching line. Optional text";
 	private static final String TEST_LICENSE_NAME = "Test License";
 	private static final String[] TEST_LICENSE_URLS = new String[] {"http://test/url1","http://test/url2"};
 	private static final String TEST_LICENSE_HEADER = "Test header optional var";
 	private static final String TEST_LICENSE_HEADER_TEMPLATE = "Test header<<beginOptional>> optional<<endOptional>> <<var;name=\"h1test\";original=\"var\";match=\".+\">>";
-	private static final String TEST_LICENSE_TEMPLATE = "Test Copyright\nparagraph 1" +
-			"\n   <<var;name=\"bullet\";original=\"1.\";match=\".{0,20}\">>\n   List item 1\n   <<var;name=\"bullet\";original=\"2.\";match=\".{0,20}\">>\n   List item 2\n" +
+	private static final String TEST_LICENSE_TEMPLATE = "Test Copyright\n\nparagraph 1" +
+			"\n\n   <<var;name=\"bullet\";original=\"1.\";match=\".{0,20}\">>\n\n   List item 1\n\n   <<var;name=\"bullet\";original=\"2.\";match=\".{0,20}\">>\n\n   List item 2\n\n" +
 			"Last Paragraph <<var;name=\"alttest\";original=\"Alternate Text\";match=\".+\">> Non matching line.<<beginOptional>> Optional text<<endOptional>>";
 
 	private static final String TEST_DEP_LICENSE_COMMENT = "Test dep note";
 	private static final String TEST_DEP_LICENSE_ID = "test-dep";
-	private static final String TEST_DEP_LICENSE_TEXT = "Test Copyright dep\nparagraph 1d" +
-			"\n   1.d\n   List item 1d\n   2.d\n   List item 2d\n" +
+	private static final String TEST_DEP_LICENSE_TEXT = "Test Copyright dep\n\nparagraph 1d" +
+			"\n\n   1.d\n\n   List item 1d\n\n   2.d\n\n   List item 2d\n\n" +
 			"Last Paragraph dep Alternate Text dep Non matching line dep. Optional text dep";
 	private static final String TEST_DEP_LICENSE_NAME = "Test Deprecated License";
 	private static final String[] TEST_DEP_LICENSE_URLS = new String[] {"http://test/url1d","http://test/url2d"};
 	private static final String TEST_DEP_LICENSE_HEADER = "Test header dep";
-	private static final String TEST_DEP_LICENSE_TEMPLATE = "Test Copyright dep\nparagraph 1d" +
-			"\n   <<var;name=\"bullet\";original=\"1.d\";match=\".{0,20}\">>\n   List item 1d\n   <<var;name=\"bullet\";original=\"2.d\";match=\".{0,20}\">>\n   List item 2d\n" +
+	private static final String TEST_DEP_LICENSE_TEMPLATE = "Test Copyright dep\n\nparagraph 1d" +
+			"\n\n   <<var;name=\"bullet\";original=\"1.d\";match=\".{0,20}\">>\n\n   List item 1d\n\n   <<var;name=\"bullet\";original=\"2.d\";match=\".{0,20}\">>\n\n   List item 2d\n\n" +
 			"Last Paragraph dep <<var;name=\"alttestd\";original=\"Alternate Text dep\";match=\".+\">> Non matching line dep.<<beginOptional>> Optional text dep<<endOptional>>";
 
 	private static final String TEST_EXCEPTION_COMMENT = "Test note exception";
 	private static final String TEST_EXCEPTION_ID = "test-ex";
-	private static final String TEST_EXCEPTION_TEXT = "Test Copyrighte\nparagraph 1e" +
-			"\n   1.e\n   List item 1e\n   2.e\n   List item 2e\n" +
+	private static final String TEST_EXCEPTION_TEXT = "Test Copyrighte\n\nparagraph 1e" +
+			"\n\n   1.e\n\n   List item 1e\n\n   2.e\n\n   List item 2e\n\n" +
 			"Last Paragraph exc Alternate Text exc Non matching line. e Optional text exc";
 	private static final String TEST_EXCEPTION_NAME = "Test Exception";
 	private static final String[] TEST_EXCEPTION_URLS = new String[] {"http://test/url1e","http://test/url2e"};
 	@SuppressWarnings("unused")
-	private static final String TEST_EXCEPTION_TEMPLATE = "Test Copyrighte\nparagraph 1e" +
+	private static final String TEST_EXCEPTION_TEMPLATE = "Test Copyrighte\n\nparagraph 1e" +
 			"\n   1.e\n   List item 1e\n   2.e\n   List item 2e\n" +
 			"Last Paragraph exc <<var;name=\"altteste\";original=\"Alternate Text exc\";match=\".+\">> Non matching line. e<<beginOptional>> Optional text exc<<endOptional>>";
 	private static final String TEST_DEP_LICENSE_VERSION = "2.2";
