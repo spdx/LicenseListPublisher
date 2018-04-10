@@ -253,6 +253,7 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 	 */
 	private static void addNewline(StringBuilder sb, int indentCount) {
 		sb.append('\n');
+		sb.append('\n');
 		for (int i = 0; i < indentCount; i ++) {
 			sb.append(INDENT_STRING);
 		}
