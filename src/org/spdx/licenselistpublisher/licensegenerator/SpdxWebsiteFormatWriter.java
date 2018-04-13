@@ -27,9 +27,12 @@ import org.spdx.html.LicenseHTMLFile;
 import org.spdx.html.LicenseJSONFile;
 import org.spdx.html.LicenseTOCHTMLFile;
 import org.spdx.html.LicenseTOCJSONFile;
+import org.spdx.rdfparser.InvalidSPDXAnalysisException;
+import org.spdx.rdfparser.license.AnyLicenseInfo;
 import org.spdx.rdfparser.license.LicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 import org.spdx.spdxspreadsheet.SPDXLicenseSpreadsheet.DeprecatedLicenseInfo;
+import org.spdx.licenselistpublisher.LicenseContainer;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
 
 import com.github.mustachejava.MustacheException;
@@ -224,6 +227,15 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 		} else {
 			tableOfContentsHTML.addLicense(license, licHTMLReference);
 		}
+		// JSON-LD format
+		LicenseContainer onlyThisLicense = new LicenseContainer();
+		AnyLicenseInfo licenseClone = license.clone();
+		try {
+			licenseClone.createResource(onlyThisLicense);
+		} catch (InvalidSPDXAnalysisException e) {
+			throw new LicenseGeneratorException("SPDX Analysis error cloning license: "+e.getMessage(),e);
+		}
+		LicenseRdfFormatWriter.writeRdf(onlyThisLicense, websiteFolder.getPath() + File.separator + licBaseHtmlFileName + ".jsonld", "JSON-LD");
 	}
 
 	/* (non-Javadoc)
@@ -243,7 +255,7 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 
 	@Override
 	public void writeException(LicenseException exception, boolean deprecated, String deprecatedVersion)
-			throws IOException, InvalidLicenseTemplateException {
+			throws IOException, InvalidLicenseTemplateException, LicenseGeneratorException {
 		ExceptionHtml exceptionHtml = new ExceptionHtml(exception);
 		String exceptionHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(exception.getLicenseExceptionId());
 		String exceptionHTMLReference = "./"+exceptionHtmlFileName + ".html";
@@ -257,5 +269,14 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 		exceptionJson.setException(exception, deprecated);
 		File exceptionJsonFile = new File(websiteFolder.getPath() + File.separator + exceptionJsonFileName);
 		exceptionJson.writeToFile(exceptionJsonFile);
+		// JSON-LD format
+		LicenseException exceptionClone = exception.clone();
+		LicenseContainer onlyThisException = new LicenseContainer();
+		try {
+			exceptionClone.createResource(onlyThisException);
+		} catch (InvalidSPDXAnalysisException e) {
+			throw new LicenseGeneratorException("SPDX Analysis error cloning exception: "+e.getMessage(),e);
+		}
+		LicenseRdfFormatWriter.writeRdf(onlyThisException, websiteFolder.getPath() + File.separator + exceptionHtmlFileName + ".jsonld", "JSON-LD");
 	}
 }

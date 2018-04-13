@@ -149,7 +149,7 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 	 * @param format Jena RDF format
 	 * @throws LicenseGeneratorException 
 	 */
-	private static void writeRdf(IModelContainer container, String fileName, String format) throws LicenseGeneratorException {
+	public static void writeRdf(IModelContainer container, String fileName, String format) throws LicenseGeneratorException {
 		File outFile = new File(fileName);
 		if (!outFile.exists()) {
 			try {
