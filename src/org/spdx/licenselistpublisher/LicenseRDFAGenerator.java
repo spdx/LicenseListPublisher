@@ -510,6 +510,7 @@ public class LicenseRDFAGenerator {
 		while (depIter.hasNext()) {
 			System.out.print(".");
 			DeprecatedLicenseInfo deprecatedLicense = depIter.next();
+			addExternalMetaData(deprecatedLicense.getLicense());
 			for (ILicenseFormatWriter writer : writers) {
 				writer.writeLicense(deprecatedLicense.getLicense(), true, deprecatedLicense.getDeprecatedVersion());
 			}
