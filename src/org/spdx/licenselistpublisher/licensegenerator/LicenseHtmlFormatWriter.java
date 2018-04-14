@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Set;
 
+import org.spdx.html.InvalidLicenseTemplateException;
 import org.spdx.licenseTemplate.SpdxLicenseTemplateHelper;
 import org.spdx.rdfparser.license.LicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
@@ -82,7 +83,11 @@ public class LicenseHtmlFormatWriter implements ILicenseFormatWriter {
 		String licBaseHtmlFileName = formLicenseHTMLFileName(license.getLicenseId());
 		String licHtmlFileName = licBaseHtmlFileName + ".html";
 		File htmlTextFile = new File(htmlFolder.getPath() + File.separator + licHtmlFileName);
-		Files.write(SpdxLicenseTemplateHelper.formatEscapeHTML(license.getLicenseText()), htmlTextFile, utf8);	
+		try {
+			Files.write(license.getLicenseTextHtml(), htmlTextFile, utf8);
+		} catch (InvalidLicenseTemplateException e) {
+			Files.write(SpdxLicenseTemplateHelper.formatEscapeHTML(license.getLicenseText()), htmlTextFile, utf8);
+		}	
 	}
 	
 	/**
@@ -118,7 +123,11 @@ public class LicenseHtmlFormatWriter implements ILicenseFormatWriter {
 			throws IOException {
 		String exceptionHtmlFileName = formLicenseHTMLFileName(exception.getLicenseExceptionId());
 		File htmlTextFile = new File(htmlFolder.getPath() + File.separator + exceptionHtmlFileName + ".html");
-		Files.write(SpdxLicenseTemplateHelper.formatEscapeHTML(exception.getLicenseExceptionText()), htmlTextFile, utf8);
+		try {
+			Files.write(exception.getExceptionTextHtml(), htmlTextFile, utf8);
+		} catch (InvalidLicenseTemplateException e) {
+			Files.write(SpdxLicenseTemplateHelper.formatEscapeHTML(exception.getLicenseExceptionText()), htmlTextFile, utf8);
+		}
 	}
 	
 }
