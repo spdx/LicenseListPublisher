@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.spdx</groupId>
 	<artifactId>licenseListPublisher</artifactId>
-	<version>2.1.12-SNAPSHOT</version>
+	<version>2.1.13-SNAPSHOT</version>
 	<name>License List Publisher</name>
 	<description>Tool that generates license data found in the license-list-data repository from the license-list-XML source</description>
 	<licenses>
@@ -39,12 +39,11 @@
         <url>https://api.bintray.com/maven/spdx/spdx-tools/LicenseListPublisher/;publish=1</url>
     </repository>
 	</distributionManagement>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.spdx</groupId>
 			<artifactId>spdx-tools</artifactId>
-			<version>2.1.11</version>		
+			<version>2.1.12</version>		
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
