@@ -96,7 +96,7 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 			boolean includeHtmlTags) throws LicenseXmlException {
 		if (node.getNodeType() == Node.TEXT_NODE) {
 			if (includeHtmlTags) {
-				sb.append(StringEscapeUtils.escapeHtml4(fixUpText(node.getNodeValue())));
+				sb.append(StringEscapeUtils.escapeXml(fixUpText(node.getNodeValue())));
 			} else {
 				appendNormalizedWhiteSpaceText(sb, node.getNodeValue());
 			}
