@@ -34,6 +34,6 @@ public class Main {
 	private static void usage() {
 		System.out.println("Usage: java -jar spdx-tools-jar-with-dependencies.jar <function> <parameters>");
 		System.out.println("LicenseRDFAGenerator - Generates license data");
-		System.out.println("LicensListPublisher - Publishes license list to git data repository");		
+		System.out.println("LicenseListPublisher - Publishes license list to git data repository");		
 	}
 }
