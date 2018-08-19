@@ -3,17 +3,43 @@
 This is the source code repository for the tool that generates license data found in the [license-list-data](https://github.com/spdx/license-list-data) repository.  The source for the the data is located in the [license-list-XML](https://github.com/spdx/license-list-XML) repository.
 
 ## Contributing
-See the file CONTRIBUTING.md for information on making contributions to the LicenseListPublisher.
+See the file [CONTRIBUTING.md](CONTRIBUTING.md) for information on making contributions to the LicenseListPublisher.
 
 ## Syntax
 The command line interface of the licenseListPublisher can be used like this:
 
     java -jar licenseListPublisher.jar <function> <parameters> 
 
-Where the following functions are supported:
-	generate licenseSpreadsheet.xls|inputDirectory outputDirectory [version] [releasedate] [licenseTestFileDirectory] [warningsToIgnore (either a file or comma separated list)]
-	publish -u gitUser -p gitPassword [-r releaseTagOrVersion] [-o outputGitRepository] [--ignoreAllWarnings] [-w warningsToIgnore] [-d inputXmlDirectory] [-x inputXmlRepositoryUrl]
-	
+Where the following functions and parameters are supported:
+
+```
+LicenseRDFAGenerator input outputDirectory [version] [releasedate] [testfiles] [ignoredwarnings]
+   Input - either a spreadsheet containing license information or a directory of license XML files
+   outputDirectory - Directory to store the output from the license generator
+   [version] - Version of the SPDX license list
+   [releasedate] - Release date of the SPDX license list
+   [testfiles] - Directory of original text files to compare the generated licenses against
+   [ignoredwarnings] - Either a file name or a comma separated list of warnings to be ignored
+```
+
+```
+LicenseListPublisher
+ -d,--directory <arg>        Input XML directory
+ -h,--help                   Prints out this message
+ -I,--ignoreAllWarnings      Ignore all warnings
+ -O,--outputrepo <arg>       Git repository to output the license list
+                             data to.  The git user must have update
+                             access to this repository
+ -p,--password <arg>         Github password
+ -r,--release <arg>          License list release tag or version
+ -t,--testOnly               Only tests the license XML files - does not
+                             update or publish the results
+ -u,--user <arg>             Github Username
+ -w,--ignoreWarnings <arg>   Ignore specific warning messages
+ -x,--xmlrepo <arg>          Input license XML repository
+ -z,--debug                  Prints debug information while processing
+```
+
 # License
 See the [NOTICE](NOTICE) file for licensing information
 including info from 3rd Party Software
