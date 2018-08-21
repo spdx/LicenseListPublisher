@@ -46,7 +46,7 @@ public class LicenseHtmlFormatWriter implements ILicenseFormatWriter {
 		INVALID_FILENAME_CHARS.add(';'); INVALID_FILENAME_CHARS.add(':');
 		INVALID_FILENAME_CHARS.add('\''); INVALID_FILENAME_CHARS.add('"'); INVALID_FILENAME_CHARS.add('|');
 		INVALID_FILENAME_CHARS.add('\t'); INVALID_FILENAME_CHARS.add('?'); INVALID_FILENAME_CHARS.add('&');
-		INVALID_FILENAME_CHARS.add('Â');
+		INVALID_FILENAME_CHARS.add('\ufffd');
 	}
 
 	private File htmlFolder;
