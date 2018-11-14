@@ -8,7 +8,7 @@
   <div class="gray-diagonal">
     <div class="container">
       <div id="footer-copyright">
-        <p>&copy; <?php print date("Y"); ?>
+        <p>&#169; <?php print date("Y"); ?>
           <?php
             if ($cp_name = variable_get('cp_name', NULL)) {
               print $cp_name . ' ';
