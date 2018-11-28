@@ -32,9 +32,9 @@ import org.junit.Test;
 import org.spdx.html.InvalidLicenseTemplateException;
 import org.spdx.rdfparser.InvalidSPDXAnalysisException;
 import org.spdx.rdfparser.license.LicenseException;
+import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 import org.spdx.licenselistpublisher.UnitTestHelper;
-import org.spdx.spdxspreadsheet.SPDXLicenseSpreadsheet.DeprecatedLicenseInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -120,17 +120,30 @@ public class LicenseXmlDocumentTest {
 		File licenseFile = new File(TEST_FILE_PATH);
 		LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile);
 		List<SpdxListedLicense> licenses = doc.getListedLicenses();
-		assertEquals(1, licenses.size());
-		SpdxListedLicense license = licenses.get(0);
-		assertTrue(license.isOsiApproved());
-		assertEquals(TEST_LICENSE_COMMENT, license.getComment());
-		assertEquals(TEST_LICENSE_ID, license.getLicenseId());
-		assertEquals(TEST_LICENSE_TEXT, license.getLicenseText());
-		assertEquals(TEST_LICENSE_NAME, license.getName());
-		UnitTestHelper.isArraysEqual(TEST_LICENSE_URLS, license.getSeeAlso());
-		assertEquals(TEST_LICENSE_HEADER, license.getStandardLicenseHeader());
-		assertEquals(TEST_LICENSE_HEADER_TEMPLATE, license.getStandardLicenseHeaderTemplate());
-		assertEquals(TEST_LICENSE_TEMPLATE, license.getStandardLicenseTemplate());
+		assertEquals(2, licenses.size());
+		for (SpdxListedLicense license : licenses) {
+			if (license.isDeprecated()) {
+				assertEquals(TEST_DEP_LICENSE_VERSION,license.getDeprecatedVersion());
+				assertFalse(license.isOsiApproved());
+				assertEquals(TEST_DEP_LICENSE_COMMENT, license.getComment());
+				assertEquals(TEST_DEP_LICENSE_ID, license.getLicenseId());
+				assertEquals(TEST_DEP_LICENSE_TEXT, license.getLicenseText());
+				assertEquals(TEST_DEP_LICENSE_NAME, license.getName());
+				UnitTestHelper.isArraysEqual(TEST_DEP_LICENSE_URLS, license.getSeeAlso());
+				assertEquals(TEST_DEP_LICENSE_HEADER, license.getStandardLicenseHeader());
+				assertEquals(TEST_DEP_LICENSE_TEMPLATE, license.getStandardLicenseTemplate());
+			} else {
+				assertTrue(license.isOsiApproved());
+				assertEquals(TEST_LICENSE_COMMENT, license.getComment());
+				assertEquals(TEST_LICENSE_ID, license.getLicenseId());
+				assertEquals(TEST_LICENSE_TEXT, license.getLicenseText());
+				assertEquals(TEST_LICENSE_NAME, license.getName());
+				UnitTestHelper.isArraysEqual(TEST_LICENSE_URLS, license.getSeeAlso());
+				assertEquals(TEST_LICENSE_HEADER, license.getStandardLicenseHeader());
+				assertEquals(TEST_LICENSE_HEADER_TEMPLATE, license.getStandardLicenseHeaderTemplate());
+				assertEquals(TEST_LICENSE_TEMPLATE, license.getStandardLicenseTemplate());
+			}
+		}
 	}
 
 	/**
@@ -142,7 +155,7 @@ public class LicenseXmlDocumentTest {
 	public void testGetLicenseException() throws LicenseXmlException, InvalidSPDXAnalysisException {
 		File licenseFile = new File(TEST_FILE_PATH);
 		LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile);
-		List<LicenseException> exceptions = doc.getLicenseExceptions();
+		List<ListedLicenseException> exceptions = doc.getLicenseExceptions();
 		assertEquals(1, exceptions.size());
 		LicenseException exception = exceptions.get(0);
 		assertEquals(TEST_EXCEPTION_COMMENT, exception.getComment());
@@ -150,30 +163,6 @@ public class LicenseXmlDocumentTest {
 		assertEquals(TEST_EXCEPTION_TEXT, exception.getLicenseExceptionText());
 		assertEquals(TEST_EXCEPTION_NAME, exception.getName());
 		UnitTestHelper.isArraysEqual(TEST_EXCEPTION_URLS, exception.getSeeAlso());
-	}
-
-	/**
-	 * Test method for {@link org.spdx.licensexml.LicenseXmlDocument#getDeprecatedLicenseInfo()}.
-	 * @throws LicenseXmlException 
-	 * @throws InvalidSPDXAnalysisException 
-	 */
-	@Test
-	public void testGetDeprecatedLicenseInfo() throws LicenseXmlException, InvalidSPDXAnalysisException {
-		File licenseFile = new File(TEST_FILE_PATH);
-		LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile);
-		List<DeprecatedLicenseInfo> licenses = doc.getDeprecatedLicenseInfos();
-		assertEquals(1, licenses.size());
-		DeprecatedLicenseInfo deprecatedLicenseInfo = licenses.get(0);
-		SpdxListedLicense license = deprecatedLicenseInfo.getLicense();
-		assertEquals(TEST_DEP_LICENSE_VERSION,deprecatedLicenseInfo.getDeprecatedVersion());
-		assertFalse(license.isOsiApproved());
-		assertEquals(TEST_DEP_LICENSE_COMMENT, license.getComment());
-		assertEquals(TEST_DEP_LICENSE_ID, license.getLicenseId());
-		assertEquals(TEST_DEP_LICENSE_TEXT, license.getLicenseText());
-		assertEquals(TEST_DEP_LICENSE_NAME, license.getName());
-		UnitTestHelper.isArraysEqual(TEST_DEP_LICENSE_URLS, license.getSeeAlso());
-		assertEquals(TEST_DEP_LICENSE_HEADER, license.getStandardLicenseHeader());
-		assertEquals(TEST_DEP_LICENSE_TEMPLATE, license.getStandardLicenseTemplate());
 	}
 
 	@Test

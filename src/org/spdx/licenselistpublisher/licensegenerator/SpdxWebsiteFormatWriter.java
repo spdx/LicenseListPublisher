@@ -30,8 +30,8 @@ import org.spdx.html.LicenseTOCJSONFile;
 import org.spdx.rdfparser.InvalidSPDXAnalysisException;
 import org.spdx.rdfparser.license.AnyLicenseInfo;
 import org.spdx.rdfparser.license.LicenseException;
+import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
-import org.spdx.spdxspreadsheet.SPDXLicenseSpreadsheet.DeprecatedLicenseInfo;
 import org.spdx.licenselistpublisher.LicenseContainer;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
 
@@ -197,10 +197,6 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 	@Override
 	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, LicenseGeneratorException {
 		this.licHtml.setLicense(license);
-		this.licHtml.setDeprecated(deprecated);
-		if (deprecatedVersion != null) {
-			this.licHtml.setDeprecatedVersion(deprecatedVersion);
-		}
 		String licBaseHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(license.getLicenseId());
 		String licHtmlFileName = licBaseHtmlFileName + ".html";
 		String licJsonFileName = licBaseHtmlFileName + ".json";
@@ -223,7 +219,7 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 		licJson.writeToFile(licJsonFile);
 		tableOfContentsJSON.addLicense(license, licHTMLReference, licJSONReference, deprecated);
 		if (deprecated) {
-			tableOfContentsHTML.addDeprecatedLicense(new DeprecatedLicenseInfo(license, deprecatedVersion), licHTMLReference);
+			tableOfContentsHTML.addDeprecatedLicense(license, licHTMLReference);
 		} else {
 			tableOfContentsHTML.addLicense(license, licHTMLReference);
 		}
@@ -254,7 +250,7 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 	}
 
 	@Override
-	public void writeException(LicenseException exception, boolean deprecated, String deprecatedVersion)
+	public void writeException(ListedLicenseException exception)
 			throws IOException, InvalidLicenseTemplateException, LicenseGeneratorException {
 		ExceptionHtml exceptionHtml = new ExceptionHtml(exception);
 		String exceptionHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(exception.getLicenseExceptionId());
@@ -263,10 +259,14 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 		String exceptionJSONReference= "./" + exceptionJsonFileName;
 		File exceptionHtmlFile = new File(websiteFolder.getPath()+File.separator+exceptionHtmlFileName + ".html");
 		exceptionHtml.writeToFile(exceptionHtmlFile, exceptionHtmlTocReference);
-		htmlExceptionToc.addException(exception, exceptionHTMLReference);
-		jsonExceptionToc.addException(exception, exceptionHTMLReference, exceptionJSONReference, deprecated);
+		if (exception.isDeprecated()) {
+			htmlExceptionToc.addDeprecatedException(exception, exceptionHTMLReference, exception.getDeprecatedVersion());
+		} else {
+			htmlExceptionToc.addException(exception, exceptionHTMLReference);
+		}
+		jsonExceptionToc.addException(exception, exceptionHTMLReference, exceptionJSONReference, exception.isDeprecated());
 		LicenseExceptionJSONFile exceptionJson = new LicenseExceptionJSONFile();
-		exceptionJson.setException(exception, deprecated);
+		exceptionJson.setException(exception, exception.isDeprecated());
 		File exceptionJsonFile = new File(websiteFolder.getPath() + File.separator + exceptionJsonFileName);
 		exceptionJson.writeToFile(exceptionJsonFile);
 		// JSON-LD format

@@ -38,10 +38,9 @@ import org.spdx.rdfparser.InvalidSPDXAnalysisException;
 import org.spdx.rdfparser.license.ISpdxListedLicenseProvider;
 import org.spdx.rdfparser.license.LicenseException;
 import org.spdx.rdfparser.license.LicenseRestrictionException;
+import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 import org.spdx.rdfparser.license.SpdxListedLicenseException;
-import org.spdx.spdxspreadsheet.SPDXLicenseSpreadsheet;
-import org.spdx.spdxspreadsheet.SPDXLicenseSpreadsheet.DeprecatedLicenseInfo;
 import org.spdx.licenselistpublisher.licensegenerator.FsfLicenseDataParser;
 import org.spdx.licenselistpublisher.licensegenerator.ILicenseFormatWriter;
 import org.spdx.licenselistpublisher.licensegenerator.ILicenseTester;
@@ -218,7 +217,7 @@ public class LicenseRDFAGenerator {
 	}
 	/**
 	 * Generate license data
-	 * @param ssFile Either a license spreadsheet file or a directory containing license XML files
+	 * @param licenseXmlDir Directory containing license XML files
 	 * @param dir Output directory for the generated results
 	 * @param version Version for the license lise
 	 * @param releaseDate Release data string for the license
@@ -226,23 +225,14 @@ public class LicenseRDFAGenerator {
 	 * @return warnings
 	 * @throws LicenseGeneratorException 
 	 */
-	public static List<String> generateLicenseData(File ssFile, File dir,
+	public static List<String> generateLicenseData(File licenseXmlDir, File dir,
 			String version, String releaseDate, File testFileDir) throws LicenseGeneratorException {
 		List<String> warnings = Lists.newArrayList();
 		List<ILicenseFormatWriter> writers = Lists.newArrayList();
 		ISpdxListedLicenseProvider licenseProvider = null;
 		try {
-			if (ssFile.getName().toLowerCase().endsWith(".xls")) {
-				SPDXLicenseSpreadsheet licenseSpreadsheet = new SPDXLicenseSpreadsheet(ssFile, false, true);
-				licenseProvider = licenseSpreadsheet;
-				if (version == null || version.trim().isEmpty()) {
-					version = licenseSpreadsheet.getLicenseSheet().getVersion();
-				}
-				if (releaseDate == null || releaseDate.trim().isEmpty()) {
-					releaseDate = licenseSpreadsheet.getLicenseSheet().getReleaseDate();
-				}
-			} else if (ssFile.isDirectory()) {
-				licenseProvider = new XmlLicenseProvider(ssFile);
+			if (licenseXmlDir.isDirectory()) {
+				licenseProvider = new XmlLicenseProvider(licenseXmlDir);
 			} else {
 				throw new LicenseGeneratorException("Unsupported file format.  Must be a .xls file");
 			}
@@ -340,15 +330,6 @@ public class LicenseRDFAGenerator {
 			throw(e);
 		} catch (Exception e) {
 			throw new LicenseGeneratorException("\nUnhandled exception generating html: "+e.getMessage(),e);
-		} finally {
-			if (licenseProvider != null && (licenseProvider instanceof SPDXLicenseSpreadsheet)) {
-				try {
-					SPDXLicenseSpreadsheet spreadsheet = (SPDXLicenseSpreadsheet)licenseProvider;
-					spreadsheet.close();
-				} catch (SpreadsheetException e) {
-					System.out.println("Error closing spreadsheet file: "+e.getMessage());
-				}
-			}
 		}
 	}
 	
@@ -379,11 +360,11 @@ public class LicenseRDFAGenerator {
 			System.out.println("Warning - Not able to check for duplicate license and exception ID's");
 		}
 		
-		Iterator<LicenseException> exceptionIter = licenseProvider.getExceptionIterator();
+		Iterator<ListedLicenseException> exceptionIter = licenseProvider.getExceptionIterator();
 		Map<String, String> addedExceptionsMap = Maps.newHashMap();
 		while (exceptionIter.hasNext()) {
 			System.out.print(".");
-			LicenseException nextException = exceptionIter.next();
+			ListedLicenseException nextException = exceptionIter.next();
 			addExternalMetaData(nextException);
 			if (nextException.getLicenseExceptionId() != null && !nextException.getLicenseExceptionId().isEmpty()) {
 				// check for duplicate exceptions
@@ -402,7 +383,7 @@ public class LicenseRDFAGenerator {
 						"License Exception Text for "+nextException.getLicenseExceptionId(), warnings);
 				addedExceptionsMap.put(nextException.getLicenseExceptionId(), nextException.getLicenseExceptionText());
 				for (ILicenseFormatWriter writer:writers) {
-					writer.writeException(nextException, false, null);
+					writer.writeException(nextException);
 				}
 				if (tester != null) {
 					List<String> testResults = tester.testException(nextException);
@@ -494,7 +475,7 @@ public class LicenseRDFAGenerator {
 				addedLicIdTextMap.put(license.getLicenseId(), license.getLicenseText());
 				checkText(license.getLicenseText(), "License text for "+license.getLicenseId(), warnings);
 				for (ILicenseFormatWriter writer : writers) {
-					writer.writeLicense(license, false, null);
+					writer.writeLicense(license, license.isDeprecated(), license.getDeprecatedVersion());
 				}
 				if (tester != null) {
 					List<String> testResults = tester.testLicense(license);
@@ -502,23 +483,6 @@ public class LicenseRDFAGenerator {
 						for (String testResult:testResults) {
 							warnings.add("Test for license "+license.getLicenseId() + " failed: "+testResult);
 						}
-					}
-				}
-			}
-		}
-		Iterator<DeprecatedLicenseInfo> depIter = licenseProvider.getDeprecatedLicenseIterator();
-		while (depIter.hasNext()) {
-			System.out.print(".");
-			DeprecatedLicenseInfo deprecatedLicense = depIter.next();
-			addExternalMetaData(deprecatedLicense.getLicense());
-			for (ILicenseFormatWriter writer : writers) {
-				writer.writeLicense(deprecatedLicense.getLicense(), true, deprecatedLicense.getDeprecatedVersion());
-			}
-			if (tester != null) {
-				List<String> testResults = tester.testLicense(deprecatedLicense.getLicense());
-				if (testResults != null && testResults.size() > 0) {
-					for (String testResult:testResults) {
-						warnings.add("Test for license "+deprecatedLicense.getLicense().getLicenseId() + " failed: "+testResult);
 					}
 				}
 			}
@@ -584,8 +548,8 @@ public class LicenseRDFAGenerator {
 	
 	private static void usage() {
 		System.out.println("Usage:");
-		System.out.println("LicenseRDFAGenerator input outputDirectory [version] [releasedate] [testfiles] [ignoredwarnings]");
-		System.out.println("   Input - either a spreadsheet containing license information or a directory of license XML files");
+		System.out.println("LicenseRDFAGenerator licencenseXmlDir outputDirectory [version] [releasedate] [testfiles] [ignoredwarnings]");
+		System.out.println("   licencenseXmlDir - a directory of license XML files");
 		System.out.println("   outputDirectory - Directory to store the output from the license generator");
 		System.out.println("   [version] - Version of the SPDX license list");
 		System.out.println("   [releasedate] - Release date of the SPDX license list");
