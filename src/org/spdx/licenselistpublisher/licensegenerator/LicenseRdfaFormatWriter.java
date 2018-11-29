@@ -23,9 +23,8 @@ import org.spdx.html.ExceptionHtmlToc;
 import org.spdx.html.InvalidLicenseTemplateException;
 import org.spdx.html.LicenseHTMLFile;
 import org.spdx.html.LicenseTOCHTMLFile;
-import org.spdx.rdfparser.license.LicenseException;
+import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
-import org.spdx.spdxspreadsheet.SPDXLicenseSpreadsheet.DeprecatedLicenseInfo;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
 
 import com.github.mustachejava.MustacheException;
@@ -156,10 +155,6 @@ public class LicenseRdfaFormatWriter implements ILicenseFormatWriter {
 	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion)
 			throws IOException, LicenseGeneratorException {
 		this.licHtml.setLicense(license);
-		this.licHtml.setDeprecated(deprecated);
-		if (deprecatedVersion != null) {
-			this.licHtml.setDeprecatedVersion(deprecatedVersion);
-		}
 		String licBaseHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(license.getLicenseId());
 		String licHtmlFileName = licBaseHtmlFileName + ".html";
 		String licHTMLReference = "./"+licHtmlFileName;
@@ -174,7 +169,7 @@ public class LicenseRdfaFormatWriter implements ILicenseFormatWriter {
 			throw new LicenseGeneratorException("License template error for license HTML file: "+e.getMessage(),e);
 		}
 		if (deprecated) {
-			tableOfContentsHTML.addDeprecatedLicense(new DeprecatedLicenseInfo(license, deprecatedVersion), licHTMLReference);
+			tableOfContentsHTML.addDeprecatedLicense(license, licHTMLReference);
 		} else {
 			tableOfContentsHTML.addLicense(license, licHTMLReference);
 		}
@@ -192,7 +187,7 @@ public class LicenseRdfaFormatWriter implements ILicenseFormatWriter {
 	}
 
 	@Override
-	public void writeException(LicenseException exception, boolean deprecated, String deprecatedVersion)
+	public void writeException(ListedLicenseException exception)
 			throws IOException, InvalidLicenseTemplateException {
 		ExceptionHtml exceptionHtml = new ExceptionHtml(exception);
 		String exceptionHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(exception.getLicenseExceptionId());

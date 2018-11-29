@@ -18,7 +18,7 @@ package org.spdx.licenselistpublisher.licensegenerator;
 import java.io.IOException;
 
 import org.spdx.html.InvalidLicenseTemplateException;
-import org.spdx.rdfparser.license.LicenseException;
+import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
 
@@ -48,12 +48,10 @@ public interface ILicenseFormatWriter {
 
 	/**
 	 * @param exception Exception to be formatted and written
-	 * @param deprecated True if deprecated
-	 * @param deprecatedVersion License list version when the license was deprecated, null otherwise
 	 * @throws IOException
 	 * @throws LicenseGeneratorException 
 	 * @throws InvalidLicenseTemplateException 
 	 */
-	void writeException(LicenseException exception, boolean deprecated, String deprecatedVersion) throws IOException, LicenseGeneratorException, InvalidLicenseTemplateException;
+	void writeException(ListedLicenseException exception) throws IOException, LicenseGeneratorException, InvalidLicenseTemplateException;
 
 }

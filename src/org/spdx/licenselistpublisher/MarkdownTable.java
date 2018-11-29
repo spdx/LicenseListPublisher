@@ -67,10 +67,12 @@ public class MarkdownTable {
 	
 	class LicenseInfo extends ExceptionInfo {
 		private boolean isOsiApproved;
+		private boolean isFsfLibre;
 		
-		public LicenseInfo(String id, String name, boolean deprecated, boolean isOsiApproved) {
+		public LicenseInfo(String id, String name, boolean deprecated, boolean isOsiApproved, boolean isFsfLibre) {
 			super(id, name, deprecated);
 			this.isOsiApproved = isOsiApproved;
+			this.isFsfLibre = isFsfLibre;
 		}
 
 		public boolean isOsiApproved() {
@@ -79,7 +81,15 @@ public class MarkdownTable {
 
 		public void setOsiApproved(boolean isOsiApproved) {
 			this.isOsiApproved = isOsiApproved;
-		}		
+		}
+
+		public boolean isFsfLibre() {
+			return isFsfLibre;
+		}
+
+		public void setFsfLibre(boolean isFsfLibre) {
+			this.isFsfLibre = isFsfLibre;
+		}	
 	}
 	
 	List<ExceptionInfo> exceptions = new ArrayList<ExceptionInfo>();
@@ -109,7 +119,7 @@ public class MarkdownTable {
 	 * @param deprecated
 	 */
 	public void addLicense(SpdxListedLicense license, boolean deprecated) {
-		licenses.add(new LicenseInfo(license.getLicenseId(), license.getName(), deprecated, license.isOsiApproved()));
+		licenses.add(new LicenseInfo(license.getLicenseId(), license.getName(), deprecated, license.isOsiApproved(), license.isFsfLibre()));
 	}
 	
 	/**
@@ -183,24 +193,27 @@ public class MarkdownTable {
 
 		// license list
 		writer.write("# License List\n");
-		writer.write("The following liceses have been generated from the license list version ");
+		writer.write("The following licenses have been generated from the license list version ");
 		writer.write(licenseListVersion);
 		writer.write("\n\n");
 		writer.write("## Licenses with Short Idenifiers\n\n");
-		String licenseTableHeaderFormat = "| %-"+maxLicenseName+"s | %-"+maxShortIdLength+"s | %-4s |\n";
-		writer.write(String.format(licenseTableHeaderFormat, "Full Name of License", "Short Identifier","OSI?" ));
+		String licenseTableHeaderFormat = "| %-"+maxLicenseName+"s | %-"+maxShortIdLength+"s | %-4s | %-9s |\n";
+		writer.write(String.format(licenseTableHeaderFormat, "Full Name of License", "Short Identifier","OSI?", "FSFLibre?" ));
 		writer.write("|-");
 		addFill(writer, '-', maxLicenseName);
 		writer.write("-|-");
 		addFill(writer, '-', maxShortIdLength);
 		writer.write("-|-");
 		addFill(writer, '-', 4);
+		writer.write("-|-");
+		addFill(writer, '-', 9);
 		writer.write("-|\n");
-		String licenseTableRowFormat = "| %-"+maxLicenseName+"s | %-"+maxShortIdLength+"s | %-4s |\n"; 
+		String licenseTableRowFormat = "| %-"+maxLicenseName+"s | %-"+maxShortIdLength+"s | %-4s | %-9s |\n"; 
 		for (LicenseInfo li:licenses) {
 			if (!li.isDeprecated()) {
 				String idStr = formatIdString(li.getId(),maxShortIdLength);
-				writer.write(String.format(licenseTableRowFormat, li.getName(), idStr, (li.isOsiApproved)?"Y":""));
+				writer.write(String.format(licenseTableRowFormat, li.getName(), idStr, 
+						(li.isOsiApproved)?"Y":"", (li.isFsfLibre())?"Y":""));
 			}
 		}
 		writer.write("\n");

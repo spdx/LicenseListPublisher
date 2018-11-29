@@ -26,11 +26,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spdx.rdfparser.InvalidSPDXAnalysisException;
 import org.spdx.rdfparser.license.ISpdxListedLicenseProvider;
-import org.spdx.rdfparser.license.LicenseException;
 import org.spdx.rdfparser.license.LicenseRestrictionException;
+import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 import org.spdx.rdfparser.license.SpdxListedLicenseException;
-import org.spdx.spdxspreadsheet.SPDXLicenseSpreadsheet.DeprecatedLicenseInfo;
 import org.spdx.spdxspreadsheet.SpreadsheetException;
 
 import com.google.common.io.Files;
@@ -109,10 +108,10 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 		}
 	}
 	
-	class XmlExceptionIterator implements Iterator<LicenseException> {
+	class XmlExceptionIterator implements Iterator<ListedLicenseException> {
 		private int xmlFileIndex = 0;
-		private LicenseException nextLicenseException = null;
-		private Iterator<LicenseException> fileExceptionIterator = null;
+		private ListedLicenseException nextLicenseException = null;
+		private Iterator<ListedLicenseException> fileExceptionIterator = null;
 		
 		public XmlExceptionIterator() {
 			findNextItem();
@@ -125,7 +124,7 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 				while (xmlFileIndex < xmlFiles.size() && fileExceptionIterator == null) {
 					try {
 						LicenseXmlDocument licDoc = new LicenseXmlDocument(xmlFiles.get(xmlFileIndex));
-						List<LicenseException> exceptionList = licDoc.getLicenseExceptions();
+						List<ListedLicenseException> exceptionList = licDoc.getLicenseExceptions();
 						if (exceptionList != null && !exceptionList.isEmpty()) {
 							fileExceptionIterator = exceptionList.iterator();
 						}
@@ -153,70 +152,8 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 		 * @see java.util.Iterator#next()
 		 */
 		@Override
-		public LicenseException next() {
-			LicenseException retval = this.nextLicenseException;
-			this.findNextItem();
-			return retval;
-		}
-
-		/* (non-Javadoc)
-		 * @see java.util.Iterator#remove()
-		 */
-		@Override
-		public void remove() {
-			// Not implemented
-		}
-	}
-
-	class XmlDeprecatedLicenseIterator implements Iterator<DeprecatedLicenseInfo> {
-		private int xmlFileIndex = 0;
-		private DeprecatedLicenseInfo nextDeprecatedLicense = null;
-		private Iterator<DeprecatedLicenseInfo> fileDeprecatedLicenses = null;
-		
-		public XmlDeprecatedLicenseIterator() {
-			findNextItem();
-		}
-
-		private void findNextItem() {
-			nextDeprecatedLicense = null;
-			if (fileDeprecatedLicenses == null || !fileDeprecatedLicenses.hasNext()) {
-				fileDeprecatedLicenses = null;
-				while (xmlFileIndex < xmlFiles.size() && fileDeprecatedLicenses == null) {
-					try {
-						LicenseXmlDocument licDoc = new LicenseXmlDocument(xmlFiles.get(xmlFileIndex));
-						List<DeprecatedLicenseInfo> depList = licDoc.getDeprecatedLicenseInfos();
-						if (depList != null && !depList.isEmpty()) {
-							fileDeprecatedLicenses = depList.iterator();
-						}
-					} catch(LicenseXmlException e) {
-						warnings.add(e.getMessage() + ", Skipping file "+xmlFiles.get(xmlFileIndex).getName());
-						logger.warn(e.getMessage() + ", Skipping file "+xmlFiles.get(xmlFileIndex).getName());
-					} catch (InvalidSPDXAnalysisException e) {
-						warnings.add(e.getMessage() + ", Skipping file "+xmlFiles.get(xmlFileIndex).getName());
-						logger.warn(e.getMessage() + ", Skipping file "+xmlFiles.get(xmlFileIndex).getName());
-					}
-					xmlFileIndex++;
-				}
-			}
-
-			if (fileDeprecatedLicenses != null && fileDeprecatedLicenses.hasNext()) {
-				nextDeprecatedLicense = fileDeprecatedLicenses.next();
-			}
-		}
-		/* (non-Javadoc)
-		 * @see java.util.Iterator#hasNext()
-		 */
-		@Override
-		public boolean hasNext() {
-			return this.nextDeprecatedLicense != null;
-		}
-
-		/* (non-Javadoc)
-		 * @see java.util.Iterator#next()
-		 */
-		@Override
-		public DeprecatedLicenseInfo next() {
-			DeprecatedLicenseInfo retval = this.nextDeprecatedLicense;
+		public ListedLicenseException next() {
+			ListedLicenseException retval = this.nextLicenseException;
 			this.findNextItem();
 			return retval;
 		}
@@ -295,17 +232,9 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 	 * @see org.spdx.rdfparser.license.ISpdxListedLicenseProvider#getExceptionIterator()
 	 */
 	@Override
-	public Iterator<LicenseException> getExceptionIterator()
+	public Iterator<ListedLicenseException> getExceptionIterator()
 			throws LicenseRestrictionException, SpreadsheetException {
 		return new XmlExceptionIterator();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.spdx.rdfparser.license.ISpdxListedLicenseProvider#getDeprecatedLicenseIterator()
-	 */
-	@Override
-	public Iterator<DeprecatedLicenseInfo> getDeprecatedLicenseIterator() {
-		return new XmlDeprecatedLicenseIterator();
 	}
 	
 	public List<String> getWarnings() {

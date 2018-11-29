@@ -164,6 +164,24 @@
         </tbody>
       </table>
 
+      <h2>Deprecated Exceptions</h2>
+      
+      <table>
+        <thead><tr>
+          <th>Full name</th><th>Identifier</th><th>Deprecated as of:</th>
+        </tr></thead>
+
+        <tbody>
+          {{#deprecatedExceptions}}
+          <tr>
+            <td><a href="{{&reference}}" rel="rdf:_{{refNumber}}">{{exceptionName}}</a></td>
+            <td about="{{&reference}}" typeof="spdx:LicenseException">
+            <code property="spdx:licenseExceptionId">{{licenseExceptionId}}</code></td>
+            <td>{{deprecatedVersion}}</td>
+          </tr>
+          {{/deprecatedExceptions}}
+        </tbody>
+      </table>
     </div> <!-- /page -->
 
     <div class="collaborative-projects">

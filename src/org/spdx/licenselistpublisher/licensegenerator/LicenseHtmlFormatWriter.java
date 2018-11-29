@@ -22,7 +22,7 @@ import java.util.Set;
 
 import org.spdx.html.InvalidLicenseTemplateException;
 import org.spdx.licenseTemplate.SpdxLicenseTemplateHelper;
-import org.spdx.rdfparser.license.LicenseException;
+import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 
 import com.google.common.collect.Sets;
@@ -119,7 +119,7 @@ public class LicenseHtmlFormatWriter implements ILicenseFormatWriter {
 	 * @see org.spdx.licenselistpublisher.licensegenerator.ILicenseFormatWriter#writeException(org.spdx.rdfparser.license.LicenseException, boolean, java.lang.String)
 	 */
 	@Override
-	public void writeException(LicenseException exception, boolean deprecated, String deprecatedVersion)
+	public void writeException(ListedLicenseException exception)
 			throws IOException {
 		String exceptionHtmlFileName = formLicenseHTMLFileName(exception.getLicenseExceptionId());
 		File htmlTextFile = new File(htmlFolder.getPath() + File.separator + exceptionHtmlFileName + ".html");

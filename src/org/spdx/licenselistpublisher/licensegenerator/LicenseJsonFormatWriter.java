@@ -22,7 +22,7 @@ import org.spdx.html.ExceptionTOCJSONFile;
 import org.spdx.html.LicenseExceptionJSONFile;
 import org.spdx.html.LicenseJSONFile;
 import org.spdx.html.LicenseTOCJSONFile;
-import org.spdx.rdfparser.license.LicenseException;
+import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 
 /**
@@ -126,15 +126,15 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 	}
 
 	@Override
-	public void writeException(LicenseException exception, boolean deprecated, String deprecatedVersion)
+	public void writeException(ListedLicenseException exception)
 			throws IOException {
 		String exceptionHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(exception.getLicenseExceptionId());
 		String exceptionJsonFileName = exceptionHtmlFileName + ".json";
 		String exceptionJSONReference= "./" + exceptionJsonFileName;
 		String exceptionHTMLReference = "./"+exceptionHtmlFileName + ".html";
 		LicenseExceptionJSONFile exceptionJson = new LicenseExceptionJSONFile();
-		jsonExceptionToc.addException(exception, exceptionHTMLReference, exceptionJSONReference, deprecated);
-		exceptionJson.setException(exception, deprecated);
+		jsonExceptionToc.addException(exception, exceptionHTMLReference, exceptionJSONReference, exception.isDeprecated());
+		exceptionJson.setException(exception, exception.isDeprecated());
 		File exceptionJsonFile = new File(jsonFolder.getPath() + File.separator + "exceptions" + File.separator +  exceptionJsonFileName);
 		exceptionJson.writeToFile(exceptionJsonFile);
 	}

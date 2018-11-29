@@ -13,8 +13,8 @@ The command line interface of the licenseListPublisher can be used like this:
 Where the following functions and parameters are supported:
 
 ```
-LicenseRDFAGenerator input outputDirectory [version] [releasedate] [testfiles] [ignoredwarnings]
-   Input - either a spreadsheet containing license information or a directory of license XML files
+LicenseRDFAGenerator licencenseXmlDir outputDirectory [version] [releasedate] [testfiles] [ignoredwarnings]
+   licencenseXmlDir - a directory of license XML files
    outputDirectory - Directory to store the output from the license generator
    [version] - Version of the SPDX license list
    [releasedate] - Release date of the SPDX license list

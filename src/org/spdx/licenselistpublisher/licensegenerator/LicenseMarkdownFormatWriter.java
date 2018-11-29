@@ -18,7 +18,7 @@ package org.spdx.licenselistpublisher.licensegenerator;
 import java.io.File;
 import java.io.IOException;
 
-import org.spdx.rdfparser.license.LicenseException;
+import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 import org.spdx.licenselistpublisher.MarkdownTable;
 
@@ -67,8 +67,8 @@ public class LicenseMarkdownFormatWriter implements ILicenseFormatWriter {
 	}
 
 	@Override
-	public void writeException(LicenseException exception, boolean deprecated, String deprecatedVersion)
+	public void writeException(ListedLicenseException exception)
 			throws IOException {
-		markdownTable.addException(exception, deprecated);
+		markdownTable.addException(exception, exception.isDeprecated());
 	}
 }
