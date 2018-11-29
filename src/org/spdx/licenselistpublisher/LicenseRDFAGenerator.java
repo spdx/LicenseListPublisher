@@ -368,20 +368,23 @@ public class LicenseRDFAGenerator {
 			addExternalMetaData(nextException);
 			if (nextException.getLicenseExceptionId() != null && !nextException.getLicenseExceptionId().isEmpty()) {
 				// check for duplicate exceptions
-				Iterator<Entry<String, String>> addedExceptionIter = addedExceptionsMap.entrySet().iterator();
-				while (addedExceptionIter.hasNext()) {
-					Entry<String, String> entry = addedExceptionIter.next();
-					if (entry.getValue().trim().equals(nextException.getLicenseExceptionText().trim())) {
-						warnings.add("Duplicates exceptions: "+nextException.getLicenseExceptionId()+", "+entry.getKey());
+				if (!nextException.isDeprecated()) {
+					Iterator<Entry<String, String>> addedExceptionIter = addedExceptionsMap.entrySet().iterator();
+					while (addedExceptionIter.hasNext()) {
+						Entry<String, String> entry = addedExceptionIter.next();
+						if (entry.getValue().trim().equals(nextException.getLicenseExceptionText().trim())) {
+							warnings.add("Duplicates exceptions: "+nextException.getLicenseExceptionId()+", "+entry.getKey());
+						}
 					}
+					// check for a license ID with the same ID as the exception
+					
+					addedExceptionsMap.put(nextException.getLicenseExceptionId(), nextException.getLicenseExceptionText());
 				}
-				// check for a license ID with the same ID as the exception
 				if (licenseIds.contains(nextException.getLicenseExceptionId())) {
 					warnings.add("A license ID exists with the same ID as an exception ID: "+nextException.getLicenseExceptionId());
 				}
 				checkText(nextException.getLicenseExceptionText(), 
 						"License Exception Text for "+nextException.getLicenseExceptionId(), warnings);
-				addedExceptionsMap.put(nextException.getLicenseExceptionId(), nextException.getLicenseExceptionText());
 				for (ILicenseFormatWriter writer:writers) {
 					writer.writeException(nextException);
 				}
@@ -465,14 +468,16 @@ public class LicenseRDFAGenerator {
 			addExternalMetaData(license);
 			if (license.getLicenseId() != null && !license.getLicenseId().isEmpty()) {
 				// Check for duplicate licenses
-				Iterator<Entry<String, String>> addedLicenseTextIter = addedLicIdTextMap.entrySet().iterator();
-				while (addedLicenseTextIter.hasNext()) {
-					Entry<String, String> entry = addedLicenseTextIter.next();
-					if (LicenseCompareHelper.isLicenseTextEquivalent(entry.getValue(), license.getLicenseText())) {
-						warnings.add("Duplicates licenses: "+license.getLicenseId()+", "+entry.getKey());
+				if (!license.isDeprecated()) {
+					Iterator<Entry<String, String>> addedLicenseTextIter = addedLicIdTextMap.entrySet().iterator();
+					while (addedLicenseTextIter.hasNext()) {
+						Entry<String, String> entry = addedLicenseTextIter.next();
+						if (LicenseCompareHelper.isLicenseTextEquivalent(entry.getValue(), license.getLicenseText())) {
+							warnings.add("Duplicates licenses: "+license.getLicenseId()+", "+entry.getKey());
+						}
 					}
+					addedLicIdTextMap.put(license.getLicenseId(), license.getLicenseText());
 				}
-				addedLicIdTextMap.put(license.getLicenseId(), license.getLicenseText());
 				checkText(license.getLicenseText(), "License text for "+license.getLicenseId(), warnings);
 				for (ILicenseFormatWriter writer : writers) {
 					writer.writeLicense(license, license.isDeprecated(), license.getDeprecatedVersion());
