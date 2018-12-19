@@ -18,11 +18,11 @@ package org.spdx.licenselistpublisher.licensegenerator;
 import java.io.File;
 import java.io.IOException;
 
-import org.spdx.html.ExceptionHtml;
-import org.spdx.html.ExceptionHtmlToc;
+import org.spdx.htmltemplates.ExceptionHtml;
+import org.spdx.htmltemplates.ExceptionHtmlToc;
 import org.spdx.html.InvalidLicenseTemplateException;
-import org.spdx.html.LicenseHTMLFile;
-import org.spdx.html.LicenseTOCHTMLFile;
+import org.spdx.htmltemplates.LicenseHTMLFile;
+import org.spdx.htmltemplates.LicenseTOCHTMLFile;
 import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
@@ -30,7 +30,7 @@ import org.spdx.licenselistpublisher.LicenseGeneratorException;
 import com.github.mustachejava.MustacheException;
 
 /**
- * @author gary
+ * @author Gary O'Neall
  *
  */
 public class LicenseRdfaFormatWriter implements ILicenseFormatWriter {
