@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -304,6 +305,14 @@ public class LicenseTOCHTMLFile {
 	private Map<String, Object> buildMustachMap() {
 		Map<String, Object> retval = Maps.newHashMap();
 		retval.put("version", generateVersionString(version, releaseDate));
+		this.listedLicenses.sort(new Comparator<ListedSpdxLicense>() {
+
+			@Override
+			public int compare(ListedSpdxLicense arg0, ListedSpdxLicense arg1) {
+				return arg0.getLicenseId().compareToIgnoreCase(arg1.getLicenseId());
+			}
+			
+		});
 		retval.put("listedLicenses", this.listedLicenses);
 		retval.put("deprecatedLicenses", this.deprecatedLicenses);
 		return retval;
@@ -320,6 +329,4 @@ public class LicenseTOCHTMLFile {
 				deprecatedLicense.getDeprecatedVersion()));
 		currentRefNumber++;
 	}
-	
-
 }
