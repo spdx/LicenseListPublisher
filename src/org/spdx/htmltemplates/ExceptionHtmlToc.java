@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -244,6 +245,14 @@ public class ExceptionHtmlToc {
 
 		Map<String, Object> mustacheMap = Maps.newHashMap();
 		mustacheMap.put("version", StringEscapeUtils.escapeHtml4(version));
+		exceptions.sort(new Comparator<ExceptionRow>() {
+
+			@Override
+			public int compare(ExceptionRow arg0, ExceptionRow arg1) {
+				return arg0.getLicenseExceptionId().compareTo(arg1.getLicenseExceptionId());
+			}
+			
+		});
 		mustacheMap.put("listedExceptions", exceptions);
 		mustacheMap.put("deprecatedExceptions", deprecatedExceptions);
 		FileOutputStream stream = null;
