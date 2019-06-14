@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/spdx/LicenseListPublisher.svg?branch=master)](https://travis-ci.org/spdx/LicenseListPublisher)
+
 # LicenseListPublisher
 
 This is the source code repository for the tool that generates license data found in the [license-list-data](https://github.com/spdx/license-list-data) repository.  The source for the the data is located in the [license-list-XML](https://github.com/spdx/license-list-XML) repository.
