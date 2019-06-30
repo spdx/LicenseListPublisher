@@ -34,6 +34,7 @@ import org.spdx.compare.LicenseCompareHelper;
 import org.spdx.compare.SpdxCompareException;
 import org.spdx.html.InvalidLicenseTemplateException;
 import org.spdx.licensexml.XmlLicenseProvider;
+import org.spdx.licensexml.XmlLicenseProviderSingleFile;
 import org.spdx.rdfparser.InvalidSPDXAnalysisException;
 import org.spdx.rdfparser.license.ISpdxListedLicenseProvider;
 import org.spdx.rdfparser.license.LicenseException;
@@ -66,8 +67,8 @@ import au.com.bytecode.opencsv.CSVReader;
  * Converts input license text and metadata into various output formats.
  * 
  * Supported input formats:
- *  - Spreadsheet - spreadsheet used by the SPDX legal team including associated text files
- *  - Directory of XML files - Files following the SPDX legal team license format
+ *  - License XML file - File following the SPDX legal team license format
+ *  - Directory of XML files - Directory of files following the SPDX legal team license format
  * 
  * Supported output formats:
  *  - Text - license text
@@ -117,7 +118,7 @@ public class LicenseRDFAGenerator {
 	private static final String RDF_JSON_LD_FOLDER_NAME = "jsonld";
 	
 	/**
-	 * @param args Arg 0 is either an input spreadsheet or a directory of licenses in XML format, arg 1 is the directory for the output html files
+	 * @param args Arg 0 is either a license XML file or a directory of licenses in XML format, arg 1 is the directory for the output html files
 	 */
 	public static void main(String[] args) {
 		if (args == null || args.length < MIN_ARGS || args.length > MAX_ARGS) {
@@ -125,9 +126,9 @@ public class LicenseRDFAGenerator {
 			usage();
 			System.exit(ERROR_STATUS);
 		}
-		File ssFile = new File(args[0]);
-		if (!ssFile.exists()) {
-			System.out.println("Spreadsheet file "+ssFile.getName()+" does not exist");
+		File licenseXmlFileOrDir = new File(args[0]);
+		if (!licenseXmlFileOrDir.exists()) {
+			System.out.println("License XML "+licenseXmlFileOrDir.getName()+" does not exist");
 			usage();
 			System.exit(ERROR_STATUS);
 		}
@@ -190,7 +191,7 @@ public class LicenseRDFAGenerator {
 			}
 		}
 		try {
-			List<String> warnings = generateLicenseData(ssFile, dir, version, releaseDate, testFileDir);
+			List<String> warnings = generateLicenseData(licenseXmlFileOrDir, dir, version, releaseDate, testFileDir);
 			if (warnings != null && warnings.size() > 0) {
 				int numUnexpectedWarnings = warnings.size();
 				for (String warning:warnings) {
@@ -217,7 +218,7 @@ public class LicenseRDFAGenerator {
 	}
 	/**
 	 * Generate license data
-	 * @param licenseXmlDir Directory containing license XML files
+	 * @param licenseXml License XML file or directory containing license XML files
 	 * @param dir Output directory for the generated results
 	 * @param version Version for the license lise
 	 * @param releaseDate Release data string for the license
@@ -225,16 +226,16 @@ public class LicenseRDFAGenerator {
 	 * @return warnings
 	 * @throws LicenseGeneratorException 
 	 */
-	public static List<String> generateLicenseData(File licenseXmlDir, File dir,
+	public static List<String> generateLicenseData(File licenseXml, File dir,
 			String version, String releaseDate, File testFileDir) throws LicenseGeneratorException {
 		List<String> warnings = Lists.newArrayList();
 		List<ILicenseFormatWriter> writers = Lists.newArrayList();
 		ISpdxListedLicenseProvider licenseProvider = null;
 		try {
-			if (licenseXmlDir.isDirectory()) {
-				licenseProvider = new XmlLicenseProvider(licenseXmlDir);
+			if (licenseXml.isDirectory()) {
+				licenseProvider = new XmlLicenseProvider(licenseXml);
 			} else {
-				throw new LicenseGeneratorException("Unsupported file format.  Must be a .xls file");
+				licenseProvider = new XmlLicenseProviderSingleFile(licenseXml);
 			}
 			File textFolder = new File(dir.getPath() + File.separator +  TEXT_FOLDER_NAME);
 			if (!textFolder.isDirectory() && !textFolder.mkdir()) {
@@ -553,8 +554,8 @@ public class LicenseRDFAGenerator {
 	
 	private static void usage() {
 		System.out.println("Usage:");
-		System.out.println("LicenseRDFAGenerator licencenseXmlDir outputDirectory [version] [releasedate] [testfiles] [ignoredwarnings]");
-		System.out.println("   licencenseXmlDir - a directory of license XML files");
+		System.out.println("LicenseRDFAGenerator licencenseXmlFileOrDir outputDirectory [version] [releasedate] [testfiles] [ignoredwarnings]");
+		System.out.println("   licencenseXmlFileOrDir - a license XML file or a directory of license XML files");
 		System.out.println("   outputDirectory - Directory to store the output from the license generator");
 		System.out.println("   [version] - Version of the SPDX license list");
 		System.out.println("   [releasedate] - Release date of the SPDX license list");

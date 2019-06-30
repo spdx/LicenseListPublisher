@@ -15,8 +15,8 @@ The command line interface of the licenseListPublisher can be used like this:
 Where the following functions and parameters are supported:
 
 ```
-LicenseRDFAGenerator licencenseXmlDir outputDirectory [version] [releasedate] [testfiles] [ignoredwarnings]
-   licencenseXmlDir - a directory of license XML files
+LicenseRDFAGenerator licencenseXmlFileOrDir outputDirectory [version] [releasedate] [testfiles] [ignoredwarnings]
+   licencenseXmlFileOrDir - a license XML file or a directory of license XML files
    outputDirectory - Directory to store the output from the license generator
    [version] - Version of the SPDX license list
    [releasedate] - Release date of the SPDX license list
@@ -47,6 +47,9 @@ TestLicenseXML licenseXmlFile textFile
    licenseXmlFile XML - file to test
    textFile - Text file which should match the the license text for the licenseXmlFile
 ```
+
+## WARNING
+Running the LicenseRDFaGenerator for a single file will overwrite any index.html, licenses.json etc. with the single file results.
 
 # License
 See the [NOTICE](NOTICE) file for licensing information
