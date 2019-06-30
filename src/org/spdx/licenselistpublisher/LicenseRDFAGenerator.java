@@ -19,10 +19,7 @@ package org.spdx.licenselistpublisher;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.Iterator;
 import java.util.List;
@@ -45,6 +42,7 @@ import org.spdx.licenselistpublisher.licensegenerator.FsfLicenseDataParser;
 import org.spdx.licenselistpublisher.licensegenerator.ILicenseFormatWriter;
 import org.spdx.licenselistpublisher.licensegenerator.ILicenseTester;
 import org.spdx.licenselistpublisher.licensegenerator.LicenseHtmlFormatWriter;
+import org.spdx.licenselistpublisher.licensegenerator.LicenseJavaSourceWriter;
 import org.spdx.licenselistpublisher.licensegenerator.LicenseJsonFormatWriter;
 import org.spdx.licenselistpublisher.licensegenerator.LicenseMarkdownFormatWriter;
 import org.spdx.licenselistpublisher.licensegenerator.LicenseRdfFormatWriter;
@@ -58,7 +56,6 @@ import org.spdx.spdxspreadsheet.SpreadsheetException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.io.Files;
 
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -115,6 +112,7 @@ public class LicenseRDFAGenerator {
 	private static final String RDFNT_FOLDER_NAME = "rdfnt";
 	private static final String TABLE_OF_CONTENTS_FILE_NAME = "licenses.md";
 	private static final String RDF_JSON_LD_FOLDER_NAME = "jsonld";
+	private static final String JAVA_SOURCE_FOLDER_NAME = "java";
 	
 	/**
 	 * @param args Arg 0 is either an input spreadsheet or a directory of licenses in XML format, arg 1 is the directory for the output html files
@@ -241,21 +239,25 @@ public class LicenseRDFAGenerator {
 				throw new LicenseGeneratorException("Error: text folder is not a directory");
 			}
 			writers.add(new LicenseTextFormatWriter(textFolder));
+			
 			File templateFolder = new File(dir.getPath() + File.separator +  TEMPLATE_FOLDER_NAME);
 			if (!templateFolder.isDirectory() && !templateFolder.mkdir()) {
 				throw new LicenseGeneratorException("Error: template folder is not a directory");
 			}
 			writers.add(new LicenseTemplateFormatWriter(templateFolder));
+			
 			File htmlFolder = new File(dir.getPath() + File.separator +  HTML_FOLDER_NAME);
 			if (!htmlFolder.isDirectory() && !htmlFolder.mkdir()) {
 				throw new LicenseGeneratorException("Error: HTML folder is not a directory");
 			}
 			writers.add(new LicenseHtmlFormatWriter(version, releaseDate, htmlFolder));
+			
 			File rdfaFolder = new File(dir.getPath() + File.separator +  RDFA_FOLDER_NAME);
 			if (!rdfaFolder.isDirectory() && !rdfaFolder.mkdir()) {
 				throw new LicenseGeneratorException("Error: RDFa folder is not a directory");
 			}
 			writers.add(new LicenseRdfaFormatWriter(version, releaseDate, rdfaFolder));	// Note: RDFa format is the same as the HTML
+			
 			File jsonFolder = new File(dir.getPath() + File.separator +  JSON_FOLDER_NAME);
 			if (!jsonFolder.isDirectory() && !jsonFolder.mkdir()) {
 				throw new LicenseGeneratorException("Error: JSON folder is not a directory");
@@ -269,11 +271,13 @@ public class LicenseRDFAGenerator {
 				throw new LicenseGeneratorException("Error: JSON folder is not a directory");
 			}
 			writers.add(new LicenseJsonFormatWriter(version, releaseDate, jsonFolder, jsonFolderDetails, jsonFolderExceptions));
+			
 			File website = new File(dir.getPath() + File.separator +  WEBSITE_FOLDER_NAME);
 			if (!website.isDirectory() && !website.mkdir()) {
 				throw new LicenseGeneratorException("Error: Website folder is not a directory");
 			}
 			writers.add(new SpdxWebsiteFormatWriter(version, releaseDate, website));
+			
 			File rdfXml = new File(dir.getPath() + File.separator +  RDFXML_FOLDER_NAME);
 			if (!rdfXml.isDirectory() && !rdfXml.mkdir()) {
 				throw new LicenseGeneratorException("Error: RdfXML folder is not a directory");
@@ -291,11 +295,19 @@ public class LicenseRDFAGenerator {
 				throw new LicenseGeneratorException("Error: RDF JSON-LD folder is not a directory");
 			}
 			writers.add(new LicenseRdfFormatWriter(rdfXml, rdfTurtle, rdfNt, rdfJsonLd));
+			
 			File markdownFile = new File(dir.getPath() + File.separator +  TABLE_OF_CONTENTS_FILE_NAME);
 			if (!markdownFile.isFile() && !markdownFile.createNewFile()) {
 				throw new LicenseGeneratorException("Error: Unable to create markdown file");
 			}
 			writers.add(new LicenseMarkdownFormatWriter(version, releaseDate, markdownFile));
+			
+			File javaSource = new File(dir.getPath() + File.separator +  JAVA_SOURCE_FOLDER_NAME);
+			if (!javaSource.isDirectory() && !javaSource.mkdir()) {
+				throw new LicenseGeneratorException("Error: Java source folder is not a directory");
+			}
+			writers.add(new LicenseJavaSourceWriter(javaSource, version));
+			
 			ILicenseTester tester = null;
 			if (testFileDir != null) {
 				tester = new SimpleLicenseTester(testFileDir);
@@ -502,36 +514,6 @@ public class LicenseRDFAGenerator {
 	private static void addExternalMetaData(SpdxListedLicense license) throws LicenseGeneratorException {
 		license.setFsfLibre(FsfLicenseDataParser.getFsfLicenseDataParser().isSpdxLicenseFsfLibre(license.getLicenseId()));
 	}
-	
-	/**
-	 * Copy a file from the resources directory to a destination file
-	 * @param resourceFileName filename of the file in the resources directory
-	 * @param destination target file - warning, this will be overwritten
-	 * @throws IOException 
-	 */
-	private static void copyResourceFile(String resourceFileName, File destination) throws IOException {
-		File resourceFile = new File(resourceFileName);
-		if (resourceFile.exists()) {
-			Files.copy(resourceFile, destination);
-		} else {
-			InputStream is = LicenseRDFAGenerator.class.getClassLoader().getResourceAsStream(resourceFileName);
-			InputStreamReader reader = new InputStreamReader(is);
-			FileWriter writer = new FileWriter(destination);
-			try {
-				char[] buf = new char[2048];
-				int len = reader.read(buf);
-				while (len > 0) {
-					writer.write(buf, 0, len);
-					len = reader.read(buf);
-				}
-			} finally {
-				if (writer != null) {
-					writer.close();
-				}
-				reader.close();
-			}
-		}
-	}
 
 	private static void writeCssFile(File dir) throws IOException {
 		File cssFile = new File(dir.getPath()+ File.separator + CSS_FILE_NAME);
@@ -540,7 +522,7 @@ public class LicenseRDFAGenerator {
 				throw(new IOException("Unable to delete old file"));
 			}
 		}
-		copyResourceFile(CSS_TEMPLATE_FILE, cssFile);
+		LicensePublisherHelper.copyResourceFile(CSS_TEMPLATE_FILE, cssFile);
 	}
 	
 	private static void writeSortTableFile(File dir) throws IOException {
@@ -548,7 +530,7 @@ public class LicenseRDFAGenerator {
 		if (sortTableFile.exists()) {
 			return;	// assume we don't need to create it
 		}
-		copyResourceFile(SORTTABLE_JS_FILE, sortTableFile);
+		LicensePublisherHelper.copyResourceFile(SORTTABLE_JS_FILE, sortTableFile);
 	}
 	
 	private static void usage() {
