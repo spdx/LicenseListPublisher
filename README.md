@@ -42,6 +42,12 @@ LicenseListPublisher
  -z,--debug                  Prints debug information while processing
 ```
 
+```
+TestLicenseXML licenseXmlFile textFile
+   licenseXmlFile XML - file to test
+   textFile - Text file which should match the the license text for the licenseXmlFile
+```
+
 # License
 See the [NOTICE](NOTICE) file for licensing information
 including info from 3rd Party Software
