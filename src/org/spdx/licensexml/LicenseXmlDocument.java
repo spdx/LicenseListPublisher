@@ -204,7 +204,7 @@ public class LicenseXmlDocument {
 		NodeList urlNodes = licenseElement.getElementsByTagName(SpdxRdfConstants.LICENSEXML_ELEMENT_CROSS_REF);
 		String[] sourceUrls = new String[urlNodes.getLength()];
 		for (int i = 0; i < urlNodes.getLength(); i++) {
-			sourceUrls[i] = urlNodes.item(i).getTextContent();
+			sourceUrls[i] = urlNodes.item(i).getTextContent().trim();
 		}
 		String licenseHeader = null;
 		String licenseHeaderTemplate = null;
