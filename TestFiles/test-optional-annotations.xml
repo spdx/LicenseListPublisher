@@ -1,0 +1,11 @@
+<SPDXLicenseCollection xmlns="http://www.spdx.org/license">
+	<license name="Test License" licenseId="test-id" isOsiApproved="true">
+     <text>
+		before optional<optional>Default optional text</optional>after optional.<br />
+		before optional<optional spacing="none">None optional text</optional>after optional.<br />
+		before optional<optional spacing="before">Before optional text</optional>after optional.<br />
+		before optional<optional spacing="after">After optional text</optional>after optional.<br />
+		before optional<optional spacing="both">Both optional text</optional>after optional.<br />
+	  </text>
+	</license>
+</SPDXLicenseCollection>

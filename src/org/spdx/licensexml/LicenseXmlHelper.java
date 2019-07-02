@@ -19,6 +19,7 @@ package org.spdx.licensexml;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -43,6 +44,19 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 
 	private static final String BULLET_ALT_NAME = "bullet";
 	
+	private static final String COPYRIGHT_ALT_MATCH = ".{0,1000}";
+
+	private static final String COPYRIGHT_ALT_NAME = "copyright";
+	
+	//Spacing attributes
+	//TODO: Move these to SpdxRdfConstants.java
+	private static final String SPACING_ATTRIBUTE = "spacing";
+	private static final String SPACING_BOTH = "both";
+	private static final String SPACING_BEFORE = "before";
+	private static final String SPACING_AFTER = "after";
+	private static final String SPACING_NONE = "none";
+	private static final String SPACING_DEFAULT = "default";
+	
 	/**
 	 * The text under these elements are included without modification
 	 */
@@ -57,7 +71,7 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 	/**
 	 * The text under these elements are included without modification
 	 */
-	static HashSet<String> HEADER_UNPROCESSED_TAGS = new HashSet<String>();
+	static Set<String> HEADER_UNPROCESSED_TAGS = new HashSet<>();
 	static {
 		HEADER_UNPROCESSED_TAGS.add(LICENSEXML_ELEMENT_COPYRIGHT_TEXT);
 		HEADER_UNPROCESSED_TAGS.add(LICENSEXML_ELEMENT_TITLE_TEXT);
@@ -66,15 +80,25 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 		HEADER_UNPROCESSED_TAGS.add(LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER);
 	}
 	
-	static HashSet<String> NOTES_UNPROCESSED_TAGS = new HashSet<String>();
+	static Set<String> NOTES_UNPROCESSED_TAGS = new HashSet<>();
 	static {
 		NOTES_UNPROCESSED_TAGS.add(LICENSEXML_ELEMENT_NOTES);
 	}
 	
-	static HashSet<String> FLOW_CONTROL_ELEMENTS = new HashSet<String>();
+	static Set<String> FLOW_CONTROL_ELEMENTS = new HashSet<>();
 	static {
 		FLOW_CONTROL_ELEMENTS.add(LICENSEXML_ELEMENT_LIST);
 		FLOW_CONTROL_ELEMENTS.add(LICENSEXML_ELEMENT_PARAGRAPH);
+	}
+	
+	/**
+	 * Elements which will create alt text
+	 */
+	static Set<String> ALT_ELEMENTS = new HashSet<>();
+	static {
+		ALT_ELEMENTS.add(LICENSEXML_ELEMENT_ALT);
+		ALT_ELEMENTS.add(LICENSEXML_ELEMENT_COPYRIGHT_TEXT);
+		ALT_ELEMENTS.add(LICENSEXML_ELEMENT_BULLET);
 	}
 	
 	static String DOUBLE_QUOTES_REGEX = "(\\u201C|\\u201D)";
@@ -89,16 +113,18 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 	 * @param indentCount number of indentations (e.g. number of embedded lists)
 	 * @param unprocessedTags Tags that do not require any process - text of the children of that tag should just be appended.
 	 * @param includeHtmlTags if true, include HTML tags for creating an HTML fragment including the formatting from the original XML element
-	 * @return
+	 * @param noSpace if true, do not add any spaces before the text
+	 * @return true if no space should be added to the next text element
 	 * @throws LicenseXmlException 
 	 */
-	private static void appendNodeText(Node node, boolean useTemplateFormat, StringBuilder sb, int indentCount, HashSet<String> unprocessedTags,
-			boolean includeHtmlTags) throws LicenseXmlException {
+	private static boolean appendNodeText(Node node, boolean useTemplateFormat, StringBuilder sb, int indentCount, Set<String> unprocessedTags,
+			boolean includeHtmlTags, boolean noSpace) throws LicenseXmlException {
+		boolean noNextSpace = false;
 		if (node.getNodeType() == Node.TEXT_NODE) {
 			if (includeHtmlTags) {
 				sb.append(StringEscapeUtils.escapeXml(fixUpText(node.getNodeValue())));
 			} else {
-				appendNormalizedWhiteSpaceText(sb, node.getNodeValue());
+				appendNormalizedWhiteSpaceText(sb, node.getNodeValue(), noSpace);
 			}
 		} else if (node.getNodeType() == Node.ELEMENT_NODE) {
 			Element element = (Element)node;
@@ -116,7 +142,7 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 				String match = element.getAttribute(LICENSEXML_ATTRIBUTE_ALT_MATCH);
 				appendAltText(element, altName, match, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags);
 			} else if (LICENSEXML_ELEMENT_OPTIONAL.equals(tagName)) {
-				appendOptionalText(element, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags);
+				noNextSpace = appendOptionalText(element, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags, noSpace);
 			} else if (LICENSEXML_ELEMENT_BREAK.equals(tagName)) {
 				if (includeHtmlTags) {
 					sb.append("<br />");
@@ -138,7 +164,14 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 				}
 			} else if (LICENSEXML_ELEMENT_TITLE_TEXT.equals(tagName)) {
 				if (!inALtBlock(element)) {
-				appendOptionalText(element, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags);
+					appendOptionalText(element, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags, noSpace);
+					noNextSpace = false;
+				} else {
+					appendElementChildrenText(element, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags);
+				}
+			} else if (LICENSEXML_ELEMENT_COPYRIGHT_TEXT.equals(tagName)) {
+				if (!inALtBlock(element)) {
+					appendAltText(element, COPYRIGHT_ALT_NAME, COPYRIGHT_ALT_MATCH, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags);
 				} else {
 					appendElementChildrenText(element, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags);
 				}
@@ -154,6 +187,7 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 				throw(new LicenseXmlException("Unknown license element tag name: "+tagName));
 			}
 		}
+		return noNextSpace;
 	}
 
 	/**
@@ -161,12 +195,9 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 	 * @return true if the element is a child of an alt block
 	 */
 	private static boolean inALtBlock(Element element) {
-		if (LICENSEXML_ELEMENT_ALT.equals(element.getTagName())) {
-			return true;
-		}
 		Node parent = element.getParentNode();
 		while (parent != null) {
-			if (parent.getNodeType() == Node.ELEMENT_NODE && LICENSEXML_ELEMENT_ALT.equals(((Element)(parent)).getTagName())) {
+			if (parent.getNodeType() == Node.ELEMENT_NODE && ALT_ELEMENTS.contains(((Element)(parent)).getTagName())) {
 				return true;
 			}
 			parent = parent.getParentNode();
@@ -185,13 +216,15 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 
 	/**<
 	 * Appends text removing any extra whitespace and linefeed information
-	 * @param text
+	 * @param sb String builds to append to
+	 * @param text text to append
+	 * @param noSpace if true, do not add any spaces before the text
 	 */
-	private static void appendNormalizedWhiteSpaceText(StringBuilder sb, String text) {
+	private static void appendNormalizedWhiteSpaceText(StringBuilder sb, String text, boolean noSpace) {
 		boolean endsInWhiteSpace = sb.length() == 0 || Character.isWhitespace(sb.charAt(sb.length()-1));
 		List<String> tokens = tokenize(text);
 		if (tokens.size() > 0) {
-			if (!endsInWhiteSpace) {
+			if (!endsInWhiteSpace && !noSpace) {
 				sb.append(' ');
 			}
 			sb.append(tokens.get(0));
@@ -237,12 +270,13 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 	 * @throws LicenseXmlException 
 	 */
 	private static void appendElementChildrenText(Element element,
-			boolean useTemplateFormat, StringBuilder sb, int indentCount, HashSet<String> unprocessedTags,
+			boolean useTemplateFormat, StringBuilder sb, int indentCount, Set<String> unprocessedTags,
 			boolean includeHtmlTags) throws LicenseXmlException {
 		NodeList licenseChildNodes = element.getChildNodes();
+		boolean noSpace = false;
 		for (int i = 0; i < licenseChildNodes.getLength(); i++) {
-			appendNodeText(licenseChildNodes.item(i),useTemplateFormat, sb, indentCount, 
-					unprocessedTags, includeHtmlTags);
+			noSpace = appendNodeText(licenseChildNodes.item(i),useTemplateFormat, sb, indentCount, 
+					unprocessedTags, includeHtmlTags, noSpace);
 		}	
 	}
 
@@ -268,12 +302,21 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 	 * @param indentCount number of indentations (e.g. number of embedded lists)
 	 * @param unprocessedTags Tags that do not require any process - text of the children of that tag should just be appended.
 	 * @param includeHtmlTags if true, include HTML tags for creating an HTML fragment including the formatting from the original XML element
+	 * @param noSpace true if no space should be added prior to this text element
+	 * @return true if no space should be added before the next text element
 	 * @throws LicenseXmlException 
 	 */
-	private static void appendOptionalText(Element element,
-			boolean useTemplateFormat, StringBuilder sb, int indentCount, HashSet<String> unprocessedTags,
-			boolean includeHtmlTags) throws LicenseXmlException {
+	private static boolean appendOptionalText(Element element,
+			boolean useTemplateFormat, StringBuilder sb, int indentCount, Set<String> unprocessedTags,
+			boolean includeHtmlTags, boolean noSpace) throws LicenseXmlException {
 		StringBuilder childSb = new StringBuilder();
+		String spacing = SPACING_DEFAULT;
+		if (element.hasAttribute(SPACING_ATTRIBUTE)) {
+			spacing = element.getAttribute(SPACING_ATTRIBUTE);
+		}
+		if (!(SPACING_DEFAULT.equals(spacing) || SPACING_BOTH.equals(spacing) || SPACING_BEFORE.equals(spacing) || SPACING_AFTER.equals(spacing) || SPACING_NONE.equals(spacing))) {
+			throw new LicenseXmlException("Invalid spacing attribute for optional text: "+spacing);
+		}
 		if (element.hasChildNodes()) {
 			appendElementChildrenText(element, useTemplateFormat, childSb, indentCount, unprocessedTags, includeHtmlTags);
 		} else {
@@ -284,10 +327,14 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 			if (childSb.length() > 0 && childSb.charAt(0) == ' ') {
 				sb.append(' ');
 				childSb.delete(0, 1);
-			} else if (sb.length() > 0 && !Character.isWhitespace(sb.charAt(sb.length()-1))) {
+			} else if (sb.length() > 0 && !Character.isWhitespace(sb.charAt(sb.length()-1)) && 
+					!noSpace && (SPACING_BOTH.equals(spacing) || SPACING_BEFORE.equals(spacing) || SPACING_DEFAULT.equals(spacing))) {
 				sb.append(' ');
 			}
 			sb.append(childSb);
+			if (SPACING_BOTH.equals(spacing) || SPACING_AFTER.equals(spacing)) {
+				sb.append(' ');
+			}
 			sb.append("<<endOptional>>");
 		} else if (includeHtmlTags) {
 			if (includesFlowControl(element)) {
@@ -305,11 +352,16 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 				sb.append("</var>");
 			}
 		} else {
-			if (sb.length() > 0 && !Character.isWhitespace(sb.charAt(sb.length()-1))) {
+			if (sb.length() > 0 && !Character.isWhitespace(sb.charAt(sb.length()-1)) &&
+					!noSpace && (SPACING_BOTH.equals(spacing) || SPACING_BEFORE.equals(spacing) || SPACING_DEFAULT.equals(spacing))) {
 				sb.append(' ');
 			}
 			sb.append(childSb);
+			if (SPACING_BOTH.equals(spacing) || SPACING_AFTER.equals(spacing)) {
+				sb.append(' ');
+			}
 		}
+		return SPACING_BEFORE.equals(spacing) || SPACING_NONE.equals(spacing);
 	}
 
 	/**
@@ -348,7 +400,7 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 	 * @throws LicenseXmlException 
 	 */
 	private static void appendAltText(Element element, String altName, String match,
-			boolean useTemplateFormat, StringBuilder sb, int indentCount, HashSet<String> unprocessedTags,
+			boolean useTemplateFormat, StringBuilder sb, int indentCount, Set<String> unprocessedTags,
 			boolean includeHtmlTags) throws LicenseXmlException {
 		StringBuilder originalSb = new StringBuilder();
 		if (element.hasChildNodes()) {
@@ -404,7 +456,7 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 	 * @throws LicenseXmlException 
 	 */
 	private static void appendListElements(Element element,
-			boolean useTemplateFormat, StringBuilder sb, int indentCount, HashSet<String> unprocessedTags,
+			boolean useTemplateFormat, StringBuilder sb, int indentCount, Set<String> unprocessedTags,
 			boolean includeHtmlTags) throws LicenseXmlException {
 		if (!LICENSEXML_ELEMENT_LIST.equals(element.getTagName())) {
 			throw(new LicenseXmlException("Invalid list element tag - expected 'list', found '"+element.getTagName()+"'"));
@@ -419,11 +471,11 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 				if (LICENSEXML_ELEMENT_ITEM.equals(listItem.getTagName())) {
 					if (includeHtmlTags) {
 						sb.append("\n<li>");
-						appendNodeText(listItem, useTemplateFormat, sb, indentCount + 1, unprocessedTags, includeHtmlTags);
+						appendNodeText(listItem, useTemplateFormat, sb, indentCount + 1, unprocessedTags, includeHtmlTags, false);
 						sb.append("</li>");
 					} else {
 						addNewline(sb, indentCount+1);
-						appendNodeText(listItem, useTemplateFormat, sb, indentCount + 1, unprocessedTags, includeHtmlTags);
+						appendNodeText(listItem, useTemplateFormat, sb, indentCount + 1, unprocessedTags, includeHtmlTags, false);
 					}
 					
 				} else if (LICENSEXML_ELEMENT_LIST.equals(listItem.getTagName())) {
@@ -452,7 +504,7 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 			throw(new LicenseXmlException("Invalid element tag name - expected '"+LICENSEXML_ELEMENT_TEXT+"'"+licenseElement.getTagName()+"'"));
 		}
 		StringBuilder sb = new StringBuilder();
-		appendNodeText(licenseElement, true, sb, 0, LICENSE_AND_EXCEPTION_UNPROCESSED_TAGS, false);
+		appendNodeText(licenseElement, true, sb, 0, LICENSE_AND_EXCEPTION_UNPROCESSED_TAGS, false, false);
 		return fixUpText(sb.toString());
 	}
 	
@@ -467,7 +519,7 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 			throw(new LicenseXmlException("Invalid element tag name - expected '"+LICENSEXML_ELEMENT_NOTES+"'"+licenseElement.getTagName()+"'"));
 		}
 		StringBuilder sb = new StringBuilder();
-		appendNodeText(licenseElement, false, sb, 0, NOTES_UNPROCESSED_TAGS, false);
+		appendNodeText(licenseElement, false, sb, 0, NOTES_UNPROCESSED_TAGS, false, false);
 		return sb.toString();
 	}
 
@@ -482,7 +534,7 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 			throw(new LicenseXmlException("Invalid element tag name - expected '"+LICENSEXML_ELEMENT_TEXT+"'"+licenseElement.getTagName()+"'"));
 		}
 		StringBuilder sb = new StringBuilder();
-		appendNodeText(licenseElement, false, sb, 0, LICENSE_AND_EXCEPTION_UNPROCESSED_TAGS, false);
+		appendNodeText(licenseElement, false, sb, 0, LICENSE_AND_EXCEPTION_UNPROCESSED_TAGS, false, false);
 		return fixUpText(sb.toString());
 	}
 	
@@ -529,7 +581,7 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 			throw(new LicenseXmlException("Invalid element tag name - expected '"+LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER+"'"+headerElement.getTagName()+"'"));
 		}
 		StringBuilder sb = new StringBuilder();
-		appendNodeText(headerElement, false, sb, 0, HEADER_UNPROCESSED_TAGS, false);
+		appendNodeText(headerElement, false, sb, 0, HEADER_UNPROCESSED_TAGS, false, false);
 		return fixUpText(sb.toString());
 	}
 	
@@ -543,7 +595,7 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 			throw(new LicenseXmlException("Invalid element tag name - expected '"+LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER+"'"+headerElement.getTagName()+"'"));
 		}
 		StringBuilder sb = new StringBuilder();
-		appendNodeText(headerElement, true, sb, 0, HEADER_UNPROCESSED_TAGS, false);
+		appendNodeText(headerElement, true, sb, 0, HEADER_UNPROCESSED_TAGS, false, false);
 		return fixUpText(sb.toString());
 	}
 	
@@ -557,7 +609,7 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 			throw(new LicenseXmlException("Invalid element tag name - expected '"+LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER+"'"+headerElement.getTagName()+"'"));
 		}
 		StringBuilder sb = new StringBuilder();
-		appendNodeText(headerElement, false, sb, 0, HEADER_UNPROCESSED_TAGS, true);
+		appendNodeText(headerElement, false, sb, 0, HEADER_UNPROCESSED_TAGS, true, false);
 		return fixUpText(sb.toString());
 	}
 
@@ -580,7 +632,7 @@ public class LicenseXmlHelper implements SpdxRdfConstants {
 			throw(new LicenseXmlException("Invalid element tag name - expected '"+LICENSEXML_ELEMENT_TEXT+"'"+licenseElement.getTagName()+"'"));
 		}
 		StringBuilder sb = new StringBuilder();
-		appendNodeText(licenseElement, false, sb, 0, LICENSE_AND_EXCEPTION_UNPROCESSED_TAGS, true);
+		appendNodeText(licenseElement, false, sb, 0, LICENSE_AND_EXCEPTION_UNPROCESSED_TAGS, true, false);
 		return fixUpText(sb.toString());
 	}
 

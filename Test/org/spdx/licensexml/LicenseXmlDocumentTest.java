@@ -47,6 +47,7 @@ import org.xml.sax.SAXException;
 public class LicenseXmlDocumentTest {
 	
 	static final String TEST_FILE_PATH = "TestFiles" + File.separator + "test-license.xml";
+	static final String TEST_OPTIONAL_FILE_PATH = "TestFiles" + File.separator + "test-optional-annotations.xml";
 	private static final String TEST_LICENSE_COMMENT = "Test note";
 	private static final String TEST_LICENSE_ID = "test-id";
 	private static final String TEST_LICENSE_TEXT = "Test Copyright\n\nparagraph 1" +
@@ -56,7 +57,7 @@ public class LicenseXmlDocumentTest {
 	private static final String[] TEST_LICENSE_URLS = new String[] {"http://test/url1","http://test/url2"};
 	private static final String TEST_LICENSE_HEADER = "Test header optional var";
 	private static final String TEST_LICENSE_HEADER_TEMPLATE = "Test header<<beginOptional>> optional<<endOptional>> <<var;name=\"h1test\";original=\"var\";match=\".+\">>";
-	private static final String TEST_LICENSE_TEMPLATE = "Test Copyright\n\nparagraph 1" +
+	private static final String TEST_LICENSE_TEMPLATE = "<<var;name=\"copyright\";original=\"Test Copyright\";match=\".{0,1000}\">>\n\nparagraph 1" +
 			"\n\n   <<var;name=\"bullet\";original=\"1.\";match=\".{0,20}\">>\n\n   List item 1\n\n   <<var;name=\"bullet\";original=\"2.\";match=\".{0,20}\">>\n\n   List item 2\n\n" +
 			"Last Paragraph <<var;name=\"alttest\";original=\"Alternate Text\";match=\".+\">> Non matching line.<<beginOptional>> Optional text<<endOptional>>";
 
@@ -68,7 +69,7 @@ public class LicenseXmlDocumentTest {
 	private static final String TEST_DEP_LICENSE_NAME = "Test Deprecated License";
 	private static final String[] TEST_DEP_LICENSE_URLS = new String[] {"http://test/url1d","http://test/url2d"};
 	private static final String TEST_DEP_LICENSE_HEADER = "Test header dep";
-	private static final String TEST_DEP_LICENSE_TEMPLATE = "Test Copyright dep\n\nparagraph 1d" +
+	private static final String TEST_DEP_LICENSE_TEMPLATE = "<<var;name=\"copyright\";original=\"Test Copyright dep\";match=\".{0,1000}\">>\n\nparagraph 1d" +
 			"\n\n   <<var;name=\"bullet\";original=\"1.d\";match=\".{0,20}\">>\n\n   List item 1d\n\n   <<var;name=\"bullet\";original=\"2.d\";match=\".{0,20}\">>\n\n   List item 2d\n\n" +
 			"Last Paragraph dep <<var;name=\"alttestd\";original=\"Alternate Text dep\";match=\".+\">> Non matching line dep.<<beginOptional>> Optional text dep<<endOptional>>";
 
@@ -85,6 +86,8 @@ public class LicenseXmlDocumentTest {
 			"Last Paragraph exc <<var;name=\"altteste\";original=\"Alternate Text exc\";match=\".+\">> Non matching line. e<<beginOptional>> Optional text exc<<endOptional>>";
 	private static final String TEST_DEP_LICENSE_VERSION = "2.2";
 	private static final String AGPL3ONLY_FILE_PATH = "TestFiles" + File.separator + "AGPL-3.0-only.xml";
+	
+	
 
 	/**
 	 * @throws java.lang.Exception
@@ -108,6 +111,20 @@ public class LicenseXmlDocumentTest {
 		File licenseFile = new File(TEST_FILE_PATH);
 		new LicenseXmlDocument(licenseFile);
 		// I guess if we don't get any exceptions, it passed
+	}
+	
+	@Test
+	public void testOptionalAnnotations() throws Exception {
+		File licenseFile = new File(TEST_OPTIONAL_FILE_PATH);
+		LicenseXmlDocument licenseDoc = new LicenseXmlDocument(licenseFile);
+		SpdxListedLicense license = licenseDoc.getListedLicenses().get(0);
+		String[] lines = license.getLicenseText().split("\\n");
+		assertEquals(9, lines.length);
+		assertEquals("before optional Default optional text after optional.", lines[0]);
+		assertEquals("before optionalNone optional textafter optional.", lines[2]);
+		assertEquals("before optional Before optional textafter optional.", lines[4]);
+		assertEquals("before optionalAfter optional text after optional.", lines[6]);
+		assertEquals("before optional Both optional text after optional.", lines[8]);
 	}
 
 	/**
