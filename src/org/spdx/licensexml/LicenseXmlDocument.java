@@ -294,7 +294,7 @@ public class LicenseXmlDocument {
 		NodeList urlNodes = exceptionElement.getElementsByTagName(SpdxRdfConstants.LICENSEXML_ELEMENT_CROSS_REF);
 		String[] sourceUrls = new String[urlNodes.getLength()];
 		for (int i = 0; i < urlNodes.getLength(); i++) {
-			sourceUrls[i] = urlNodes.item(i).getTextContent();
+			sourceUrls[i] = urlNodes.item(i).getTextContent().trim();
 		}
 		return new ListedLicenseException(id, name, text, template, sourceUrls, comment, html, deprecated, deprecatedVersion);
 	}
