@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.spdx</groupId>
 	<artifactId>licenseListPublisher</artifactId>
-	<version>2.1.21</version>
+	<version>2.1.22</version>
 	<name>License List Publisher</name>
 	<description>Tool that generates license data found in the license-list-data repository from the license-list-XML source</description>
 	<licenses>
@@ -43,7 +43,7 @@
 		<dependency>
 			<groupId>org.spdx</groupId>
 			<artifactId>spdx-tools</artifactId>
-			<version>2.1.19</version>		
+			<version>2.1.20</version>		
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
