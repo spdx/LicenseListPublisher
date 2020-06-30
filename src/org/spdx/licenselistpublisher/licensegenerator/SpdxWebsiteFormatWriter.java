@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import org.spdx.htmltemplates.ExceptionHtml;
 import org.spdx.htmltemplates.ExceptionHtmlToc;
+import org.json.simple.JSONArray;
 import org.spdx.html.ExceptionTOCJSONFile;
 import org.spdx.html.InvalidLicenseTemplateException;
 import org.spdx.html.LicenseExceptionJSONFile;
@@ -43,7 +44,7 @@ import com.github.mustachejava.MustacheException;
  *
  */
 public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
-	
+
 	static final String LICENSE_TOC_JSON_FILE_NAME = "licenses.json";
 	static final String LICENSE_TOC_HTML_FILE_NAME = "index.html";
 	static final String EXCEPTION_TOC_FILE_NAME = "exceptions-index.html";
@@ -70,7 +71,7 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 		this.tableOfContentsHTML = new LicenseTOCHTMLFile(version, releaseDate);
 		this.licHtml = new LicenseHTMLFile();
 		licJson = new LicenseJSONFile();
-		tableOfContentsJSON = new LicenseTOCJSONFile(version, releaseDate);		
+		tableOfContentsJSON = new LicenseTOCJSONFile(version, releaseDate);
 		htmlExceptionToc = new ExceptionHtmlToc();
 		jsonExceptionToc = new ExceptionTOCJSONFile(version, releaseDate);
 		this.version = version;
@@ -214,7 +215,7 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 			throw new LicenseGeneratorException("Template error for license HTML file: "+e.getMessage(),e);
 		} catch (InvalidLicenseTemplateException e) {
 			throw new LicenseGeneratorException("License template error for license HTML file: "+e.getMessage(),e);
-		}	
+		}
 		licJson.setLicense(license, deprecated);
 		licJson.writeToFile(licJsonFile);
 		tableOfContentsJSON.addLicense(license, licHTMLReference, licJSONReference, deprecated);

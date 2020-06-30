@@ -17,6 +17,7 @@ package org.spdx.licenselistpublisher.licensegenerator;
 
 import java.io.IOException;
 
+import org.json.simple.JSONArray;
 import org.spdx.html.InvalidLicenseTemplateException;
 import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
@@ -34,6 +35,7 @@ public interface ILicenseFormatWriter {
 	 * @param license License to be added
 	 * @param deprecated True if deprecated
 	 * @param deprecatedVersion License list version when the license was deprecated, null otherwise
+	 * @param seeAlsoDetails License crossrefs URL extra details
 	 * @throws IOException 
 	 * @throws LicenseGeneratorException 
 	 */
