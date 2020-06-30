@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import org.spdx.htmltemplates.ExceptionHtml;
 import org.spdx.htmltemplates.ExceptionHtmlToc;
+import org.json.simple.JSONArray;
 import org.spdx.html.InvalidLicenseTemplateException;
 import org.spdx.htmltemplates.LicenseHTMLFile;
 import org.spdx.htmltemplates.LicenseTOCHTMLFile;
@@ -34,10 +35,10 @@ import com.github.mustachejava.MustacheException;
  *
  */
 public class LicenseRdfaFormatWriter implements ILicenseFormatWriter {
-	
+
 	static final String LICENSE_TOC_HTML_FILE_NAME = "index.html";
 	static final String EXCEPTION_TOC_FILE_NAME = "exceptions-index.html";
-	
+
 	private File rdfaFolder;
 	private String version;
 	private String releaseDate;

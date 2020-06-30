@@ -26,12 +26,13 @@ import org.spdx.rdfparser.license.AnyLicenseInfo;
 import org.spdx.rdfparser.license.LicenseException;
 import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
+import org.json.simple.JSONArray;
 import org.spdx.licenselistpublisher.LicenseContainer;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
 
 /**
  * Write RDF formats for the licenses
- * 
+ *
  * @author Gary O'Neall
  *
  */
@@ -116,7 +117,7 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 			throw new LicenseGeneratorException("SPDX Analysis error creating license resource: "+e.getMessage(),e);
 		}
 	}
-	
+
 	/**
 	 * Write the RDF representations of the licenses and exceptions
 	 * @param container Container with the licenses and exceptions
@@ -125,9 +126,9 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 	 * @param rdfNt Folder for the NT representation
 	 * @param rdfJsonLd Folder for the JSON-LD representation
 	 * @param name Name of the file
-	 * @throws LicenseGeneratorException 
+	 * @throws LicenseGeneratorException
 	 */
-	private static void writeRdf(IModelContainer container, File rdfXml, File rdfTurtle, 
+	private static void writeRdf(IModelContainer container, File rdfXml, File rdfTurtle,
 			File rdfNt, File rdfJsonLd, String name) throws LicenseGeneratorException {
 		if (rdfXml != null) {
 			writeRdf(container, rdfXml.getPath() + File.separator + name + ".rdf", "RDF/XML-ABBREV");
@@ -142,13 +143,13 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 			writeRdf(container,rdfJsonLd.getPath() + File.separator + name + ".jsonld", "JSON-LD");
 		}
 	}
-	
+
 	/**
 	 * Write an RDF file for for all elements in the container
 	 * @param container Container for the RDF elements
 	 * @param fileName File name to write the elements to
 	 * @param format Jena RDF format
-	 * @throws LicenseGeneratorException 
+	 * @throws LicenseGeneratorException
 	 */
 	public static void writeRdf(IModelContainer container, String fileName, String format) throws LicenseGeneratorException {
 		File outFile = new File(fileName);
@@ -161,7 +162,7 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 				throw new LicenseGeneratorException("Can not create RDF output file "+fileName);
 			}
 		}
-		
+
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(outFile);
@@ -200,6 +201,6 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 			exception.createResource(container);
 		} catch (InvalidSPDXAnalysisException e) {
 			throw new LicenseGeneratorException("SPDX Analysis error creating exception resource: "+e.getMessage(),e);
-		}	
+		}
 	}
 }

@@ -24,12 +24,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.json.simple.JSONArray;
 import org.spdx.compare.LicenseCompareHelper;
 import org.spdx.compare.SpdxCompareException;
 import org.spdx.html.InvalidLicenseTemplateException;
@@ -464,7 +466,6 @@ public class LicenseRDFAGenerator {
 		Iterator<SpdxListedLicense> licenseIter = licenseProvider.getLicenseIterator();
 		Map<String, String> addedLicIdTextMap = Maps.newHashMap();	// keep track for duplicate checking
 		while (licenseIter.hasNext()) {
-			System.out.print(".");
 			SpdxListedLicense license = licenseIter.next();
 			addExternalMetaData(license);
 			if (license.getLicenseId() != null && !license.getLicenseId().isEmpty()) {

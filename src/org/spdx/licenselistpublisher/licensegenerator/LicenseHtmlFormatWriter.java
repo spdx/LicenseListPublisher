@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Set;
 
+import org.json.simple.JSONArray;
 import org.spdx.html.InvalidLicenseTemplateException;
 import org.spdx.licenseTemplate.SpdxLicenseTemplateHelper;
 import org.spdx.rdfparser.license.ListedLicenseException;
@@ -30,19 +31,19 @@ import com.google.common.io.Files;
 
 /**
  * Generates HTML fragments with formatted license information
- * 
+ *
  * @author Gary O'Neall
  *
  */
 public class LicenseHtmlFormatWriter implements ILicenseFormatWriter {
-	
+
 	static final Set<Character> INVALID_FILENAME_CHARS = Sets.newHashSet();
-	
-	static { 	
+
+	static {
 
 		INVALID_FILENAME_CHARS.add('\\'); INVALID_FILENAME_CHARS.add('/'); INVALID_FILENAME_CHARS.add('*');
 		INVALID_FILENAME_CHARS.add('<'); INVALID_FILENAME_CHARS.add('>'); INVALID_FILENAME_CHARS.add('[');
-		INVALID_FILENAME_CHARS.add(']'); INVALID_FILENAME_CHARS.add('='); 
+		INVALID_FILENAME_CHARS.add(']'); INVALID_FILENAME_CHARS.add('=');
 		INVALID_FILENAME_CHARS.add(';'); INVALID_FILENAME_CHARS.add(':');
 		INVALID_FILENAME_CHARS.add('\''); INVALID_FILENAME_CHARS.add('"'); INVALID_FILENAME_CHARS.add('|');
 		INVALID_FILENAME_CHARS.add('\t'); INVALID_FILENAME_CHARS.add('?'); INVALID_FILENAME_CHARS.add('&');
@@ -87,9 +88,9 @@ public class LicenseHtmlFormatWriter implements ILicenseFormatWriter {
 			Files.write(license.getLicenseTextHtml(), htmlTextFile, utf8);
 		} catch (InvalidLicenseTemplateException e) {
 			Files.write(SpdxLicenseTemplateHelper.formatEscapeHTML(license.getLicenseText()), htmlTextFile, utf8);
-		}	
+		}
 	}
-	
+
 	/**
 	 * @param id
 	 * @return HTML file name based on the license or exception ID replacing any invalid characters
@@ -112,7 +113,7 @@ public class LicenseHtmlFormatWriter implements ILicenseFormatWriter {
 	@Override
 	public void writeToC() throws IOException {
 		// No table of contents - do nothing
-		
+
 	}
 
 	/* (non-Javadoc)
@@ -129,5 +130,5 @@ public class LicenseHtmlFormatWriter implements ILicenseFormatWriter {
 			Files.write(SpdxLicenseTemplateHelper.formatEscapeHTML(exception.getLicenseExceptionText()), htmlTextFile, utf8);
 		}
 	}
-	
+
 }

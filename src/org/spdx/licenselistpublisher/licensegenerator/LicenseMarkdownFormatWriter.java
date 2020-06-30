@@ -20,6 +20,7 @@ import java.io.IOException;
 
 import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
+import org.json.simple.JSONArray;
 import org.spdx.licenselistpublisher.MarkdownTable;
 
 /**

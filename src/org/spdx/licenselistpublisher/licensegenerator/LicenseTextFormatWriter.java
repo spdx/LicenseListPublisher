@@ -25,13 +25,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.json.simple.JSONArray;
 import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 
 
 /**
  * Writes licenses in a simple text format
- * 
+ *
  * @author Gary O'Neall
  *
  */
@@ -102,13 +103,13 @@ public class LicenseTextFormatWriter implements ILicenseFormatWriter {
 	@Override
 	public void writeToC() throws IOException {
 		// Don't need to do anything - no TOC
-		
+
 	}
 
 	@Override
 	public void writeException(ListedLicenseException exception)
 			throws IOException {
-		
+
 		String exceptionHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(exception.getLicenseExceptionId());
 		Path textFilePath = Paths.get(textFolder.getPath(), exceptionHtmlFileName + ".txt");
 		Files.write(textFilePath, Arrays.asList(exception.getLicenseExceptionText().split("\\n")), utf8);
