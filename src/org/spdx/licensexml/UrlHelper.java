@@ -5,14 +5,10 @@ package org.spdx.licensexml;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
-<<<<<<< HEAD
 import java.time.Instant;
 
 import org.apache.commons.validator.UrlValidator;
 import org.spdx.rdfparser.SpdxRdfConstants;
-=======
-import org.apache.commons.validator.UrlValidator;
->>>>>>> master
 
 /**
  * @author Smith
