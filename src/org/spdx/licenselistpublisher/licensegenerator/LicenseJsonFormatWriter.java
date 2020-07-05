@@ -107,24 +107,10 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 		this.jsonFolderDetails = jsonFolderDetails;
 	}
 
-	public JSONArray urlsToJsonArray(String[] urls) {
-		JSONArray jsArray = new JSONArray();
-		for (String url:urls) {
-			JSONObject seeAlsoJsonObject = new JSONObject();
-			boolean isValidUrl = UrlHelper.urlValidator(url);
-			boolean isDeadUrl = !UrlHelper.urlLinkExists(url);
-			seeAlsoJsonObject.put("url", url);
-			seeAlsoJsonObject.put("isDead", isDeadUrl);
-			seeAlsoJsonObject.put("isValid", isValidUrl);
-			jsArray.add(seeAlsoJsonObject);
-		}
-		return jsArray;
-	}
-
+	
 	@Override
 	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException {
-		JSONArray seeAlsoDetails = urlsToJsonArray(license.getSeeAlso());
-		license.setSeeAlsoDetails(seeAlsoDetails);
+		license.setSeeAlsoDetails(UrlHelper.buildUrlDetails(license.getSeeAlso()));
 		licJson.setLicense(license, deprecated);
 		String licBaseHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(license.getLicenseId());
 		String licHtmlFileName = licBaseHtmlFileName + ".html";
