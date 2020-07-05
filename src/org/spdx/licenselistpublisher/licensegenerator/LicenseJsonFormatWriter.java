@@ -17,11 +17,17 @@ package org.spdx.licenselistpublisher.licensegenerator;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.spdx.html.ExceptionTOCJSONFile;
 import org.spdx.html.LicenseExceptionJSONFile;
 import org.spdx.html.LicenseJSONFile;
 import org.spdx.html.LicenseTOCJSONFile;
+import org.spdx.licensexml.UrlHelper;
+import org.spdx.rdfparser.SpdxRdfConstants;
 import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 
@@ -31,7 +37,7 @@ import org.spdx.rdfparser.license.SpdxListedLicense;
  *
  */
 public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
-	
+
 	static final String LICENSE_TOC_JSON_FILE_NAME = "licenses.json";
 	static final String EXCEPTION_JSON_TOC_FILE_NAME = "exceptions.json";
 
@@ -46,7 +52,7 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 	 * @param version License list version
 	 * @param releaseDate release date for the license list
 	 * @param jsonFolder Folder to output the main JSON file
-	 * @param jsonFolderDetails Folder to output a detailed JSON file per license 
+	 * @param jsonFolderDetails Folder to output a detailed JSON file per license
 	 * @param jsonFolderExceptions Folder to output a detailed JSON file per exception
 	 */
 	public LicenseJsonFormatWriter(String version, String releaseDate,
@@ -101,8 +107,24 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 		this.jsonFolderDetails = jsonFolderDetails;
 	}
 
+	public JSONArray urlsToJsonArray(String[] urls) {
+		JSONArray jsArray = new JSONArray();
+		for (String url:urls) {
+			JSONObject seeAlsoJsonObject = new JSONObject();
+			boolean isValidUrl = UrlHelper.urlValidator(url);
+			boolean isDeadUrl = !UrlHelper.urlLinkExists(url);
+			seeAlsoJsonObject.put("url", url);
+			seeAlsoJsonObject.put("isDead", isDeadUrl);
+			seeAlsoJsonObject.put("isValid", isValidUrl);
+			jsArray.add(seeAlsoJsonObject);
+		}
+		return jsArray;
+	}
+
 	@Override
 	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException {
+		JSONArray seeAlsoDetails = urlsToJsonArray(license.getSeeAlso());
+		license.setSeeAlsoDetails(seeAlsoDetails);
 		licJson.setLicense(license, deprecated);
 		String licBaseHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(license.getLicenseId());
 		String licHtmlFileName = licBaseHtmlFileName + ".html";
@@ -138,7 +160,7 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 		File exceptionJsonFile = new File(jsonFolder.getPath() + File.separator + "exceptions" + File.separator +  exceptionJsonFileName);
 		exceptionJson.writeToFile(exceptionJsonFile);
 	}
-	
-	
+
+
 
 }

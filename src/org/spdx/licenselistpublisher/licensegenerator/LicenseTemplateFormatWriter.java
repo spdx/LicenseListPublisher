@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 
 import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
+import org.json.simple.JSONArray;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
 
 import com.google.common.io.Files;
@@ -66,7 +67,7 @@ public class LicenseTemplateFormatWriter implements ILicenseFormatWriter {
 			licBaseHtmlFileName = "deprecated_" + licBaseHtmlFileName;
 		}
 		File templateFile = new File(templateFolder.getPath() + File.separator + licBaseHtmlFileName + ".template.txt");
-		if (license.getStandardLicenseTemplate() != null && !license.getStandardLicenseTemplate().trim().isEmpty()) {			
+		if (license.getStandardLicenseTemplate() != null && !license.getStandardLicenseTemplate().trim().isEmpty()) {
 			Files.write(license.getStandardLicenseTemplate(), templateFile, utf8);
 		} else {
 			Files.write(license.getLicenseText(), templateFile, utf8);
@@ -79,7 +80,7 @@ public class LicenseTemplateFormatWriter implements ILicenseFormatWriter {
 	@Override
 	public void writeToC() throws IOException, LicenseGeneratorException {
 		// Nothing to write - no ToC
-		
+
 	}
 
 	/* (non-Javadoc)
