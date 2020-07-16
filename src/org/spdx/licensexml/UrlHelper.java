@@ -55,22 +55,22 @@ public class UrlHelper {
         return content;
 	}
 
-	public static String getLicenseText(String url, String CopyrightText) {
-		if(urlValidator(url) && urlLinkExists(url)) {
-			String htmlString = getUrlHtmlContent(url);
-			Document doc = Jsoup.parse(htmlString);
-	        String title = doc.title();
-	        String body = doc.body().text();
-	        String jsoupSearchText = "div:contains(" + CopyrightText + ")";
+//	public static String getLicenseText(String url, String CopyrightText) {
+//		if(urlValidator(url) && urlLinkExists(url)) {
+//			String htmlString = getUrlHtmlContent(url);
+//			Document doc = Jsoup.parse(htmlString);
+//	        String title = doc.title();
+//	        String body = doc.body().text();
+//	        String jsoupSearchText = "div:contains(" + CopyrightText + ")";
 //	        doc.select(jsoupSearchText);
 //	        String licenseText = doc.select(jsoupSearchText).first().parent().children().get(1).text();
 //	        System.out.printf("Title: %s%n", title);
 //	        System.out.printf("Body: %s", body);
-	        System.out.printf("Body: %s", jsoupSearchText);
-		}
-		return "";
-		
-	}
+//	        System.out.printf("Body: %s", jsoupSearchText);
+//		}
+//		return "";
+//		
+//	}
 
 	public static boolean urlValidator(String url){
 		// Get an UrlValidator using default schemes
@@ -116,7 +116,6 @@ public class UrlHelper {
 					SpdxRdfConstants.RDFS_PROP_SEE_ALSO_DETAILS_IS_LIVE, isLiveUrl,
 					SpdxRdfConstants.RDFS_PROP_SEE_ALSO_DETAILS_TIMESTAMP, currentDate);
 			mk[i] = mk1;
-			getLicenseText(url, "Copyright (C) 2006 by Rob Landley <rob@landley.net>");
 		}
 		return mk;
 	}
