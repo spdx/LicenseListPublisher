@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.spdx.licensexml;
 
@@ -12,7 +12,7 @@ import org.apache.commons.validator.UrlValidator;
  *
  */
 public class UrlHelper {
-	
+
 	public static boolean urlLinkExists(String URLName){
 	    try {
 	      HttpURLConnection.setFollowRedirects(false);
