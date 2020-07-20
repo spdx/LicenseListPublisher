@@ -32,16 +32,16 @@ import org.spdx.rdfparser.license.LicenseException;
 
 /**
  * Test SPDX licenses against a directory of test licenses.
- * 
+ *
  * The directory of test licenses contains license text with the following file naming convention:
- * 
+ *
  * {license-id}/(license|header|exception)/(good|bad)/{test-id}.txt
- * 
+ *
  * @author Gary O'Neall
  *
  */
 public class LicenseTester implements ILicenseTester {
-	
+
 	private Map<String,File> licenseIdToTestMap;
 	private static FileFilter testFileFilter = new FileFilter() {
 
@@ -49,9 +49,9 @@ public class LicenseTester implements ILicenseTester {
 		public boolean accept(File arg0) {
 			return (arg0.isFile() && arg0.getName().toLowerCase().endsWith(".txt"));
 		}
-		
+
 	};
-	
+
 	/**
 	 * @param licenseTestDirectory Directory of license text files for comparison in the form {license-id}/(license|header|exception)/(good|bad)/{test-id}.txt
 	 */
@@ -66,7 +66,7 @@ public class LicenseTester implements ILicenseTester {
 			}
 		}
 	}
-	
+
 	/**
 	 * Test a license against the license test files
 	 * @param license license to test
@@ -109,7 +109,7 @@ public class LicenseTester implements ILicenseTester {
 		}
 		return retval;
 	}
-	
+
 	private String readText(File f) throws IOException {
 		StringBuilder text = new StringBuilder();
 		Files.lines(f.toPath()).forEach(line -> {
@@ -123,7 +123,7 @@ public class LicenseTester implements ILicenseTester {
 	 * Test exception against the test files directory
 	 * @param exception
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	@Override
 	public List<String> testException(LicenseException exception) throws IOException {

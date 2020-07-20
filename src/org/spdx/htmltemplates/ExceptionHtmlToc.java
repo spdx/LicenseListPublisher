@@ -42,14 +42,14 @@ public class ExceptionHtmlToc {
 	static final String TEMPLATE_CLASS_PATH = "resources" + "/" + "htmlTemplate";
 	static final String TEMPLATE_ROOT_PATH = "resources" + File.separator + "htmlTemplate";
 	static final String HTML_TEMPLATE = "ExceptionsTocHTMLTemplate.html";
-	
+
 	public static class DeprecatedExceptionRow {
 		private int refNumber;
 		String licenseExceptionId;
 		private String reference;
 		private String exceptionName;
 		private String deprecatedVersion;
-		
+
 		public DeprecatedExceptionRow(String licenseExceptionId, String exceptionName,
 				int refNumber, String reference, String deprecatedVersion) {
 			this.licenseExceptionId = licenseExceptionId;
@@ -198,7 +198,7 @@ public class ExceptionHtmlToc {
 		}
 
 		private String licenseExceptionId;
-		
+
 		public ExceptionRow(String licenseExceptionId, String exceptionName,
 				int refNumber, String reference) {
 			this.licenseExceptionId = licenseExceptionId;
@@ -207,10 +207,10 @@ public class ExceptionHtmlToc {
 			this.reference = reference;
 		}
 	}
-	
+
 	List<ExceptionRow> exceptions = Lists.newArrayList();
 	List<DeprecatedExceptionRow> deprecatedExceptions = Lists.newArrayList();
-	
+
 	int currentRefNum = 1;
 
 	/**
@@ -221,16 +221,16 @@ public class ExceptionHtmlToc {
 	public void addException(LicenseException exception,
 			String exceptionHTMLReference) {
 		exceptions.add(new ExceptionRow(
-				StringEscapeUtils.escapeHtml4(exception.getLicenseExceptionId()), 
-				StringEscapeUtils.escapeHtml4(exception.getName()),			
+				StringEscapeUtils.escapeHtml4(exception.getLicenseExceptionId()),
+				StringEscapeUtils.escapeHtml4(exception.getName()),
 				currentRefNum++, exceptionHTMLReference));
 	}
-	
+
 	public void addDeprecatedException(LicenseException exception,
 			String exceptionHTMLReference, String deprecatedVersion) {
 		deprecatedExceptions.add(new DeprecatedExceptionRow(
-				StringEscapeUtils.escapeHtml4(exception.getLicenseExceptionId()), 
-				StringEscapeUtils.escapeHtml4(exception.getName()),			
+				StringEscapeUtils.escapeHtml4(exception.getLicenseExceptionId()),
+				StringEscapeUtils.escapeHtml4(exception.getName()),
 				currentRefNum++, exceptionHTMLReference, deprecatedVersion));
 	}
 
@@ -238,8 +238,8 @@ public class ExceptionHtmlToc {
 	 * Creates and writes an Exception Table of Contents file
 	 * @param exceptionTocFile file to write to
 	 * @param version Version of the License List
-	 * @throws IOException 
-	 * @throws MustacheException 
+	 * @throws IOException
+	 * @throws MustacheException
 	 */
 	public void writeToFile(File exceptionTocFile, String version) throws MustacheException, IOException {
 
@@ -251,7 +251,7 @@ public class ExceptionHtmlToc {
 			public int compare(ExceptionRow arg0, ExceptionRow arg1) {
 				return arg0.getLicenseExceptionId().compareTo(arg1.getLicenseExceptionId());
 			}
-			
+
 		});
 		mustacheMap.put("listedExceptions", exceptions);
 		mustacheMap.put("deprecatedExceptions", deprecatedExceptions);

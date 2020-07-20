@@ -1,6 +1,6 @@
 /**
  * SpdxLicenseIdentifier: Apache-2.0
- * 
+ *
  * Copyright (c) 2019 Source Auditor Inc.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,16 +34,16 @@ import org.spdx.rdfparser.license.SpdxListedLicenseException;
 import org.spdx.spdxspreadsheet.SpreadsheetException;
 
 /**
- * 
+ *
  * @author Gary O'Neall
  *
  */
 public class XmlLicenseProviderSingleFile implements ISpdxListedLicenseProvider {
-	
+
 	Logger logger = LoggerFactory.getLogger(XmlLicenseProviderSingleFile.class.getName());
 	private List<String> warnings = new ArrayList<String>();
 	LicenseXmlDocument licDoc = null;
-	
+
 	public XmlLicenseProviderSingleFile(File licenseXmlFile) throws LicenseXmlException {
 		licDoc = new LicenseXmlDocument(licenseXmlFile);
 	}

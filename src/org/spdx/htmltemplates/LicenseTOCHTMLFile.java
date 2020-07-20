@@ -38,7 +38,7 @@ import com.google.common.collect.Maps;
  *
  */
 public class LicenseTOCHTMLFile {
-	
+
 	static final String TEMPLATE_CLASS_PATH = "resources" + "/" + "htmlTemplate";
 	static final String TEMPLATE_ROOT_PATH = "resources" + File.separator + "htmlTemplate";
 	static final String HTML_TEMPLATE = "TocHTMLTemplate.html";
@@ -49,8 +49,8 @@ public class LicenseTOCHTMLFile {
 		private String licenseId;
 		private String licenseName;
 		private String deprecatedVersion;
-		
-		public DeprecatedLicense(String reference, String refNumber, 
+
+		public DeprecatedLicense(String reference, String refNumber,
 				String licenseId, String licenseName, String deprecatedVersion) {
 			this.reference = reference;
 			this.refNumber = refNumber;
@@ -129,7 +129,7 @@ public class LicenseTOCHTMLFile {
 			this.deprecatedVersion = deprecatedVersion;
 		}
 	}
-	
+
 	public static class ListedSpdxLicense {
 		private String reference;
 		private String refNumber;
@@ -137,7 +137,7 @@ public class LicenseTOCHTMLFile {
 		private String osiApproved;
 		private String fsfLibre;
 		private String licenseName;
-		
+
 		public ListedSpdxLicense() {
 			reference = null;
 			refNumber = null;
@@ -146,8 +146,8 @@ public class LicenseTOCHTMLFile {
 			licenseName = null;
 			fsfLibre = null;
 		}
-		
-		public ListedSpdxLicense(String reference, String refNumber, 
+
+		public ListedSpdxLicense(String reference, String refNumber,
 				String licenseId, boolean isOsiApproved, Boolean fsfLibre, String licenseName) {
 			this.reference = reference;
 			this.refNumber = refNumber;
@@ -213,7 +213,7 @@ public class LicenseTOCHTMLFile {
 		public String getOsiApproved() {
 			return osiApproved;
 		}
-		
+
 		public String getFsfLibre() {
 			return fsfLibre;
 		}
@@ -239,15 +239,15 @@ public class LicenseTOCHTMLFile {
 			this.licenseName = licenseName;
 		}
 	}
-	
+
 	List<ListedSpdxLicense> listedLicenses = Lists.newArrayList();
 	List<DeprecatedLicense> deprecatedLicenses = Lists.newArrayList();
-	
+
       private int currentRefNumber = 1;
-      
+
       String version;
       String releaseDate;
-      
+
       private String generateVersionString(String version, String releaseDate) {
     	  if (version == null || version.trim().isEmpty()) {
     		  return "";
@@ -262,9 +262,9 @@ public class LicenseTOCHTMLFile {
     	  this.version = version;
     	  this.releaseDate = releaseDate;
       }
-      
+
 	public void addLicense(SpdxListedLicense license, String licHTMLReference) {
-		listedLicenses.add(new ListedSpdxLicense(licHTMLReference, String.valueOf(this.currentRefNumber), 
+		listedLicenses.add(new ListedSpdxLicense(licHTMLReference, String.valueOf(this.currentRefNumber),
 				license.getLicenseId(), license.isOsiApproved(), license.getFsfLibre(), license.getName()));
 		currentRefNumber++;
 	}
@@ -311,7 +311,7 @@ public class LicenseTOCHTMLFile {
 			public int compare(ListedSpdxLicense arg0, ListedSpdxLicense arg1) {
 				return arg0.getLicenseId().compareToIgnoreCase(arg1.getLicenseId());
 			}
-			
+
 		});
 		retval.put("listedLicenses", this.listedLicenses);
 		retval.put("deprecatedLicenses", this.deprecatedLicenses);
@@ -323,8 +323,8 @@ public class LicenseTOCHTMLFile {
 	 */
 	public void addDeprecatedLicense(SpdxListedLicense deprecatedLicense,
 			String licHTMLReference) {
-		deprecatedLicenses.add(new DeprecatedLicense(licHTMLReference, String.valueOf(this.currentRefNumber), 
-				deprecatedLicense.getLicenseId(), 
+		deprecatedLicenses.add(new DeprecatedLicense(licHTMLReference, String.valueOf(this.currentRefNumber),
+				deprecatedLicense.getLicenseId(),
 				deprecatedLicense.getName(),
 				deprecatedLicense.getDeprecatedVersion()));
 		currentRefNumber++;

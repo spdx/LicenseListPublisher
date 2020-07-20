@@ -54,7 +54,7 @@ import org.xml.sax.SAXParseException;
  */
 public class LicenseXmlDocument {
 	static final Logger logger = LoggerFactory.getLogger(LicenseXmlDocument.class.getName());
-	
+
 	public static final String PROP_SCHEMA_FILENAME = "listedLicenseSchema";
 	public static final String LICENSE_XML_SCHEMA_URL = "https://raw.githubusercontent.com/spdx/license-list-XML/master/schema/ListedLicense.xsd";
 	public static final String LICENSE_XML_SCHEMA_LOCATION = "org/spdx/licensexml/ListedLicense.xsd";
@@ -85,7 +85,7 @@ public class LicenseXmlDocument {
 		}
 		assertValid(file);
 	}
-	
+
 	/**
 	 * @return listed license XML schema
 	 * @throws LicenseXmlException
@@ -110,7 +110,7 @@ public class LicenseXmlDocument {
 						logger.warn("Unable to open license XML schema URL, using cached copy",e);
 					}
 					if (schemaIs == null) {
-						schemaIs = LicenseXmlDocument.class.getClassLoader().getResourceAsStream(LICENSE_XML_SCHEMA_LOCATION);			
+						schemaIs = LicenseXmlDocument.class.getClassLoader().getResourceAsStream(LICENSE_XML_SCHEMA_LOCATION);
 					}
 				}
 				Source schemaSource = new StreamSource(schemaIs);
@@ -127,7 +127,7 @@ public class LicenseXmlDocument {
 						logger.warn("Unable to close Schema stream",e);
 					}
 				}
-			}		
+			}
 		}
 		return _schema;
 	}
@@ -135,8 +135,8 @@ public class LicenseXmlDocument {
 	/**
 	 * Checks the xmlDocument for a valid file and throws a LicenseXmlException if not valid
 	 */
-	private void assertValid(File licenseXmlFile) throws LicenseXmlException {		
-		try {			
+	private void assertValid(File licenseXmlFile) throws LicenseXmlException {
+		try {
 			Source xmlSource = new StreamSource(licenseXmlFile);
 			Schema schema = getSchema();
 			Validator validator = schema.newValidator();
@@ -163,8 +163,8 @@ public class LicenseXmlDocument {
 	/**
 	 * Will skip deprecated licenses
 	 * @return
-	 * @throws InvalidSPDXAnalysisException 
-	 * @throws LicenseXmlException 
+	 * @throws InvalidSPDXAnalysisException
+	 * @throws LicenseXmlException
 	 */
 	public List<SpdxListedLicense> getListedLicenses() throws InvalidSPDXAnalysisException, LicenseXmlException {
 		List<SpdxListedLicense> retval = new ArrayList<SpdxListedLicense>();
@@ -243,7 +243,7 @@ public class LicenseXmlDocument {
 			fsfLibre = false;
 		}
 		String licenseHtml = LicenseXmlHelper.getLicenseTextHtml(textElement);
-		SpdxListedLicense retval = new SpdxListedLicense(name, id, text, sourceUrls, comment, licenseHeader, 
+		SpdxListedLicense retval = new SpdxListedLicense(name, id, text, sourceUrls, comment, licenseHeader,
 				template, licenseHeaderTemplate, osiApproved, fsfLibre, licenseHtml, licenseHeaderTemplateHtml);
 		retval.setDeprecated(deprecated);
 		retval.setDeprecatedVersion(deprecatedVersion);
@@ -252,7 +252,7 @@ public class LicenseXmlDocument {
 
 	/**
 	 * @return
-	 * @throws LicenseXmlException 
+	 * @throws LicenseXmlException
 	 */
 	public List<ListedLicenseException> getLicenseExceptions() throws LicenseXmlException {
 		List<ListedLicenseException> retval = new ArrayList<ListedLicenseException>();

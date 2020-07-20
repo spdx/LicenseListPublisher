@@ -1,23 +1,23 @@
 /**
- * 
+ *
  */
 package org.spdx.htmltemplates;
 
 /**
  * @author Gary O'Neall
- * 
+ *
  * Exceptions related to HTML license templates
  *
  */
 public class InvalidLicenseHtmlTemplateException extends Exception {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 
+	 *
 	 */
 	public InvalidLicenseHtmlTemplateException() {
 		super();
