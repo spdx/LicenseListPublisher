@@ -69,7 +69,7 @@ public class UrlHelper {
 //	        System.out.printf("Body: %s", jsoupSearchText);
 //		}
 //		return "";
-//		
+//
 //	}
 
 	public static boolean urlValidator(String url){
@@ -109,12 +109,12 @@ public class UrlHelper {
 			boolean isWaybackUrl = isWayBackUrl(url);
 			String currentDate = getTimestamp();
 			String mk1 = String.format("{%s: %b,%s: %b,%s: %b,%s: %s,%s: %b, %s: %s}",
-					SpdxRdfConstants.RDFS_PROP_SEE_ALSO_DETAILS_IS_VALID, isValidUrl,
-					SpdxRdfConstants.RDFS_PROP_SEE_ALSO_DETAILS_WAYBACK_LINK, isWaybackUrl,
-					SpdxRdfConstants.RDFS_PROP_SEE_ALSO_DETAILS_MATCH, "true",
-					SpdxRdfConstants.RDFS_PROP_SEE_ALSO_DETAILS_URL, url,
-					SpdxRdfConstants.RDFS_PROP_SEE_ALSO_DETAILS_IS_LIVE, isLiveUrl,
-					SpdxRdfConstants.RDFS_PROP_SEE_ALSO_DETAILS_TIMESTAMP, currentDate);
+					SpdxRdfConstants.PROP_CROSS_REF_IS_VALID, isValidUrl,
+					SpdxRdfConstants.PROP_CROSS_REF_WAYBACK_LINK, isWaybackUrl,
+					SpdxRdfConstants.PROP_CROSS_REF_MATCH, "true",
+					SpdxRdfConstants.PROP_CROSS_REF_URL, url,
+					SpdxRdfConstants.PROP_CROSS_REF_IS_LIVE, isLiveUrl,
+					SpdxRdfConstants.PROP_CROSS_REF_TIMESTAMP, currentDate);
 			mk[i] = mk1;
 		}
 		return mk;

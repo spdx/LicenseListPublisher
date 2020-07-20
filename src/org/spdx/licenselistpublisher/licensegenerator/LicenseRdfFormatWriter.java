@@ -103,7 +103,7 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 
 	@Override
 	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, LicenseGeneratorException {
-		license.setSeeAlsoDetails(UrlHelper.buildUrlDetails(license.getSeeAlso()));
+		license.setCrossRef(UrlHelper.buildUrlDetails(license.getSeeAlso()));
 		AnyLicenseInfo licenseClone = license.clone();
 		LicenseContainer onlyThisLicense = new LicenseContainer();
 		try {
