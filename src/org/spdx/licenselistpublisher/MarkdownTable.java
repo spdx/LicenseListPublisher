@@ -44,13 +44,13 @@ public class MarkdownTable {
 		private String id;
 		private String name;
 		private boolean deprecated;
-		
+
 		private ExceptionInfo(String id, String name, boolean deprecated) {
 			this.id = id;
 			this.name = name;
 			this.deprecated = deprecated;
 		}
-		
+
 		public String getId() {
 			return id;
 		}
@@ -64,11 +64,11 @@ public class MarkdownTable {
 			this.name = name;
 		}
 	}
-	
+
 	class LicenseInfo extends ExceptionInfo {
 		private boolean isOsiApproved;
 		private boolean isFsfLibre;
-		
+
 		public LicenseInfo(String id, String name, boolean deprecated, boolean isOsiApproved, boolean isFsfLibre) {
 			super(id, name, deprecated);
 			this.isOsiApproved = isOsiApproved;
@@ -89,14 +89,14 @@ public class MarkdownTable {
 
 		public void setFsfLibre(boolean isFsfLibre) {
 			this.isFsfLibre = isFsfLibre;
-		}	
+		}
 	}
-	
+
 	List<ExceptionInfo> exceptions = new ArrayList<ExceptionInfo>();
 	List<LicenseInfo> licenses = new ArrayList<LicenseInfo>();
 
 	private String licenseListVersion;
-	
+
 	public MarkdownTable(String licenseListVersion) {
 		if (licenseListVersion == null) {
 			this.licenseListVersion = "UNKNOWN";
@@ -112,7 +112,7 @@ public class MarkdownTable {
 	public void addException(LicenseException exception, boolean deprecated) {
 		exceptions.add(new ExceptionInfo(exception.getLicenseExceptionId(), exception.getName(), deprecated));
 	}
-	
+
 	/**
 	 * Add a license to be included in the markdown table of contents
 	 * @param license
@@ -121,7 +121,7 @@ public class MarkdownTable {
 	public void addLicense(SpdxListedLicense license, boolean deprecated) {
 		licenses.add(new LicenseInfo(license.getLicenseId(), license.getName(), deprecated, license.isOsiApproved(), license.isFsfLibre()));
 	}
-	
+
 	/**
 	 * Write the markdown table of contents to an existing file.  Overwrites all content
 	 * @param file
@@ -129,7 +129,7 @@ public class MarkdownTable {
 	 */
 	public void writeToFile(File file) throws IOException {
 		FileWriter writer = null;
-		
+
 		try {
 			writer = new FileWriter(file);
 			writeTOC(writer);
@@ -139,7 +139,7 @@ public class MarkdownTable {
 			}
 		}
 	}
-	
+
 	/**
 	 * Write the text for all of the added licenses and exceptions in the form of a MarkDown formatted table
 	 * @param writer
@@ -152,21 +152,21 @@ public class MarkdownTable {
 			public int compare(ExceptionInfo arg0, ExceptionInfo arg1) {
 				return arg0.getId().compareToIgnoreCase(arg1.getId());
 			}
-			
+
 		});
 		licenses.sort(new Comparator<LicenseInfo>() {
-			
+
 			@Override
 			public int compare(LicenseInfo arg0, LicenseInfo arg1) {
 				return arg0.getId().compareToIgnoreCase(arg1.getId());
 			}
-			
+
 		});
 		int maxLicenseName = "Full Name of License".length();
 		int maxExceptionName = "Full Name of Exception".length();
 		int maxDeprecatedLicenseName = "Full Name of License".length();
 		int maxShortIdLength = "Deprecated SPDX License Identifier".length();
-		
+
 		for (LicenseInfo li:licenses) {
 			if (li.getId().length()+4 > maxShortIdLength) {
 				maxShortIdLength = li.getId().length()+4;
@@ -179,9 +179,9 @@ public class MarkdownTable {
 				if (li.getName().length() > maxLicenseName) {
 					maxLicenseName = li.getName().length();
 				}
-			}			
+			}
 		}
-		
+
 		for (ExceptionInfo ei:exceptions) {
 			if (ei.getId().length()+4 > maxShortIdLength) {
 				maxShortIdLength = ei.getId().length()+4;
@@ -208,16 +208,16 @@ public class MarkdownTable {
 		writer.write("-|-");
 		addFill(writer, '-', 9);
 		writer.write("-|\n");
-		String licenseTableRowFormat = "| %-"+maxLicenseName+"s | %-"+maxShortIdLength+"s | %-4s | %-9s |\n"; 
+		String licenseTableRowFormat = "| %-"+maxLicenseName+"s | %-"+maxShortIdLength+"s | %-4s | %-9s |\n";
 		for (LicenseInfo li:licenses) {
 			if (!li.isDeprecated()) {
 				String idStr = formatIdString(li.getId(),maxShortIdLength);
-				writer.write(String.format(licenseTableRowFormat, li.getName(), idStr, 
+				writer.write(String.format(licenseTableRowFormat, li.getName(), idStr,
 						(li.isOsiApproved)?"Y":"", (li.isFsfLibre())?"Y":""));
 			}
 		}
 		writer.write("\n");
-		
+
 		// Exception list
 		writer.write("## Exception List\n\n");
 		String exceptionTableHeaderFormat = "| %-"+maxExceptionName+"s | %-"+maxShortIdLength+"s\n";
@@ -227,7 +227,7 @@ public class MarkdownTable {
 		writer.write("-|-");
 		addFill(writer, '-', maxShortIdLength);
 		writer.write("-|\n");
-		String exceptionTableRowFormat = "| %-"+maxExceptionName+"s | %-"+maxShortIdLength+"s |\n"; 
+		String exceptionTableRowFormat = "| %-"+maxExceptionName+"s | %-"+maxShortIdLength+"s |\n";
 		for (ExceptionInfo ei:exceptions) {
 			if (!ei.isDeprecated()) {
 				String idStr = formatIdString(ei.getId(),maxShortIdLength);
@@ -235,7 +235,7 @@ public class MarkdownTable {
 			}
 		}
 		writer.write("\n");
-		
+
 		// deprecated license list
 				writer.write("## Deprecated Licenses\n\n");
 				String deprecatedLicenseTableHeaderFormat = "| %-"+maxLicenseName+"s | %-"+maxShortIdLength+"s |\n";
@@ -245,7 +245,7 @@ public class MarkdownTable {
 				writer.write("-|-");
 				addFill(writer, '-', maxShortIdLength);
 				writer.write("-|\n");
-				String deprecatedLicenseTableRowFormat = "| %-"+maxLicenseName+"s | %-"+maxShortIdLength+"s \n"; 
+				String deprecatedLicenseTableRowFormat = "| %-"+maxLicenseName+"s | %-"+maxShortIdLength+"s \n";
 				for (LicenseInfo li:licenses) {
 					if (li.isDeprecated()) {
 						String idStr = formatIdString(li.getId(),maxShortIdLength);
@@ -263,7 +263,7 @@ public class MarkdownTable {
 		}
 
 	}
-	
+
 	private String formatIdString(String id, int maxShortIdLength) {
 		StringBuilder sb = new StringBuilder();
 		sb.append('[');

@@ -24,7 +24,7 @@ package org.spdx.licenselistpublisher;
 public class LicensePublisherException extends Exception {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 

@@ -37,28 +37,28 @@ import com.google.common.collect.Maps;
 
 /**
  * Singleton class which returns information maintained by the Free Software Foundation
- * 
+ *
  * The default behavior is to pull the FSF data from <code>https://wking.github.io/fsf-api/licenses-full.json</code>
- * 
+ *
  * If the URL is not accessible, the file resources/licenses-full.json in the same path as the .jar file will be used.
  * If the local file can not be found, then a properties file resources/licenses-full.json will be used.
- * 
+ *
  * There are two properties that can be used to control where the JSON file is loaded from:
  *   LocalFsfFreeJson - if set to true, then use the local file or, if the local file is not found, the resource files and don't access the file from the github.io page
  *   FsfFreeJsonUrl - the URL to pull the JSON file from.  If both LocalFsfFreeJson and FsfFreeJsonUrl are specified, then
  *   the LocalFsfFreeJson takes precedence and the local resource file will be used.
- * 
+ *
  * NOTE: This is currently using a non authoritative data source
- * 
+ *
  * TODO: Update the class to use an official FSF data source once available
  * @author Gary O'Neall
  *
  */
 public class FsfLicenseDataParser {
-	
+
 	static final String PROP_USE_ONLY_LOCAL_FILE = "LocalFsfFreeJson";
 	static final String PROP_FSF_FREE_JSON_URL = "FsfFreeJsonUrl";
-	
+
 	static final String DEFAULT_FSF_JSON_URL = "https://wking.github.io/fsf-api/licenses-full.json";
 	static final String FSF_JSON_FILE_PATH = "resources" + File.separator + "licenses-full.json";
 	static final String FSF_JSON_CLASS_PATH = "licenses-full.json";
@@ -72,12 +72,12 @@ public class FsfLicenseDataParser {
 	private static final String PROPERTY_IDENTIFIER = "identifier";
 	@SuppressWarnings("unused")
 	private static final String PROPERTY_IDENTIFIERS = "license.jsonldidentifiers";
-		
+
 	private static FsfLicenseDataParser fsfLicenseDataParser = null;
 	private Map<String, Boolean> licenseIdToFsfFree;
 	private boolean useOnlyLocalFile = false;
 	private String licenseJsonUrl = DEFAULT_FSF_JSON_URL;
-	
+
 	private FsfLicenseDataParser() throws LicenseGeneratorException {
 		licenseIdToFsfFree = Maps.newHashMap();
 		useOnlyLocalFile = Boolean.parseBoolean(System.getProperty(PROP_USE_ONLY_LOCAL_FILE, "false"));
@@ -113,17 +113,17 @@ public class FsfLicenseDataParser {
 					input = null;
 				}
 			}
-			
+
 			if (input == null) {
 				throw new LicenseGeneratorException("Unable to open input JSON file for FSF License Data");
 			}
 
 			Model model = ModelFactory.createDefaultModel();
 			model.read(input, null, "JSON-LD");
-			
+
 			Node p = model.getProperty(SCHEMA_ORG_NAMESPACE, PROPERTY_KEYWORDS).asNode();
 			Triple m = Triple.createMatch(null, p, null);
-			ExtendedIterator<Triple> tripleIter = model.getGraph().find(m);	
+			ExtendedIterator<Triple> tripleIter = model.getGraph().find(m);
 			while (tripleIter.hasNext()) {
 				Triple t = tripleIter.next();
 				if (t.getObject().isLiteral()) {
@@ -150,24 +150,24 @@ public class FsfLicenseDataParser {
 			Thread.currentThread().setContextClassLoader(oldContextCL);
 		}
 	}
-	
+
 	/**
 	 * @param subject Subject of the RDF triple which contains the SPDX ID's
 	 * @param model
 	 * @return all SPDX ID's associated with the subject
-	 * @throws LicenseGeneratorException 
+	 * @throws LicenseGeneratorException
 	 */
 	private List<String> findSpdxIds(Node subject, Model model) throws LicenseGeneratorException {
 		return findSpdxIds(subject, model, SCHEMA_ORG_NAMESPACE, PROPERTY_IDENTIFIER);
 	}
-	
+
 	/**
 	 * @param subject Subject of the RDF triple which contains the SPDX ID's
 	 * @param model
 	 * @param namespace for the SPDX id property
 	 * @param propertyName for the SPDX id property
 	 * @return all SPDX ID's associated with the subject
-	 * @throws LicenseGeneratorException 
+	 * @throws LicenseGeneratorException
 	 */
 	private List<String> findSpdxIds(Node subject, Model model, String namespace, String propertyName) throws LicenseGeneratorException {
 		Node identifiersProp = model.getProperty(namespace, propertyName).asNode();

@@ -1,6 +1,6 @@
 /**
  * SpdxLicenseIdentifier: Apache-2.0
- * 
+ *
  * Copyright (c) 2019 Source Auditor Inc.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,7 +37,7 @@ import org.spdx.rdfparser.license.SpdxListedLicense;
  * TestLicenseXML licenseXmlFile textFile
  * licenseXmlFile XML - file
  * textFile - Text file which should match the the license text for the licenseXmlFile
- * 
+ *
  * @author Gary O'Neall
  *
  */
@@ -111,7 +111,7 @@ public class LicenseXmlTester {
 			System.exit(ERROR_STATUS);
 		}
 	}
-	
+
 	private static String readText(File f) throws IOException {
 		Charset utf8 = Charset.forName("UTF-8");
 		StringBuilder text = new StringBuilder();

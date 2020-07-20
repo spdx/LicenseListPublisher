@@ -30,13 +30,13 @@ import org.spdx.rdfparser.license.LicenseException;
 
 /**
  * Tests licenses against cononical text.
- * 
+ *
  * @author Gary O'Neall
  *
  */
 public class SimpleLicenseTester implements ILicenseTester {
-	
-	
+
+
 	private Charset utf8 = Charset.forName("UTF-8");
 	private File testFileDir;
 
@@ -70,7 +70,7 @@ public class SimpleLicenseTester implements ILicenseTester {
 		}
 		return retval;
 	}
-	
+
 	private String readText(File f) throws IOException {
 		StringBuilder text = new StringBuilder();
 		Files.lines(f.toPath(), utf8).forEach(line -> {

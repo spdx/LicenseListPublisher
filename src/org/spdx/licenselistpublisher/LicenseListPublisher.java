@@ -56,30 +56,30 @@ import com.google.common.collect.Lists;
 import au.com.bytecode.opencsv.CSVReader;
 /**
  * Publishes a new version of the license list.
- * 
+ *
  * See the createOptions method for a description of the options used, or execute the command without parameters to get a list of the parameters from the command line
- * 
+ *
  * The license list data is taken from the github repository spdx/license-list-XML,
  * https://github.com/spdx/license-list-XML
- * 
+ *
  * The first parameter is the release ID for the license list.  The license-list-XML
  * tag MUST contain a tag in the master branch matching the the release ID.
- * 
+ *
  * The 2nd and 3rd parameters are the username and passwords for github.
- * 
+ *
  * If there are no errors or warnings, the license data is published to the github repository
  * spdx/license-list-data, https://github.com/spdx/license-list-data
- * 
+ *
  * The output is tagged by release
- * 
+ *
  * To publish the license list to spdx.org/licenses, the following steps should be
  * performed on the linux server hosting the spdx.org/license website (currently phpphpweb1.linux-foundation.org):
- * 1.	Create a new subdirectory in the ~/licenseArchive directory with the format mm-dd-yyyy where mm is the month, dd is the day, and yyyy 
+ * 1.	Create a new subdirectory in the ~/licenseArchive directory with the format mm-dd-yyyy where mm is the month, dd is the day, and yyyy
  * 		is the year the files were uploaded.
  * 2.	Upload the files from the spdx/license-list-data github repository website folder from the correct tag to a the folder created in step 1
  * 3.	Backup the current files by replacing the files in the ~/backup folder with the files in ~/www/spdx/content/licenses.
  * 		IMPORTANT NOTE: Do NOT do a recursive copy, only copy the files and do NOT copy any subdirectories.
- * 4.	Create a new subdirectory ~/www/spdx/content/licenses/archive/archived_ll_vx.xx where x.xx is the version of the PREVIOUSLY PUBLISHED 
+ * 4.	Create a new subdirectory ~/www/spdx/content/licenses/archive/archived_ll_vx.xx where x.xx is the version of the PREVIOUSLY PUBLISHED
  * 		license list being replaced.
  * 5.	Copy the files from ~/backup to the subdirectory created in step 4
  * 6.	Edit the file ~/www/spdx/content/licenses/archive/archived_ll_vx.xx/index.html.  Add the line
@@ -90,7 +90,7 @@ import au.com.bytecode.opencsv.CSVReader;
  * 8.	If there are any problems, copy the files from the backup back to ~/www/spdx/content/licenses
  */
 public class LicenseListPublisher {
-	
+
 	static final Comparator<String> versionComparer = new Comparator<String>() {
 
 		Pattern versionPattern = Pattern.compile("(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)$");
@@ -112,11 +112,11 @@ public class LicenseListPublisher {
 			String version1 = matcher1.group(0);
 			return version0.compareTo(version1);
 		}
-		
+
 	};
-	
+
 	static final Logger logger = LoggerFactory.getLogger(LicenseListPublisher.class);
-	
+
 	static final int ERROR_STATUS = 1;
 	private static final String LICENSE_XML_URI = "https://github.com/spdx/license-list-XML.git";
 	private static final String TEST_DIRECTORY_PATH = "test/original";
@@ -135,7 +135,7 @@ public class LicenseListPublisher {
 		try {
 			cmdLine = parser.parse(options, args);
 		} catch (ParseException e1) {
-			System.out.println(e1.getMessage());			
+			System.out.println(e1.getMessage());
 			usage(options);
 			System.exit(ERROR_STATUS);
 		}
@@ -193,7 +193,7 @@ public class LicenseListPublisher {
 				}
 			}
 		}
-		
+
 		String release = null;
 		if (cmdLine.hasOption("r")) {
 			release = cmdLine.getOptionValue("r").trim();
@@ -229,10 +229,10 @@ public class LicenseListPublisher {
 					System.out.println("License XML directory "+cmdLine.getOptionValue("d")+ " is not a directory.");
 					usage(options);
 				}
-				version = publishLicenseList(licenseXmlDir, release, githubCredentials, ignoreWarnings, 
+				version = publishLicenseList(licenseXmlDir, release, githubCredentials, ignoreWarnings,
 						ignoredWarnings, outputRepository, testOnly);
 			} else {
-				version = publishLicenseList(licenseXmlGitUri, release, githubCredentials, ignoreWarnings, ignoredWarnings, 
+				version = publishLicenseList(licenseXmlGitUri, release, githubCredentials, ignoreWarnings, ignoredWarnings,
 						outputRepository, testOnly);
 			}
 			if (testOnly) {
@@ -332,12 +332,12 @@ public class LicenseListPublisher {
 	 * Publish a license list to the license data git repository
 	 * @param release license list release name (must be associatd with a tag in the license-list-xml repo)
 	 * @param githubCredentials Credential for the license XML git repository
-	 * @param ignoredWarnings 
+	 * @param ignoredWarnings
 	 * @param outputRepository GIT Repository to output the files to
 	 * @param testOnly If true, only test the license XML and do not update the files in the output repository
 	 * @return Version of published or null if nothing was published
-	 * @throws LicensePublisherException 
-	 * @throws LicenseGeneratorException 
+	 * @throws LicensePublisherException
+	 * @throws LicenseGeneratorException
 	 */
 	private static String publishLicenseList(String licenseXmlGithubUri, String release, CredentialsProvider githubCredentials,
 			boolean ignoreWarnings, String[] ignoredWarnings, String outputRepository, boolean testOnly) throws LicensePublisherException, LicenseGeneratorException {
@@ -357,8 +357,8 @@ public class LicenseListPublisher {
 					throw new LicensePublisherException("Release "+release+" not found as a tag in the License List XML repository");
 				}
 				licenseXmlGit.checkout().setName(releaseTag.getName()).call();
-			}			
-			return publishLicenseList(licenseXmlDir, release, githubCredentials, ignoreWarnings, ignoredWarnings, 
+			}
+			return publishLicenseList(licenseXmlDir, release, githubCredentials, ignoreWarnings, ignoredWarnings,
 					outputRepository, testOnly);
 		} catch (IOException e) {
 			throw new LicensePublisherException("I/O Error publishing license list",e);
@@ -382,15 +382,15 @@ public class LicenseListPublisher {
 	 * @param release license list release name (must be associatd with a tag in the license-list-xml repo)
 	 * @param sourceDirectory Directory containing the source XML files
 	 * @param githubCredentials Credential for the output git repository
-	 * @param ignoredWarnings 
+	 * @param ignoredWarnings
 	 * @param outputRepository URL to the GIT Repository to output the files to
 	 * @param testOnly If true, only test the license XML and do not update the files in the output repository
 	 * @return Version published or null if not published
-	 * @throws LicensePublisherException 
-	 * @throws LicenseGeneratorException 
+	 * @throws LicensePublisherException
+	 * @throws LicenseGeneratorException
 	 */
 	private static String publishLicenseList(File sourceDirectory, String release, CredentialsProvider githubCredentials,
-			boolean ignoreWarnings, String[] ignoredWarnings, String outputRepository, boolean testOnly) throws LicensePublisherException, LicenseGeneratorException {		
+			boolean ignoreWarnings, String[] ignoredWarnings, String outputRepository, boolean testOnly) throws LicensePublisherException, LicenseGeneratorException {
 		File licenseTestDir = new File(sourceDirectory.getAbsolutePath() + File.separator + TEST_DIRECTORY_PATH);
 		File licenseDataDir = null;
 		Git licenseDataGit = null;
@@ -405,7 +405,7 @@ public class LicenseListPublisher {
 						.setURI(outputRepository)
 						.call();
 				if (release != null) {
-					Ref dataReleaseTag = licenseDataGit.getRepository().getTags().get(release);				
+					Ref dataReleaseTag = licenseDataGit.getRepository().getTags().get(release);
 					if (dataReleaseTag != null) {
 						dataReleaseTagExists = true;
 						licenseDataGit.checkout().setName(dataReleaseTag.getName()).call();

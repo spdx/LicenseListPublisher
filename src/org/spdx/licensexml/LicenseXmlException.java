@@ -24,14 +24,14 @@ package org.spdx.licensexml;
 public class LicenseXmlException extends Exception {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	public LicenseXmlException(String msg) {
 		super(msg);
 	}
-	
+
 	public LicenseXmlException(String msg, Throwable inner) {
 		super(msg, inner);
 	}

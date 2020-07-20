@@ -36,23 +36,23 @@ public interface ILicenseFormatWriter {
 	 * @param deprecated True if deprecated
 	 * @param deprecatedVersion License list version when the license was deprecated, null otherwise
 	 * @param seeAlsoDetails License crossrefs URL extra details
-	 * @throws IOException 
-	 * @throws LicenseGeneratorException 
+	 * @throws IOException
+	 * @throws LicenseGeneratorException
 	 */
 	void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, LicenseGeneratorException;
 
 	/**
 	 * Write the Table of Contents file for the format if applicable
-	 * @throws IOException 
-	 * @throws LicenseGeneratorException 
+	 * @throws IOException
+	 * @throws LicenseGeneratorException
 	 */
 	void writeToC() throws IOException, LicenseGeneratorException;
 
 	/**
 	 * @param exception Exception to be formatted and written
 	 * @throws IOException
-	 * @throws LicenseGeneratorException 
-	 * @throws InvalidLicenseTemplateException 
+	 * @throws LicenseGeneratorException
+	 * @throws InvalidLicenseTemplateException
 	 */
 	void writeException(ListedLicenseException exception) throws IOException, LicenseGeneratorException, InvalidLicenseTemplateException;
 

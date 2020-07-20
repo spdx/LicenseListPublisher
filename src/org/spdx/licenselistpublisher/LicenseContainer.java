@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.spdx.licenselistpublisher;
 
@@ -14,14 +14,14 @@ import org.spdx.rdfparser.model.IRdfModel;
 
 /**
  * Container class for license information used by the LicenseRDFaGenerator
- * 
+ *
  * @author Gary O'Neall
  *
  */
 public class LicenseContainer implements IModelContainer, SpdxRdfConstants {
-			
+
 			Model localLicenseModel;
-			
+
 			public LicenseContainer() {
 				localLicenseModel = ModelFactory.createDefaultModel();
 				localLicenseModel.setNsPrefix("spdx", SPDX_NAMESPACE);
@@ -72,7 +72,7 @@ public class LicenseContainer implements IModelContainer, SpdxRdfConstants {
 					Resource type, IRdfModel modelObject) {
 				if (duplicate != null) {
 					return duplicate;
-				} else if (uri == null) {			
+				} else if (uri == null) {
 					return localLicenseModel.createResource(type);
 				} else {
 					return localLicenseModel.createResource(uri, type);
@@ -84,5 +84,5 @@ public class LicenseContainer implements IModelContainer, SpdxRdfConstants {
 					IRdfModel rdfModelObject) {
 				// Not implemented
 				return true;
-			}	
+			}
 }

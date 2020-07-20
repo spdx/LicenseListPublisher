@@ -40,15 +40,15 @@ import com.google.common.io.Files;
  *
  */
 public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
-	
+
 	Logger logger = LoggerFactory.getLogger(XmlLicenseProvider.class.getName());
 	private List<String> warnings = new ArrayList<String>();
-	
-	class XmlLicenseIterator implements Iterator<SpdxListedLicense> {		
+
+	class XmlLicenseIterator implements Iterator<SpdxListedLicense> {
 		private int xmlFileIndex = 0;
 		private SpdxListedLicense nextListedLicense = null;
 		private Iterator<SpdxListedLicense> fileListedLicenseIter = null;
-		
+
 		public XmlLicenseIterator() {
 			findNextItem();
 		}
@@ -107,12 +107,12 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 			// Not implemented
 		}
 	}
-	
+
 	class XmlExceptionIterator implements Iterator<ListedLicenseException> {
 		private int xmlFileIndex = 0;
 		private ListedLicenseException nextLicenseException = null;
 		private Iterator<ListedLicenseException> fileExceptionIterator = null;
-		
+
 		public XmlExceptionIterator() {
 			findNextItem();
 		}
@@ -166,12 +166,12 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 			// Not implemented
 		}
 	}
-	
+
 	private List<File> xmlFiles = new ArrayList<File>();
 
 	/**
 	 * @param xmlFileDirectory directory of XML files
-	 * @throws SpdxListedLicenseException 
+	 * @throws SpdxListedLicenseException
 	 */
 	public XmlLicenseProvider(File xmlFileDirectory) throws SpdxListedLicenseException {
 		if (!xmlFileDirectory.isDirectory()) {
@@ -187,31 +187,31 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 	 * @param alFiles
 	 */
 	private void addXmlFiles(File xmlFileDirectory, List<File> alFiles) {
-		
+
 		File[] directories = xmlFileDirectory.listFiles(new FileFilter() {
 
 			@Override
 			public boolean accept(File pathname) {
 				return pathname.isDirectory();
 			}
-			
+
 		});
-		
+
 		if (directories != null) {
 			for (File subDir:directories) {
 				addXmlFiles(subDir, alFiles);
 			}
 		}
-		
+
 		File[] localFiles = xmlFileDirectory.listFiles(new FileFilter() {
 
 			@Override
 			public boolean accept(File pathname) {
 				return pathname.isFile() && "xml".equals(Files.getFileExtension(pathname.getName().toLowerCase()));
 			}
-			
+
 		});
-		
+
 		if (localFiles != null) {
 			for (File file:localFiles) {
 				alFiles.add(file);
@@ -236,7 +236,7 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 			throws LicenseRestrictionException, SpreadsheetException {
 		return new XmlExceptionIterator();
 	}
-	
+
 	public List<String> getWarnings() {
 		return this.warnings;
 	}
