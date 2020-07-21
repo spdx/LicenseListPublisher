@@ -4,10 +4,13 @@
 package org.spdx.licensexml;
 
 import java.io.BufferedReader;
+<<<<<<< HEAD
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+=======
+>>>>>>> master
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
