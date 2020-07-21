@@ -4,6 +4,10 @@
 package org.spdx.licensexml;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -27,6 +31,7 @@ import org.spdx.rdfparser.SpdxRdfConstants;
 public class UrlHelper {
 	static final String [] INVALID_URL_DOMAINS = {"localhost", "127.0.0.1"};
 	static final String WAYBACK_URL = "web.archive.org";
+	static final String LICENSE_TEXT_JSON = "resources" + File.separator + "license-text.json";
 
 	public static boolean urlLinkExists(String URLName){
 	    try {
@@ -118,6 +123,19 @@ public class UrlHelper {
 			mk[i] = mk1;
 		}
 		return mk;
+	}
+	
+	public static String getLicenseText(String url) {
+		InputStream input = null;
+		if (input == null) {
+			// try the file system
+			try {
+				input = new FileInputStream(LICENSE_TEXT_JSON);
+			} catch (FileNotFoundException e) {
+				input = null;
+			}
+		}
+		return "";
 	}
 
 }
