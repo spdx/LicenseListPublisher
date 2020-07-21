@@ -33,7 +33,7 @@ public interface ILicenseTester {
 	 * Test exception against the test files directory
 	 * @param exception
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public List<String> testException(LicenseException exception) throws IOException;
 

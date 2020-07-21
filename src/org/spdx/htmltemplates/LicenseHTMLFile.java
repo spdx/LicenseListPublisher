@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.spdx.html.InvalidLicenseTemplateException;
+import org.spdx.licensexml.UrlHelper;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 
 import com.github.mustachejava.DefaultMustacheFactory;
@@ -42,14 +43,14 @@ import com.google.common.collect.Maps;
  *
  */
 public class LicenseHTMLFile {
-	
+
 	static final String TEMPLATE_CLASS_PATH = "resources" + "/" + "htmlTemplate";
 	static final String TEMPLATE_ROOT_PATH = "resources" + File.separator + "htmlTemplate";
 	static final String TEMPLATE_FILE_NAME = "LicenseHTMLTemplate.html";
 	static final boolean USE_SITE = false;	// set to true to use the site name for the link of external web pages
 
 	static final Pattern SITE_PATTERN = Pattern.compile("http://(.*)\\.(.*)(\\.org|\\.com|\\.net|\\.info)");
-	
+
 	/**
 	 * Parses a URL and stores the site name and the original URL
 	 * @author Gary O'Neall
@@ -69,7 +70,27 @@ public class LicenseHTMLFile {
 		public String getSite() {
 			return getSiteFromUrl(url);
 		}
-		
+
+		public boolean getIsValid() {
+			return UrlHelper.urlValidator(url);
+		}
+
+		public boolean getIsLive() {
+			return UrlHelper.urlLinkExists(url);
+		}
+
+		public String getMatch() {
+			return "--";
+		}
+
+		public boolean getIsWayBackLink() {
+			return UrlHelper.isWayBackUrl(url);
+		}
+
+		public String getTimestamp() {
+			return UrlHelper.getTimestamp();
+		}
+
 		@SuppressWarnings("unused")
 		private String getSiteFromUrl(String url) {
 			Matcher matcher = SITE_PATTERN.matcher(url);
@@ -91,11 +112,11 @@ public class LicenseHTMLFile {
 	public LicenseHTMLFile(SpdxListedLicense license) {
 		this.license = license;
 	}
-	
+
 	public LicenseHTMLFile() {
 		this(null);
 	}
-	
+
 	/**
 	 * @return the license
 	 */
@@ -109,7 +130,7 @@ public class LicenseHTMLFile {
 	public void setLicense(SpdxListedLicense license) {
 		this.license = license;
 	}
-	
+
 	public void writeToFile(File htmlFile, String tableOfContentsReference) throws IOException, MustacheException, InvalidLicenseTemplateException {
 		FileOutputStream stream = null;
 		OutputStreamWriter writer = null;
@@ -137,12 +158,12 @@ public class LicenseHTMLFile {
 			if (stream != null) {
 				stream.close();
 			}
-		}		
+		}
 	}
 	/**
 	 * @return
-	 * @throws  
-	 * @throws LicenseTemplateRuleException 
+	 * @throws
+	 * @throws LicenseTemplateRuleException
 	 */
 	private Map<String, Object> buildMustachMap() throws InvalidLicenseTemplateException {
 			Map<String, Object> retval = Maps.newHashMap();

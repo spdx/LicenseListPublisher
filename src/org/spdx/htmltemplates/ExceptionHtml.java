@@ -39,16 +39,16 @@ import com.google.common.collect.Maps;
  *
  */
 public class ExceptionHtml {
-	
+
 	static final String TEMPLATE_CLASS_PATH = "resources" + "/" + "htmlTemplate";
 	static final String TEMPLATE_ROOT_PATH = "resources" + File.separator + "htmlTemplate";
 	static final String HTML_TEMPLATE = "ExceptionHTMLTemplate.html";
-	
+
 	Map<String, Object> mustacheMap = Maps.newHashMap();
-	
+
 	/**
 	 * @param exception
-	 * @throws InvalidLicenseTemplateException 
+	 * @throws InvalidLicenseTemplateException
 	 */
 	public ExceptionHtml(ListedLicenseException exception) throws InvalidLicenseTemplateException {
 		List<String> alSourceUrls = Lists.newArrayList();
@@ -70,8 +70,8 @@ public class ExceptionHtml {
 	/**
 	 * @param exceptionHtmlFile
 	 * @param exceptionHtmlTocReference
-	 * @throws IOException 
-	 * @throws MustacheException 
+	 * @throws IOException
+	 * @throws MustacheException
 	 */
 	public void writeToFile(File exceptionHtmlFile,
 			String exceptionHtmlTocReference) throws IOException, MustacheException {

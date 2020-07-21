@@ -45,7 +45,7 @@ import org.xml.sax.SAXException;
  *
  */
 public class LicenseXmlDocumentTest {
-	
+
 	static final String TEST_FILE_PATH = "TestFiles" + File.separator + "test-license.xml";
 	static final String TEST_OPTIONAL_FILE_PATH = "TestFiles" + File.separator + "test-optional-annotations.xml";
 	private static final String TEST_LICENSE_COMMENT = "Test note";
@@ -86,8 +86,8 @@ public class LicenseXmlDocumentTest {
 			"Last Paragraph exc <<var;name=\"altteste\";original=\"Alternate Text exc\";match=\".+\">> Non matching line. e<<beginOptional>> Optional text exc<<endOptional>>";
 	private static final String TEST_DEP_LICENSE_VERSION = "2.2";
 	private static final String AGPL3ONLY_FILE_PATH = "TestFiles" + File.separator + "AGPL-3.0-only.xml";
-	
-	
+
+
 
 	/**
 	 * @throws java.lang.Exception
@@ -112,7 +112,7 @@ public class LicenseXmlDocumentTest {
 		new LicenseXmlDocument(licenseFile);
 		// I guess if we don't get any exceptions, it passed
 	}
-	
+
 	@Test
 	public void testOptionalAnnotations() throws Exception {
 		File licenseFile = new File(TEST_OPTIONAL_FILE_PATH);
@@ -129,8 +129,8 @@ public class LicenseXmlDocumentTest {
 
 	/**
 	 * Test method for {@link org.spdx.licensexml.LicenseXmlDocument#getListedLicense()}.
-	 * @throws LicenseXmlException 
-	 * @throws InvalidSPDXAnalysisException 
+	 * @throws LicenseXmlException
+	 * @throws InvalidSPDXAnalysisException
 	 */
 	@Test
 	public void testGetListedLicense() throws LicenseXmlException, InvalidSPDXAnalysisException {
@@ -165,8 +165,8 @@ public class LicenseXmlDocumentTest {
 
 	/**
 	 * Test method for {@link org.spdx.licensexml.LicenseXmlDocument#getLicenseException()}.
-	 * @throws LicenseXmlException 
-	 * @throws InvalidSPDXAnalysisException 
+	 * @throws LicenseXmlException
+	 * @throws InvalidSPDXAnalysisException
 	 */
 	@Test
 	public void testGetLicenseException() throws LicenseXmlException, InvalidSPDXAnalysisException {
@@ -191,7 +191,7 @@ public class LicenseXmlDocumentTest {
 		String result = LicenseXmlHelper.dumpLicenseDom((Element) doc.getDocumentElement().getElementsByTagName("license").item(0));
 		assertTrue(result.length() > 0);
 	}
-	
+
 	@Test
 	public void testRegressionAgpl3Only() throws LicenseXmlException, InvalidSPDXAnalysisException, InvalidLicenseTemplateException {
 		File licenseFile = new File(AGPL3ONLY_FILE_PATH);
