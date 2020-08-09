@@ -26,8 +26,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.spdx.crossref.Live;
+import org.spdx.crossref.Timestamp;
+import org.spdx.crossref.Valid;
+import org.spdx.crossref.Wayback;
 import org.spdx.html.InvalidLicenseTemplateException;
-import org.spdx.licensexml.UrlHelper;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 
 import com.github.mustachejava.DefaultMustacheFactory;
@@ -72,11 +75,11 @@ public class LicenseHTMLFile {
 		}
 
 		public boolean getIsValid() {
-			return UrlHelper.urlValidator(url);
+			return Valid.urlValidator(url);
 		}
 
 		public boolean getIsLive() {
-			return UrlHelper.urlLinkExists(url);
+			return Live.urlLinkExists(url);
 		}
 
 		public String getMatch() {
@@ -84,11 +87,11 @@ public class LicenseHTMLFile {
 		}
 
 		public boolean getIsWayBackLink() {
-			return UrlHelper.isWayBackUrl(url);
+			return Wayback.isWayBackUrl(url);
 		}
 
 		public String getTimestamp() {
-			return UrlHelper.getTimestamp();
+			return Timestamp.getTimestamp();
 		}
 
 		@SuppressWarnings("unused")

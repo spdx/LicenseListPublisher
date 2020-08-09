@@ -17,17 +17,11 @@ package org.spdx.licenselistpublisher.licensegenerator;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.spdx.crossref.CrossRefHelper;
 import org.spdx.html.ExceptionTOCJSONFile;
 import org.spdx.html.LicenseExceptionJSONFile;
 import org.spdx.html.LicenseJSONFile;
 import org.spdx.html.LicenseTOCJSONFile;
-import org.spdx.licensexml.UrlHelper;
-import org.spdx.rdfparser.SpdxRdfConstants;
 import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 
@@ -110,7 +104,7 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 
 	@Override
 	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException {
-		license.setCrossRef(UrlHelper.buildUrlDetails(license.getSeeAlso()));
+		license.setCrossRef(CrossRefHelper.buildUrlDetails(license.getSeeAlso()));
 		licJson.setLicense(license, deprecated);
 		String licBaseHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(license.getLicenseId());
 		String licHtmlFileName = licBaseHtmlFileName + ".html";
