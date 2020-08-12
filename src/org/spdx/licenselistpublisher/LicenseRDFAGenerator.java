@@ -37,6 +37,7 @@ import org.spdx.compare.SpdxCompareException;
 import org.spdx.html.InvalidLicenseTemplateException;
 import org.spdx.licensexml.XmlLicenseProvider;
 import org.spdx.licensexml.XmlLicenseProviderSingleFile;
+import org.spdx.licensexml.XmlLicenseProviderWithCrossRefDetails;
 import org.spdx.rdfparser.InvalidSPDXAnalysisException;
 import org.spdx.rdfparser.license.ISpdxListedLicenseProvider;
 import org.spdx.rdfparser.license.LicenseException;
@@ -235,7 +236,7 @@ public class LicenseRDFAGenerator {
 		ISpdxListedLicenseProvider licenseProvider = null;
 		try {
 			if (licenseXml.isDirectory()) {
-				licenseProvider = new XmlLicenseProvider(licenseXml);
+				licenseProvider = new XmlLicenseProviderWithCrossRefDetails(licenseXml);
 			} else {
 				licenseProvider = new XmlLicenseProviderSingleFile(licenseXml);
 			}

@@ -27,7 +27,6 @@ import org.spdx.rdfparser.license.LicenseException;
 import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 import org.json.simple.JSONArray;
-import org.spdx.crossref.CrossRefHelper;
 import org.spdx.licenselistpublisher.LicenseContainer;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
 
@@ -103,7 +102,6 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 
 	@Override
 	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, LicenseGeneratorException {
-		license.setCrossRef(CrossRefHelper.buildUrlDetails(license.getSeeAlso()));
 		AnyLicenseInfo licenseClone = license.clone();
 		LicenseContainer onlyThisLicense = new LicenseContainer();
 		try {

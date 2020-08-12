@@ -104,7 +104,6 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 
 	@Override
 	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException {
-		license.setCrossRef(CrossRefHelper.buildUrlDetails(license.getSeeAlso()));
 		licJson.setLicense(license, deprecated);
 		String licBaseHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(license.getLicenseId());
 		String licHtmlFileName = licBaseHtmlFileName + ".html";
