@@ -34,6 +34,7 @@ import java.util.Set;
 import org.json.simple.JSONArray;
 import org.spdx.compare.LicenseCompareHelper;
 import org.spdx.compare.SpdxCompareException;
+import org.spdx.crossref.CrossRefHelper;
 import org.spdx.html.InvalidLicenseTemplateException;
 import org.spdx.licensexml.XmlLicenseProvider;
 import org.spdx.licensexml.XmlLicenseProviderSingleFile;
@@ -469,6 +470,9 @@ public class LicenseRDFAGenerator {
 		while (licenseIter.hasNext()) {
 			System.out.print(".");
 			SpdxListedLicense license = licenseIter.next();
+			if (licenseProvider instanceof XmlLicenseProviderSingleFile) {
+				license.setCrossRef(CrossRefHelper.buildUrlDetails(license.getSeeAlso()));
+			}
 			addExternalMetaData(license);
 			if (license.getLicenseId() != null && !license.getLicenseId().isEmpty()) {
 				// Check for duplicate licenses
