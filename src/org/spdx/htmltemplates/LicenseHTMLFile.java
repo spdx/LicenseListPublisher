@@ -61,8 +61,13 @@ public class LicenseHTMLFile {
 	 */
 	public static class FormattedUrl {
 		String url;
+		SpdxListedLicense license;
 		public FormattedUrl(String url) {
 			this.url = url;
+		}
+		public FormattedUrl(String url, SpdxListedLicense license) {
+			this.url = url;
+			this.license = license;
 		}
 		public String getUrl() {
 			return this.url;
@@ -73,24 +78,58 @@ public class LicenseHTMLFile {
 		public String getSite() {
 			return getSiteFromUrl(url);
 		}
+		
+		public String getVal(Integer index) {
+			String val = null;
+			String currentUrl = null;
+			if(license != null) {
+				for(String ref: license.getCrossRef()) {
+					String crossRef = ref.substring(1, ref.length()-1);
+					String[] details = crossRef.split(",");
+					currentUrl = details[0].split(": ")[1].trim();
+					if(url.equals(currentUrl)) {
+						val = details[index].split(": ")[1].trim();
+					}
+				}
+			}
+			return val;
+		}
 
 		public boolean getIsValid() {
+			if(license != null) {
+				boolean b = Boolean.parseBoolean(getVal(1));
+				return b;
+			}
 			return Valid.urlValidator(url);
 		}
 
 		public boolean getIsLive() {
+			if(license != null) {
+				boolean b = Boolean.parseBoolean(getVal(2));
+				return b;
+			}
 			return Live.urlLinkExists(url);
 		}
 
 		public String getMatch() {
+			if(license != null) {
+				return getVal(4);
+			}
 			return "--";
 		}
 
 		public boolean getIsWayBackLink() {
+			if(license != null) {
+				boolean b = Boolean.parseBoolean(getVal(3));
+				return b;
+			}
 			return Wayback.isWayBackUrl(url);
 		}
 
 		public String getTimestamp() {
+			if(license != null) {
+				return getVal(5);
+			}
 			return Timestamp.getTimestamp();
 		}
 
@@ -191,13 +230,15 @@ public class LicenseHTMLFile {
 				retval.put("fsfLibre", license.isFsfLibre());
 				retval.put("notFsfLibre", license.isNotFsfLibre());
 				List<FormattedUrl> otherWebPages = Lists.newArrayList();
+				// update this. the crossrefs are already present
 				if (license.getSeeAlso() != null && license.getSeeAlso().length > 0) {
 					for (String sourceUrl : license.getSeeAlso()) {
 						if (sourceUrl != null && !sourceUrl.isEmpty()) {
-							FormattedUrl formattedUrl = new FormattedUrl(sourceUrl);
+							FormattedUrl formattedUrl = new FormattedUrl(sourceUrl, license);
 							otherWebPages.add(formattedUrl);
 						}
 				}
+				// update this
 				if (otherWebPages.size() == 0) {
 					otherWebPages = null;	// Force the template to print None
 				}

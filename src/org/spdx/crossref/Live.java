@@ -20,12 +20,16 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.Callable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Determines whether the url is live or not
  * @author Smith Tanjong
  *
  */
 public class Live implements Callable<Boolean>  {
+	static final Logger logger = LoggerFactory.getLogger(CrossRefHelper.class.getName());
 	String url;
 
 	/**
@@ -48,7 +52,8 @@ public class Live implements Callable<Boolean>  {
 	      return (con.getResponseCode() == HttpURLConnection.HTTP_OK || con.getResponseCode() == HttpURLConnection.HTTP_NOT_MODIFIED);
 	    }
 	    catch (Exception e) {
-	       return false;
+	    	logger.error("Failed checking live status.",e);
+	        return false;
 	    }
 	  }
 	

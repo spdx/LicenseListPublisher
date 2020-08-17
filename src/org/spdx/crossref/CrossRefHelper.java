@@ -22,6 +22,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spdx.licensexml.LicenseXmlDocument;
 import org.spdx.rdfparser.SpdxRdfConstants;
 
 /**
@@ -30,6 +33,7 @@ import org.spdx.rdfparser.SpdxRdfConstants;
  *
  */
 public class CrossRefHelper implements Callable<String[]> {
+	static final Logger logger = LoggerFactory.getLogger(CrossRefHelper.class.getName());
 	
 	String[] crossRefUrls;
 
@@ -61,16 +65,12 @@ public class CrossRefHelper implements Callable<String[]> {
 		    	Boolean isLiveUrl = isLive.get(6, TimeUnit.SECONDS);
 		    	Boolean isWaybackUrl = isWayback.get(3, TimeUnit.SECONDS);
 		    	String currentDate = timestamp.get(3, TimeUnit.SECONDS);
-		    	String crossRefDetails = String.format("{%s: %b,%s: %b,%s: %b,%s: %s,%s: %b, %s: %s}",
-						SpdxRdfConstants.PROP_CROSS_REF_IS_VALID, isValidUrl,
-						SpdxRdfConstants.PROP_CROSS_REF_WAYBACK_LINK, isWaybackUrl,
-						SpdxRdfConstants.PROP_CROSS_REF_MATCH, "true",
-						SpdxRdfConstants.PROP_CROSS_REF_URL, url,
-						SpdxRdfConstants.PROP_CROSS_REF_IS_LIVE, isLiveUrl,
-						SpdxRdfConstants.PROP_CROSS_REF_TIMESTAMP, currentDate);
-		    	urlDetails[i] = crossRefDetails;
+		    	String match = "--";
+		    	CrossRef crossRefDetails = new CrossRef(url, isValidUrl, isLiveUrl, isWaybackUrl, match, currentDate);
+		    	urlDetails[i] = crossRefDetails.toString();
 		    } catch (Exception e) {
 		        // interrupts if there is any possible error
+		    	logger.error("Interrupted.",e);
 		    	isValid.cancel(true);
 		    	isLive.cancel(true);
 		    	isWayback.cancel(true);
@@ -80,7 +80,7 @@ public class CrossRefHelper implements Callable<String[]> {
 		    try {
 				executorService.awaitTermination(3, TimeUnit.SECONDS);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logger.error("Interrupted while waiting for termination",e);
 			}
 		}
 		return urlDetails;
