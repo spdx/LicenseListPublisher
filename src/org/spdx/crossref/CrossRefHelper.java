@@ -53,7 +53,7 @@ public class CrossRefHelper implements Callable<String[]> {
 		for (int i = 0; i < crossRefUrls.length; i++) {
 			String url = crossRefUrls[i];
 			
-			ExecutorService executorService = Executors.newFixedThreadPool(20);
+			ExecutorService executorService = Executors.newFixedThreadPool(100);
 
 			Future<Boolean> isValid = executorService.submit(new Valid(url));
 			Future<Boolean> isLive = executorService.submit(new Live(url));
@@ -61,26 +61,26 @@ public class CrossRefHelper implements Callable<String[]> {
 			Future<String> timestamp = executorService.submit(new Timestamp());
 			
 			try {
-				Boolean isValidUrl = isValid.get(3, TimeUnit.SECONDS);
-		    	Boolean isLiveUrl = isLive.get(6, TimeUnit.SECONDS);
-		    	Boolean isWaybackUrl = isWayback.get(3, TimeUnit.SECONDS);
-		    	String currentDate = timestamp.get(3, TimeUnit.SECONDS);
+				Boolean isValidUrl = isValid.get(10, TimeUnit.SECONDS);
+		    	Boolean isLiveUrl = isLive.get(10, TimeUnit.SECONDS);
+		    	Boolean isWaybackUrl = isWayback.get(5, TimeUnit.SECONDS);
+		    	String currentDate = timestamp.get(5, TimeUnit.SECONDS);
 		    	String match = "--";
 		    	CrossRef crossRefDetails = new CrossRef(url, isValidUrl, isLiveUrl, isWaybackUrl, match, currentDate);
 		    	urlDetails[i] = crossRefDetails.toString();
 		    } catch (Exception e) {
 		        // interrupts if there is any possible error
-		    	logger.error("Interrupted.",e);
 		    	isValid.cancel(true);
 		    	isLive.cancel(true);
 		    	isWayback.cancel(true);
 		    	timestamp.cancel(true);
+		    	logger.error("Interrupted.",e.getMessage());
 		    }
 		    executorService.shutdown();
 		    try {
 				executorService.awaitTermination(3, TimeUnit.SECONDS);
 			} catch (InterruptedException e) {
-				logger.error("Interrupted while waiting for termination",e);
+				logger.error("Interrupted while waiting for termination",e.getMessage());
 			}
 		}
 		return urlDetails;

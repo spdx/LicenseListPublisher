@@ -25,4 +25,11 @@ package org.spdx.crossref;
 public class UrlConstants {
 	public static final String [] INVALID_URL_DOMAINS = {"localhost", "127.0.0.1"};
 	public static final String [] WAYBACK_URLS = {"web.archive.org", "wayback.archive.org"};
+	
+	public static final Integer CROSS_REF_INDEX_URL = 0;
+	public static final Integer CROSS_REF_INDEX_ISVALID = 1;
+	public static final Integer CROSS_REF_INDEX_ISLIVE = 2;
+	public static final Integer CROSS_REF_INDEX_ISWAYBACKLINK = 3;
+	public static final Integer CROSS_REF_INDEX_MATCH = 4;
+	public static final Integer CROSS_REF_INDEX_TIMESTAMP = 5;
 }

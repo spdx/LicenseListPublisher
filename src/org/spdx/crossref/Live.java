@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class Live implements Callable<Boolean>  {
-	static final Logger logger = LoggerFactory.getLogger(CrossRefHelper.class.getName());
+	static final Logger logger = LoggerFactory.getLogger(Live.class.getName());
 	String url;
 
 	/**
@@ -48,11 +48,11 @@ public class Live implements Callable<Boolean>  {
 	      HttpURLConnection.setFollowRedirects(false);
 	      HttpURLConnection con = (HttpURLConnection) new URL(URLName).openConnection();
 	      con.setRequestMethod("HEAD");
-	      con.setConnectTimeout(5000);
+	      con.setConnectTimeout(8500);
 	      return (con.getResponseCode() == HttpURLConnection.HTTP_OK || con.getResponseCode() == HttpURLConnection.HTTP_NOT_MODIFIED);
 	    }
 	    catch (Exception e) {
-	    	logger.error("Failed checking live status.",e);
+	    	logger.error("Failed checking live status.",e.getMessage());
 	        return false;
 	    }
 	  }

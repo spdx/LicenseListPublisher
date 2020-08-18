@@ -31,7 +31,6 @@ public class CrossRef {
 	}
 	
 	public String toString(){
-		//overriding the toString() method
 		String crossRefDetails = String.format("{%s: %s,%s: %b,%s: %b,%s: %b,%s: %s,%s: %s}",
 				SpdxRdfConstants.PROP_CROSS_REF_URL, url,
 				SpdxRdfConstants.PROP_CROSS_REF_IS_VALID, isValid,
