@@ -212,7 +212,7 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 			licHtml.writeToFile(licBaseHtmlFile, tocHTMLReference);
 			licHtml.writeToFile(licHtmlFile, tocHTMLReference);
 		} catch (MustacheException e) {
-			throw new LicenseGeneratorException("Template error for license HTML file: "+e.getMessage(),e);
+			throw new LicenseGeneratorException("Template33 error for license HTML file: "+e.getMessage(),e);
 		} catch (InvalidLicenseTemplateException e) {
 			throw new LicenseGeneratorException("License template error for license HTML file: "+e.getMessage(),e);
 		}

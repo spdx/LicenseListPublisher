@@ -52,7 +52,7 @@ public class Live implements Callable<Boolean>  {
 	      return (con.getResponseCode() == HttpURLConnection.HTTP_OK || con.getResponseCode() == HttpURLConnection.HTTP_NOT_MODIFIED);
 	    }
 	    catch (Exception e) {
-	    	logger.error("Failed checking live status.",e.getMessage());
+	    	logger.warn("Failed checking live status.",e.getMessage());
 	        return false;
 	    }
 	  }

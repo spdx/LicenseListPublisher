@@ -42,14 +42,19 @@ public class Valid implements Callable<Boolean> {
 	 */
     public static boolean urlValidator(String url){
 		// Get an UrlValidator using default schemes
-		boolean containsInvalidUrl = false;
-		for(int i = 0; i < UrlConstants.INVALID_URL_DOMAINS.length; i++) {
-			if(url.contains(UrlConstants.INVALID_URL_DOMAINS[i])) {
-				containsInvalidUrl = url.contains(UrlConstants.INVALID_URL_DOMAINS[i]);
+		try {
+			boolean containsInvalidUrl = false;
+			for(int i = 0; i < UrlConstants.INVALID_URL_DOMAINS.length; i++) {
+				if(url.contains(UrlConstants.INVALID_URL_DOMAINS[i])) {
+					containsInvalidUrl = url.contains(UrlConstants.INVALID_URL_DOMAINS[i]);
+				}
 			}
+			UrlValidator defaultValidator = new UrlValidator();
+			return defaultValidator.isValid(url) && !containsInvalidUrl;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
 		}
-		UrlValidator defaultValidator = new UrlValidator();
-		return defaultValidator.isValid(url) && !containsInvalidUrl;
 	}
 
 	@Override

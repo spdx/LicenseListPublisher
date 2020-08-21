@@ -68,6 +68,12 @@ public class LicenseHTMLFile {
 		*/
 		String[] licenseCrossRefs;
 		
+		Boolean isValid;
+		Boolean isLive;
+		Boolean isWayBackLink;
+		String match;
+		String timestamp;
+		
 		public FormattedUrl(String url) {
 			this.url = url;
 			this.licenseCrossRefs = null;
@@ -75,6 +81,14 @@ public class LicenseHTMLFile {
 		public FormattedUrl(String url, String [] licenseCrossRefs) {
 			this.url = url;
 			this.licenseCrossRefs = licenseCrossRefs;
+		}
+		public FormattedUrl(String url, Boolean isValid, Boolean isLive, Boolean isWayBackLink, String match, String timestamp) {
+			this.url = url;
+			this.isValid = isValid;
+			this.isLive = isLive;
+			this.isWayBackLink = isWayBackLink;
+			this.match = match;
+			this.timestamp = timestamp;
 		}
 		public String getUrl() {
 			return this.url;
@@ -86,56 +100,37 @@ public class LicenseHTMLFile {
 			return getSiteFromUrl(url);
 		}
 		
-		public String getVal(Integer index) {
-			String val = null;
-			String currentUrl = null;
-			if(licenseCrossRefs != null) {
-				for(String ref: licenseCrossRefs) {
-					String crossRef = ref.substring(1, ref.length()-1);
-					String[] details = crossRef.split(",");
-					currentUrl = details[UrlConstants.CROSS_REF_INDEX_URL].split(": ")[1].trim();
-					if(url.equals(currentUrl)) {
-						val = details[index].split(": ")[1].trim();
-					}
-				}
-			}
-			return val;
-		}
-
 		public boolean getIsValid() {
-			if(licenseCrossRefs != null) {
-				boolean b = Boolean.parseBoolean(getVal(UrlConstants.CROSS_REF_INDEX_ISVALID));
-				return b;
+			if(isValid != null) {
+				return isValid;
 			}
 			return Valid.urlValidator(url);
 		}
 
 		public boolean getIsLive() {
-			if(licenseCrossRefs != null) {
-				boolean b = Boolean.parseBoolean(getVal(UrlConstants.CROSS_REF_INDEX_ISLIVE));
-				return b;
+			if(isLive != null) {
+				return isLive;
 			}
 			return Live.urlLinkExists(url);
 		}
 
 		public String getMatch() {
-			if(licenseCrossRefs != null) {
-				return getVal(UrlConstants.CROSS_REF_INDEX_MATCH);
+			if(match != null) {
+				return match;
 			}
 			return "--";
 		}
 
 		public boolean getIsWayBackLink() {
-			if(licenseCrossRefs != null) {
-				boolean b = Boolean.parseBoolean(getVal(UrlConstants.CROSS_REF_INDEX_ISWAYBACKLINK));
-				return b;
+			if(isWayBackLink != null) {
+				return isWayBackLink;
 			}
 			return Wayback.isWayBackUrl(url);
 		}
 
 		public String getTimestamp() {
-			if(licenseCrossRefs != null) {
-				return getVal(UrlConstants.CROSS_REF_INDEX_TIMESTAMP);
+			if(timestamp != null) {
+				return timestamp;
 			}
 			return Timestamp.getTimestamp();
 		}
@@ -209,6 +204,49 @@ public class LicenseHTMLFile {
 			}
 		}
 	}
+	
+	
+	public String getVal(String url, Integer index, String[] licenseCrossRefs) {
+		String val = null;
+		String currentUrl = null;
+		if(licenseCrossRefs != null) {
+			for(String ref: licenseCrossRefs) {
+				if(ref != null) {
+					String crossRef = ref.substring(1, ref.length()-1);
+					String[] details = crossRef.split(",");
+					currentUrl = details[UrlConstants.CROSS_REF_INDEX_URL].split(": ")[1].trim();
+					if(url.equals(currentUrl)) {
+						val = details[index].split(": ")[1].trim();
+					}
+				}
+			}
+		}
+		return val;
+	}
+	
+	public boolean getIsValid(String url, String[] licenseCrossRefs) {
+		boolean b = Boolean.parseBoolean(getVal(url, UrlConstants.CROSS_REF_INDEX_ISVALID, licenseCrossRefs));
+		return b;
+	}
+	
+	public boolean getIsLive(String url, String[] licenseCrossRefs) {
+		boolean b = Boolean.parseBoolean(getVal(url, UrlConstants.CROSS_REF_INDEX_ISLIVE, licenseCrossRefs));
+		return b;
+	}
+	
+	public boolean getIsWayBackLink(String url, String[] licenseCrossRefs) {
+		boolean b = Boolean.parseBoolean(getVal(url, UrlConstants.CROSS_REF_INDEX_ISWAYBACKLINK, licenseCrossRefs));
+		return b;
+	}
+	
+	public String getMatch(String url, String[] licenseCrossRefs) {
+		return "--";
+	}
+
+	public String getTimestamp(String url, String[] licenseCrossRefs) {
+		return getVal(url, UrlConstants.CROSS_REF_INDEX_TIMESTAMP, licenseCrossRefs);
+	}
+	
 	/**
 	 * @return
 	 * @throws
@@ -240,7 +278,12 @@ public class LicenseHTMLFile {
 				if (license.getSeeAlso() != null && license.getSeeAlso().length > 0) {
 					for (String sourceUrl : license.getSeeAlso()) {
 						if (sourceUrl != null && !sourceUrl.isEmpty()) {
-							FormattedUrl formattedUrl = new FormattedUrl(sourceUrl);
+							FormattedUrl formattedUrl = null;
+							try {
+								formattedUrl = new FormattedUrl(sourceUrl, getIsValid(sourceUrl, license.getCrossRef()), getIsLive(sourceUrl, license.getCrossRef()), getIsWayBackLink(sourceUrl, license.getCrossRef()), "---", getTimestamp(sourceUrl, license.getCrossRef()));
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
 							otherWebPages.add(formattedUrl);
 						}
 				}

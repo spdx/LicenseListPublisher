@@ -52,8 +52,9 @@ public class CrossRefHelper implements Callable<String[]> {
 		String[] urlDetails = new String[crossRefUrls.length];
 		for (int i = 0; i < crossRefUrls.length; i++) {
 			String url = crossRefUrls[i];
-			
-			ExecutorService executorService = Executors.newFixedThreadPool(100);
+			CrossRef crossRefDetails = new CrossRef();
+			crossRefDetails.setUrl(url);
+			ExecutorService executorService = Executors.newFixedThreadPool(10);
 
 			Future<Boolean> isValid = executorService.submit(new Valid(url));
 			Future<Boolean> isLive = executorService.submit(new Live(url));
@@ -62,11 +63,11 @@ public class CrossRefHelper implements Callable<String[]> {
 			
 			try {
 				Boolean isValidUrl = isValid.get(10, TimeUnit.SECONDS);
-		    	Boolean isLiveUrl = isLive.get(10, TimeUnit.SECONDS);
-		    	Boolean isWaybackUrl = isWayback.get(5, TimeUnit.SECONDS);
+		    	Boolean isLiveUrl = isValidUrl ? isLive.get(10, TimeUnit.SECONDS) : false;
+		    	Boolean isWaybackUrl = isValidUrl ? isWayback.get(5, TimeUnit.SECONDS) : false;
 		    	String currentDate = timestamp.get(5, TimeUnit.SECONDS);
-		    	String match = "--";
-		    	CrossRef crossRefDetails = new CrossRef(url, isValidUrl, isLiveUrl, isWaybackUrl, match, currentDate);
+		    	String match = isValidUrl ? "--" : "--";
+		    	crossRefDetails.setDetails(isValidUrl, isLiveUrl, isWaybackUrl, match, currentDate);
 		    	urlDetails[i] = crossRefDetails.toString();
 		    } catch (Exception e) {
 		        // interrupts if there is any possible error
@@ -75,10 +76,14 @@ public class CrossRefHelper implements Callable<String[]> {
 		    	isWayback.cancel(true);
 		    	timestamp.cancel(true);
 		    	logger.error("Interrupted.",e.getMessage());
+		    	crossRefDetails.setUrl(url);
+		    	crossRefDetails.setDetails(Valid.urlValidator(url), false, Wayback.isWayBackUrl(url), "--", Timestamp.getTimestamp());
+		    	urlDetails[i] = crossRefDetails.toString();
+		    } finally {
+		    	executorService.shutdown();
 		    }
-		    executorService.shutdown();
 		    try {
-				executorService.awaitTermination(3, TimeUnit.SECONDS);
+				executorService.awaitTermination(1000, TimeUnit.SECONDS);
 			} catch (InterruptedException e) {
 				logger.error("Interrupted while waiting for termination",e.getMessage());
 			}

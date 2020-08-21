@@ -30,6 +30,27 @@ public class CrossRef {
 		this.timestamp = timestamp;
 	}
 	
+	public CrossRef() {
+		this.url = null;
+		this.isValid = null;
+		this.isLive = null;
+		this.isWayBackLink = null;
+		this.match = null;
+		this.timestamp = null;
+	}
+	
+	public void setUrl(String url) {
+		this.url = url;
+	}
+	
+	public void setDetails(Boolean isValid, Boolean isLive, Boolean isWayBackLink, String match, String timestamp) {
+		this.isValid = isValid;
+		this.isLive = isLive;
+		this.isWayBackLink = isWayBackLink;
+		this.match = match;
+		this.timestamp = timestamp;
+	}
+	
 	public String toString(){
 		String crossRefDetails = String.format("{%s: %s,%s: %b,%s: %b,%s: %b,%s: %s,%s: %s}",
 				SpdxRdfConstants.PROP_CROSS_REF_URL, url,
