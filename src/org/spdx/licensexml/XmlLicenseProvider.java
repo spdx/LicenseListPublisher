@@ -46,14 +46,14 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 
 	class XmlLicenseIterator implements Iterator<SpdxListedLicense> {
 		private int xmlFileIndex = 0;
-		private SpdxListedLicense nextListedLicense = null;
+		protected SpdxListedLicense nextListedLicense = null;
 		private Iterator<SpdxListedLicense> fileListedLicenseIter = null;
 
 		public XmlLicenseIterator() {
 			findNextItem();
 		}
 
-		private void findNextItem() {
+		protected void findNextItem() {
 			nextListedLicense = null;
 			if (fileListedLicenseIter == null || !fileListedLicenseIter.hasNext()) {
 				fileListedLicenseIter = null;
