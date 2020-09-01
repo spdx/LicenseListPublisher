@@ -471,7 +471,7 @@ public class LicenseRDFAGenerator {
 			System.out.print(".");
 			SpdxListedLicense license = licenseIter.next();
 			if (licenseProvider instanceof XmlLicenseProviderSingleFile) {
-				license.setCrossRef(CrossRefHelper.buildUrlDetails(license.getSeeAlso()));
+				license.setCrossRef(CrossRefHelper.buildUrlDetails(license));
 			}
 			addExternalMetaData(license);
 			if (license.getLicenseId() != null && !license.getLicenseId().isEmpty()) {

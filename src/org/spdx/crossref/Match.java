@@ -17,6 +17,82 @@
 
 package org.spdx.crossref;
 
-public class Match {
+import java.io.IOException;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spdx.compare.LicenseCompareHelper;
+import org.spdx.compare.SpdxCompareException;
+import org.spdx.html.InvalidLicenseTemplateException;
+import org.spdx.rdfparser.license.SpdxListedLicense;
+
+public class Match implements Callable<String> {
+	static final Logger logger = LoggerFactory.getLogger(Match.class.getName());
+	String url;
+	SpdxListedLicense license;
+
+	/**
+	 * @param url the url in string form
+	 * @param licenseText the license text in string form
+	 */
+    public Match(String url, SpdxListedLicense license) {
+    	this.url = url;
+    	this.license = license;
+    }
+    
+	/**
+	 * @return match; the match status
+	 */
+    public static String checkMatch(String url, SpdxListedLicense license){
+		// Get match status
+    	String match = "false";
+    	try {
+			Document doc = Jsoup.connect(url).get();
+			String bodyText = doc.body().text();
+			Integer startIndex = -1;
+			Integer endIndex = -1;			
+			List<String> nonOptionalText = null;
+			try {
+				nonOptionalText = LicenseCompareHelper.getNonOptionalLicenseText(license.getStandardLicenseTemplate(), true);
+			} catch (SpdxCompareException e) {
+				e.printStackTrace();
+			}
+			Pattern result = LicenseCompareHelper.nonOptionalTextToStartPattern(nonOptionalText, 10);
+			String compareLicenseText = LicenseCompareHelper.normalizeText(bodyText);
+			Matcher matcher = result.matcher(compareLicenseText);
+			if(matcher.find()) {
+				startIndex = matcher.start();
+				endIndex = matcher.end();
+				String completeText = compareLicenseText.substring(startIndex, endIndex);
+				try {
+					Boolean matchBool = LicenseCompareHelper.isTextStandardLicense(license, completeText).isDifferenceFound();
+					if(!matchBool) {
+						match = new Boolean(!matchBool).toString();
+					}
+				} catch (SpdxCompareException e) {
+					e.printStackTrace();
+				}
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    	return match;
+	}
+
+	@Override
+	public String call() throws Exception {
+		return checkMatch(url, license);
+	}
 
 }

@@ -46,7 +46,7 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 	private List<String> warnings = new ArrayList<String>();
 
 	class XmlLicenseIterator extends XmlLicenseProvider.XmlLicenseIterator {
-		
+
 		public XmlLicenseIterator() {
 			super();
 		}
@@ -57,7 +57,7 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 		@Override
 		public SpdxListedLicense next() {
 			SpdxListedLicense retval = this.nextListedLicense;
-			retval.setCrossRef(CrossRefHelper.buildUrlDetails(retval.getSeeAlso()));
+			retval.setCrossRef(CrossRefHelper.buildUrlDetails(retval));
 			this.findNextItem();
 			return retval;
 		}
