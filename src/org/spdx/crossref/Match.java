@@ -17,7 +17,6 @@
 
 package org.spdx.crossref;
 
-<<<<<<< HEAD
 import java.io.IOException;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
