@@ -57,8 +57,6 @@ public class CrossRefHelper implements Callable<String[]> {
 			CrossRef crossRefDetails = new CrossRef();
 			crossRefDetails.setUrl(url);
 			ExecutorService executorService = Executors.newFixedThreadPool(10);
-//			System.out.println(license.getResource(SpdxRdfConstants.LICENSEXML_ELEMENT_TITLE_TEXT));
-//			SpdxRdfConstants.LICENSEXML_ELEMENT_TITLE_TEXT
 			Future<Boolean> isValid = executorService.submit(new Valid(url));
 			Future<Boolean> isLive = executorService.submit(new Live(url));
 			Future<Boolean> isWayback = executorService.submit(new Wayback(url));
