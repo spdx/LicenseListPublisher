@@ -160,12 +160,11 @@ public class LicenseRdfaFormatWriter implements ILicenseFormatWriter {
 		String licHtmlFileName = licBaseHtmlFileName + ".html";
 		String licHTMLReference = "./"+licHtmlFileName;
 		String tocHTMLReference = "./"+LICENSE_TOC_HTML_FILE_NAME;
-
 		File licHtmlFile = new File(rdfaFolder.getPath()+File.separator+licHtmlFileName);
 		try {
 			licHtml.writeToFile(licHtmlFile, tocHTMLReference);
 		} catch (MustacheException e) {
-			throw new LicenseGeneratorException("Template error for license HTML file: "+e.getMessage(),e);
+			throw new LicenseGeneratorException("Template55 error for license HTML file: "+e.getMessage(),e);
 		} catch (InvalidLicenseTemplateException e) {
 			throw new LicenseGeneratorException("License template error for license HTML file: "+e.getMessage(),e);
 		}

@@ -26,8 +26,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.spdx.crossref.Live;
+import org.spdx.crossref.Timestamp;
+import org.spdx.crossref.UrlConstants;
+import org.spdx.crossref.Valid;
+import org.spdx.crossref.Wayback;
 import org.spdx.html.InvalidLicenseTemplateException;
-import org.spdx.licensexml.UrlHelper;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 
 import com.github.mustachejava.DefaultMustacheFactory;
@@ -58,8 +62,33 @@ public class LicenseHTMLFile {
 	 */
 	public static class FormattedUrl {
 		String url;
+		/*		
+		 * license crossref information in the form of an array of strings. 
+		 * With the strings being of the form "{a:b, c:b}"
+		*/
+		String[] licenseCrossRefs;
+		
+		Boolean isValid;
+		Boolean isLive;
+		Boolean isWayBackLink;
+		String match;
+		String timestamp;
+		
 		public FormattedUrl(String url) {
 			this.url = url;
+			this.licenseCrossRefs = null;
+		}
+		public FormattedUrl(String url, String [] licenseCrossRefs) {
+			this.url = url;
+			this.licenseCrossRefs = licenseCrossRefs;
+		}
+		public FormattedUrl(String url, Boolean isValid, Boolean isLive, Boolean isWayBackLink, String match, String timestamp) {
+			this.url = url;
+			this.isValid = isValid;
+			this.isLive = isLive;
+			this.isWayBackLink = isWayBackLink;
+			this.match = match;
+			this.timestamp = timestamp;
 		}
 		public String getUrl() {
 			return this.url;
@@ -70,25 +99,40 @@ public class LicenseHTMLFile {
 		public String getSite() {
 			return getSiteFromUrl(url);
 		}
-
+		
 		public boolean getIsValid() {
-			return UrlHelper.urlValidator(url);
+			if(isValid != null) {
+				return isValid;
+			}
+			return Valid.urlValidator(url);
 		}
 
 		public boolean getIsLive() {
-			return UrlHelper.urlLinkExists(url);
+			if(isLive != null) {
+				return isLive;
+			}
+			return Live.urlLinkExists(url);
 		}
 
 		public String getMatch() {
+			if(match != null) {
+				return match;
+			}
 			return "--";
 		}
 
 		public boolean getIsWayBackLink() {
-			return UrlHelper.isWayBackUrl(url);
+			if(isWayBackLink != null) {
+				return isWayBackLink;
+			}
+			return Wayback.isWayBackUrl(url);
 		}
 
 		public String getTimestamp() {
-			return UrlHelper.getTimestamp();
+			if(timestamp != null) {
+				return timestamp;
+			}
+			return Timestamp.getTimestamp();
 		}
 
 		@SuppressWarnings("unused")
@@ -160,6 +204,49 @@ public class LicenseHTMLFile {
 			}
 		}
 	}
+	
+	
+	public String getVal(String url, Integer index, String[] licenseCrossRefs) {
+		String val = null;
+		String currentUrl = null;
+		if(licenseCrossRefs != null) {
+			for(String ref: licenseCrossRefs) {
+				if(ref != null) {
+					String crossRef = ref.substring(1, ref.length()-1);
+					String[] details = crossRef.split(",");
+					currentUrl = details[UrlConstants.CROSS_REF_INDEX_URL].split(": ")[1].trim();
+					if(url.equals(currentUrl)) {
+						val = details[index].split(": ")[1].trim();
+					}
+				}
+			}
+		}
+		return val;
+	}
+	
+	public boolean getIsValid(String url, String[] licenseCrossRefs) {
+		boolean b = Boolean.parseBoolean(getVal(url, UrlConstants.CROSS_REF_INDEX_ISVALID, licenseCrossRefs));
+		return b;
+	}
+	
+	public boolean getIsLive(String url, String[] licenseCrossRefs) {
+		boolean b = Boolean.parseBoolean(getVal(url, UrlConstants.CROSS_REF_INDEX_ISLIVE, licenseCrossRefs));
+		return b;
+	}
+	
+	public boolean getIsWayBackLink(String url, String[] licenseCrossRefs) {
+		boolean b = Boolean.parseBoolean(getVal(url, UrlConstants.CROSS_REF_INDEX_ISWAYBACKLINK, licenseCrossRefs));
+		return b;
+	}
+	
+	public String getMatch(String url, String[] licenseCrossRefs) {
+		return "--";
+	}
+
+	public String getTimestamp(String url, String[] licenseCrossRefs) {
+		return getVal(url, UrlConstants.CROSS_REF_INDEX_TIMESTAMP, licenseCrossRefs);
+	}
+	
 	/**
 	 * @return
 	 * @throws
@@ -191,7 +278,12 @@ public class LicenseHTMLFile {
 				if (license.getSeeAlso() != null && license.getSeeAlso().length > 0) {
 					for (String sourceUrl : license.getSeeAlso()) {
 						if (sourceUrl != null && !sourceUrl.isEmpty()) {
-							FormattedUrl formattedUrl = new FormattedUrl(sourceUrl);
+							FormattedUrl formattedUrl = null;
+							try {
+								formattedUrl = new FormattedUrl(sourceUrl, getIsValid(sourceUrl, license.getCrossRef()), getIsLive(sourceUrl, license.getCrossRef()), getIsWayBackLink(sourceUrl, license.getCrossRef()), "---", getTimestamp(sourceUrl, license.getCrossRef()));
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
 							otherWebPages.add(formattedUrl);
 						}
 				}
