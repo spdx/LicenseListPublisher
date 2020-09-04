@@ -67,9 +67,9 @@ public class Match implements Callable<String> {
 			} catch (SpdxCompareException e) {
 				e.printStackTrace();
 			}
-			Pattern result = LicenseCompareHelper.nonOptionalTextToStartPattern(nonOptionalText, 10);
+			Pattern licenseMatchPattern = LicenseCompareHelper.nonOptionalTextToStartPattern(nonOptionalText, UrlConstants.CROSS_REF_NUM_WORDS_MATCH);
 			String compareLicenseText = LicenseCompareHelper.normalizeText(bodyText);
-			Matcher matcher = result.matcher(compareLicenseText);
+			Matcher matcher = licenseMatchPattern.matcher(compareLicenseText);
 			if(matcher.find()) {
 				startIndex = matcher.start();
 				endIndex = matcher.end();

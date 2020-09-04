@@ -32,6 +32,5 @@ public class UrlConstants {
 	public static final Integer CROSS_REF_INDEX_ISWAYBACKLINK = 3;
 	public static final Integer CROSS_REF_INDEX_MATCH = 4;
 	public static final Integer CROSS_REF_INDEX_TIMESTAMP = 5;
-	public static final Integer CROSS_REF_LICENSE_TEXT_START_CHAR_COUNT = 80;
-	public static final Integer CROSS_REF_LICENSE_TEXT_END_CHAR_COUNT = 60;
+	public static final Integer CROSS_REF_NUM_WORDS_MATCH = 80;
 }
