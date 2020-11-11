@@ -18,10 +18,6 @@
 package org.spdx.crossref;
 
 import java.io.IOException;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
@@ -33,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spdx.compare.LicenseCompareHelper;
 import org.spdx.compare.SpdxCompareException;
-import org.spdx.html.InvalidLicenseTemplateException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 
 public class Match implements Callable<String> {
@@ -65,7 +60,8 @@ public class Match implements Callable<String> {
 			try {
 				nonOptionalText = LicenseCompareHelper.getNonOptionalLicenseText(license.getStandardLicenseTemplate(), true);
 			} catch (SpdxCompareException e) {
-				e.printStackTrace();
+				logger.warn("Error getting optional text for license ID "+license.getLicenseId(),e);
+				return "false";
 			}
 			Pattern licenseMatchPattern = LicenseCompareHelper.nonOptionalTextToStartPattern(nonOptionalText, UrlConstants.CROSS_REF_NUM_WORDS_MATCH);
 			String compareLicenseText = LicenseCompareHelper.normalizeText(bodyText);
@@ -80,12 +76,14 @@ public class Match implements Callable<String> {
 						match = new Boolean(!matchBool).toString();
 					}
 				} catch (SpdxCompareException e) {
-					e.printStackTrace();
+					logger.warn("Compare exception for license ID "+license.getLicenseId(),e);
+					match = "false";
 				}
 			}
 			
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.warn("IO exception comparing license text for license ID "+license.getLicenseId()+" and URL "+url);
+			match = "false";
 		}
     	return match;
 	}
