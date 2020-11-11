@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spdx.licensexml.LicenseXmlDocument;
 import org.spdx.rdfparser.SpdxRdfConstants;
+import org.spdx.rdfparser.license.SpdxListedLicense;
 
 /**
  * Helper class that provides details for each url in the array it receives
@@ -35,39 +36,40 @@ import org.spdx.rdfparser.SpdxRdfConstants;
 public class CrossRefHelper implements Callable<String[]> {
 	static final Logger logger = LoggerFactory.getLogger(CrossRefHelper.class.getName());
 	
-	String[] crossRefUrls;
+	SpdxListedLicense license;
 
 	/**
 	 * @param crossRefUrls an array of url in string format
 	 */
-    public CrossRefHelper(String[] crossRefUrls) {
-        this.crossRefUrls = crossRefUrls;
+    public CrossRefHelper(SpdxListedLicense license) {
+        this.license = license;
     }
 
     /**
 	 * @param crossRefUrls the array of urls
 	 * @return urlDetails the Array of string containing the url details
 	 */
-	public static String[] buildUrlDetails(String[] crossRefUrls) {
+	public static String[] buildUrlDetails(SpdxListedLicense license) {
+		String[] crossRefUrls = license.getSeeAlso();
 		String[] urlDetails = new String[crossRefUrls.length];
 		for (int i = 0; i < crossRefUrls.length; i++) {
 			String url = crossRefUrls[i];
 			CrossRef crossRefDetails = new CrossRef();
 			crossRefDetails.setUrl(url);
 			ExecutorService executorService = Executors.newFixedThreadPool(10);
-
 			Future<Boolean> isValid = executorService.submit(new Valid(url));
 			Future<Boolean> isLive = executorService.submit(new Live(url));
 			Future<Boolean> isWayback = executorService.submit(new Wayback(url));
 			Future<String> timestamp = executorService.submit(new Timestamp());
+			Future<String> match = executorService.submit(new Match(url, license));
 			
 			try {
 				Boolean isValidUrl = isValid.get(10, TimeUnit.SECONDS);
 		    	Boolean isLiveUrl = isValidUrl ? isLive.get(10, TimeUnit.SECONDS) : false;
 		    	Boolean isWaybackUrl = isValidUrl ? isWayback.get(5, TimeUnit.SECONDS) : false;
 		    	String currentDate = timestamp.get(5, TimeUnit.SECONDS);
-		    	String match = isValidUrl ? "--" : "--";
-		    	crossRefDetails.setDetails(isValidUrl, isLiveUrl, isWaybackUrl, match, currentDate);
+		    	String matchStatus = isValidUrl ? match.get(50, TimeUnit.SECONDS) : "--";
+		    	crossRefDetails.setDetails(isValidUrl, isLiveUrl, isWaybackUrl, matchStatus, currentDate);
 		    	urlDetails[i] = crossRefDetails.toString();
 		    } catch (Exception e) {
 		        // interrupts if there is any possible error
@@ -93,6 +95,6 @@ public class CrossRefHelper implements Callable<String[]> {
 	
 	@Override
 	public String[] call() throws Exception {
-		return buildUrlDetails(crossRefUrls);
+		return buildUrlDetails(license);
 	}
 }
