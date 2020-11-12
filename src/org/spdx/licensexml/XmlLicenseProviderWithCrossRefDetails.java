@@ -46,7 +46,7 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 	/**
 	 * Number of concurrent threads for processing cross reference license details
 	 */
-	private static final int NUMBER_THREADS = 15;
+	private static final int NUMBER_THREADS = 10;
 	
 	Logger logger = LoggerFactory.getLogger(XmlLicenseProviderWithCrossRefDetails.class.getName());
 
