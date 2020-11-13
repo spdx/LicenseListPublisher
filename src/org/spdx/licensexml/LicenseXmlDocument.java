@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spdx.rdfparser.InvalidSPDXAnalysisException;
 import org.spdx.rdfparser.SpdxRdfConstants;
+import org.spdx.rdfparser.license.CrossRef;
 import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 import org.w3c.dom.Document;
@@ -203,8 +204,11 @@ public class LicenseXmlDocument {
 		}
 		NodeList urlNodes = licenseElement.getElementsByTagName(SpdxRdfConstants.LICENSEXML_ELEMENT_CROSS_REF);
 		String[] sourceUrls = new String[urlNodes.getLength()];
+		CrossRef[] crossRefs = new CrossRef[urlNodes.getLength()];
 		for (int i = 0; i < urlNodes.getLength(); i++) {
 			sourceUrls[i] = urlNodes.item(i).getTextContent().trim();
+			crossRefs[i] = new CrossRef(sourceUrls[i]);
+			crossRefs[i].setOrder(i);
 		}
 		String licenseHeader = null;
 		String licenseHeaderTemplate = null;
@@ -245,6 +249,7 @@ public class LicenseXmlDocument {
 		String licenseHtml = LicenseXmlHelper.getLicenseTextHtml(textElement);
 		SpdxListedLicense retval = new SpdxListedLicense(name, id, text, sourceUrls, comment, licenseHeader,
 				template, licenseHeaderTemplate, osiApproved, fsfLibre, licenseHtml, licenseHeaderTemplateHtml);
+		retval.setCrossRef(crossRefs);
 		retval.setDeprecated(deprecated);
 		retval.setDeprecatedVersion(deprecatedVersion);
 		return retval;

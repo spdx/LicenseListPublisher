@@ -32,6 +32,8 @@ import org.spdx.crossref.UrlConstants;
 import org.spdx.crossref.Valid;
 import org.spdx.crossref.Wayback;
 import org.spdx.html.InvalidLicenseTemplateException;
+import org.spdx.rdfparser.InvalidSPDXAnalysisException;
+import org.spdx.rdfparser.license.CrossRef;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 
 import com.github.mustachejava.DefaultMustacheFactory;
@@ -253,51 +255,47 @@ public class LicenseHTMLFile {
 	 * @throws LicenseTemplateRuleException
 	 */
 	private Map<String, Object> buildMustachMap() throws InvalidLicenseTemplateException {
-			Map<String, Object> retval = Maps.newHashMap();
-			if (license != null) {
-				retval.put("licenseId", license.getLicenseId());
-				String licenseTextHtml = license.getLicenseTextHtml();
-				retval.put("licenseText", licenseTextHtml);
-				retval.put("licenseName", license.getName());
-				String notes;
-				if (license.getComment() != null && !license.getComment().isEmpty()) {
-					notes = license.getComment();
-				} else {
-					notes = null;
-				}
-				String templateText = license.getStandardLicenseTemplate();
-				if (templateText == null) {
-					templateText = StringEscapeUtils.escapeHtml4(license.getLicenseText());
-				}
-				retval.put("standardLicenseTemplate", templateText);
-				retval.put("notes", notes);
-				retval.put("osiApproved", license.isOsiApproved());
-				retval.put("fsfLibre", license.isFsfLibre());
-				retval.put("notFsfLibre", license.isNotFsfLibre());
-				List<FormattedUrl> otherWebPages = Lists.newArrayList();
-				if (license.getSeeAlso() != null && license.getSeeAlso().length > 0) {
-					for (String sourceUrl : license.getSeeAlso()) {
-						if (sourceUrl != null && !sourceUrl.isEmpty()) {
-							FormattedUrl formattedUrl = null;
-							try {
-								formattedUrl = new FormattedUrl(sourceUrl, getIsValid(sourceUrl, license.getCrossRef()), getIsLive(sourceUrl, license.getCrossRef()), getIsWayBackLink(sourceUrl, license.getCrossRef()), "---", getTimestamp(sourceUrl, license.getCrossRef()));
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-							otherWebPages.add(formattedUrl);
-						}
-				}
-				if (otherWebPages.size() == 0) {
-					otherWebPages = null;	// Force the template to print None
-				}
-				retval.put("otherWebPages", otherWebPages);
-				retval.put("title", license.getName());
-				String header = license.getLicenseHeaderHtml();
-				if (header != null && header.trim().isEmpty()) {
-					header = null;	// so the template will appropriately skip the header text
-				}
-				retval.put("licenseHeader", header);
+		Map<String, Object> retval = Maps.newHashMap();
+		if (license != null) {
+			retval.put("licenseId", license.getLicenseId());
+			String licenseTextHtml = license.getLicenseTextHtml();
+			retval.put("licenseText", licenseTextHtml);
+			retval.put("licenseName", license.getName());
+			String notes;
+			if (license.getComment() != null && !license.getComment().isEmpty()) {
+				notes = license.getComment();
+			} else {
+				notes = null;
 			}
+			String templateText = license.getStandardLicenseTemplate();
+			if (templateText == null) {
+				templateText = StringEscapeUtils.escapeHtml4(license.getLicenseText());
+			}
+			retval.put("standardLicenseTemplate", templateText);
+			retval.put("notes", notes);
+			retval.put("osiApproved", license.isOsiApproved());
+			retval.put("fsfLibre", license.isFsfLibre());
+			retval.put("notFsfLibre", license.isNotFsfLibre());
+			List<FormattedUrl> otherWebPages = Lists.newArrayList();
+			try {
+				if (license.getCrossRef() != null && license.getCrossRef().length > 0) {
+					for (CrossRef crossRef:license.getCrossRef()) {
+						otherWebPages.add(new FormattedUrl(crossRef.getUrl(), crossRef.isValid(), crossRef.isLive(), crossRef.isWayBackLink(), crossRef.getMatch(), crossRef.getTimestamp()));
+					}
+				}
+			} catch (InvalidSPDXAnalysisException e) {
+				throw new InvalidLicenseTemplateException("Error getting crossRefs",e);
+			}
+			if (otherWebPages.size() == 0) {
+				otherWebPages = null;	// Force the template to print None
+			}
+			retval.put("otherWebPages", otherWebPages);
+			retval.put("title", license.getName());
+			String header = license.getLicenseHeaderHtml();
+			if (header != null && header.trim().isEmpty()) {
+				header = null;	// so the template will appropriately skip the header text
+			}
+			retval.put("licenseHeader", header);
 		}
 		retval.put("deprecated", this.license.isDeprecated());
 		retval.put("deprecatedVersion", this.license.getDeprecatedVersion());

@@ -30,6 +30,8 @@ import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spdx.crossref.CrossRefHelper;
+import org.spdx.rdfparser.InvalidSPDXAnalysisException;
+import org.spdx.rdfparser.license.CrossRef;
 import org.spdx.rdfparser.license.LicenseRestrictionException;
 import org.spdx.rdfparser.license.ListedLicenseException;
 import org.spdx.rdfparser.license.SpdxListedLicense;
@@ -52,7 +54,7 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 
 	class XmlLicenseIterator extends XmlLicenseProvider.XmlLicenseIterator {
 		private ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_THREADS);
-		private Map<SpdxListedLicense, Future<String[]>> urlDetailsInProgress = new HashMap<>();
+		private Map<SpdxListedLicense, Future<CrossRef[]>> urlDetailsInProgress = new HashMap<>();
 		
 		private void fillCrossRefPool() {
 			while (super.hasNext() && urlDetailsInProgress.size() < NUMBER_THREADS) {
@@ -76,8 +78,8 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 		 */
 		@Override
 		public synchronized SpdxListedLicense next() {
-			Entry<SpdxListedLicense, Future<String[]>> readyLicense = null;
-			for (Entry<SpdxListedLicense, Future<String[]>> licenseInProgress:urlDetailsInProgress.entrySet()) {
+			Entry<SpdxListedLicense, Future<CrossRef[]>> readyLicense = null;
+			for (Entry<SpdxListedLicense, Future<CrossRef[]>> licenseInProgress:urlDetailsInProgress.entrySet()) {
 				if (licenseInProgress.getValue().isDone()) {
 					readyLicense = licenseInProgress;
 					break;
@@ -99,6 +101,9 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 			} catch (InterruptedException | ExecutionException e) {
 				logger.error("Error getting URL value.  URL values will not be filled in for license ID "+retval.getLicenseId(),e);
 				warnings.add("Error getting URL value.  URL values will not be filled in for license ID "+retval.getLicenseId());
+			} catch (InvalidSPDXAnalysisException e) {
+				logger.error("Error setting cross refs",e);
+				warnings.add("Unable to set cross references due to error: "+e.getMessage());
 			}
 			urlDetailsInProgress.remove(retval);
 			fillCrossRefPool();
