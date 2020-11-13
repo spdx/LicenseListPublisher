@@ -17,6 +17,7 @@
 package org.spdx.licenselistpublisher;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -455,41 +456,47 @@ public class LicenseRDFAGenerator {
 			ISpdxListedLicenseProvider licenseProvider, List<String> warnings,
 			List<ILicenseFormatWriter> writers, ILicenseTester tester) throws LicenseGeneratorException, InvalidSPDXAnalysisException, IOException, SpdxListedLicenseException, SpdxCompareException {
 		Iterator<SpdxListedLicense> licenseIter = licenseProvider.getLicenseIterator();
-		Map<String, String> addedLicIdTextMap = Maps.newHashMap();	// keep track for duplicate checking
-		while (licenseIter.hasNext()) {
-			System.out.print(".");
-			SpdxListedLicense license = licenseIter.next();
-			if (licenseProvider instanceof XmlLicenseProviderSingleFile) {
-				license.setCrossRef(CrossRefHelper.buildUrlDetails(license));
+		try {
+			Map<String, String> addedLicIdTextMap = Maps.newHashMap();	// keep track for duplicate checking
+			while (licenseIter.hasNext()) {
+				System.out.print(".");
+				SpdxListedLicense license = licenseIter.next();
+				if (licenseProvider instanceof XmlLicenseProviderSingleFile) {
+					license.setCrossRef(CrossRefHelper.buildUrlDetails(license));
+				}
+				addExternalMetaData(license);
+				if (license.getLicenseId() != null && !license.getLicenseId().isEmpty()) {
+					// Check for duplicate licenses
+					if (!license.isDeprecated()) {
+						Iterator<Entry<String, String>> addedLicenseTextIter = addedLicIdTextMap.entrySet().iterator();
+						while (addedLicenseTextIter.hasNext()) {
+							Entry<String, String> entry = addedLicenseTextIter.next();
+							if (LicenseCompareHelper.isLicenseTextEquivalent(entry.getValue(), license.getLicenseText())) {
+								warnings.add("Duplicates licenses: "+license.getLicenseId()+", "+entry.getKey());
+							}
+						}
+						addedLicIdTextMap.put(license.getLicenseId(), license.getLicenseText());
+					}
+					checkText(license.getLicenseText(), "License text for "+license.getLicenseId(), warnings);
+					for (ILicenseFormatWriter writer : writers) {
+						writer.writeLicense(license, license.isDeprecated(), license.getDeprecatedVersion());
+					}
+					if (tester != null) {
+						List<String> testResults = tester.testLicense(license);
+						if (testResults != null && testResults.size() > 0) {
+							for (String testResult:testResults) {
+								warnings.add("Test for license "+license.getLicenseId() + " failed: "+testResult);
+							}
+						}
+					}
+				}
 			}
-			addExternalMetaData(license);
-			if (license.getLicenseId() != null && !license.getLicenseId().isEmpty()) {
-				// Check for duplicate licenses
-				if (!license.isDeprecated()) {
-					Iterator<Entry<String, String>> addedLicenseTextIter = addedLicIdTextMap.entrySet().iterator();
-					while (addedLicenseTextIter.hasNext()) {
-						Entry<String, String> entry = addedLicenseTextIter.next();
-						if (LicenseCompareHelper.isLicenseTextEquivalent(entry.getValue(), license.getLicenseText())) {
-							warnings.add("Duplicates licenses: "+license.getLicenseId()+", "+entry.getKey());
-						}
-					}
-					addedLicIdTextMap.put(license.getLicenseId(), license.getLicenseText());
-				}
-				checkText(license.getLicenseText(), "License text for "+license.getLicenseId(), warnings);
-				for (ILicenseFormatWriter writer : writers) {
-					writer.writeLicense(license, license.isDeprecated(), license.getDeprecatedVersion());
-				}
-				if (tester != null) {
-					List<String> testResults = tester.testLicense(license);
-					if (testResults != null && testResults.size() > 0) {
-						for (String testResult:testResults) {
-							warnings.add("Test for license "+license.getLicenseId() + " failed: "+testResult);
-						}
-					}
-				}
+			return addedLicIdTextMap.keySet();
+		} finally {
+			if (licenseIter instanceof Closeable) {
+				((Closeable)licenseIter).close();
 			}
 		}
-		return addedLicIdTextMap.keySet();
 	}
 
 	/**

@@ -16,7 +16,9 @@
 */
 package org.spdx.licensexml;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -52,7 +54,7 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 	
 	Logger logger = LoggerFactory.getLogger(XmlLicenseProviderWithCrossRefDetails.class.getName());
 
-	class XmlLicenseIterator extends XmlLicenseProvider.XmlLicenseIterator {
+	class XmlLicenseIterator extends XmlLicenseProvider.XmlLicenseIterator implements Closeable {
 		private ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_THREADS);
 		private Map<SpdxListedLicense, Future<CrossRef[]>> urlDetailsInProgress = new HashMap<>();
 		
@@ -108,6 +110,11 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 			urlDetailsInProgress.remove(retval);
 			fillCrossRefPool();
 			return retval;
+		}
+
+		@Override
+		public void close() throws IOException {
+			this.executorService.shutdown();
 		}
 	}
 
