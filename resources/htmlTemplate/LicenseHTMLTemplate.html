@@ -150,8 +150,13 @@
             <ul>
              {{#otherWebPages}}
              <li>
+               {{#isLive}}
                <a href="{{&url}}" rel="rdfs:seeAlso" isValid={{isValid}} isLive={{isLive}} isWayBackLink={{isWayBackLink}} match={{match}} timestamp={{timestamp}}>{{site}}</a>
                <!--Tentative way of displaying information <p>isValid: {{isValid}}, isLive: {{isLive}}, isWayBackLink: {{isWayBackLink}}, match: {{match}}, timestamp: {{timestamp}}</p> -->
+               {{/isLive}}
+               {{^isLive}}
+               {{site}} [no longer live - last checked {{timestamp}}]
+               {{/isLive}}
              </li>
              {{/otherWebPages}}
              {{^otherWebPages}}

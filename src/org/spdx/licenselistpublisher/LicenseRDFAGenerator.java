@@ -495,6 +495,7 @@ public class LicenseRDFAGenerator {
 		} finally {
 			if (licenseIter instanceof Closeable) {
 				((Closeable)licenseIter).close();
+				//TODO: Is there a cleaner way to handle this?  The XmlLicenseProviderWithCrossRefDetails uses executorService which must be closed
 			}
 		}
 	}
