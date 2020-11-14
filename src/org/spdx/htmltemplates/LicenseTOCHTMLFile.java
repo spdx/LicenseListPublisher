@@ -314,6 +314,14 @@ public class LicenseTOCHTMLFile {
 
 		});
 		retval.put("listedLicenses", this.listedLicenses);
+		this.deprecatedLicenses.sort(new Comparator<DeprecatedLicense>() {
+
+			@Override
+			public int compare(DeprecatedLicense arg0, DeprecatedLicense arg1) {
+				return arg0.getLicenseId().compareToIgnoreCase(arg1.getLicenseId());
+			}
+			
+		});
 		retval.put("deprecatedLicenses", this.deprecatedLicenses);
 		return retval;
 	}
