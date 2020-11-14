@@ -45,11 +45,12 @@ public class Live implements Callable<Boolean>  {
 	 */
 	public static boolean urlLinkExists(String URLName){
 	    try {
-	      HttpURLConnection.setFollowRedirects(false);
+	      HttpURLConnection.setFollowRedirects(true);
 	      HttpURLConnection con = (HttpURLConnection) new URL(URLName).openConnection();
 	      con.setRequestMethod("HEAD");
 	      con.setConnectTimeout(8500);
-	      return (con.getResponseCode() == HttpURLConnection.HTTP_OK || con.getResponseCode() == HttpURLConnection.HTTP_NOT_MODIFIED);
+	      int responseCode = con.getResponseCode();
+	      return (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_NOT_MODIFIED);
 	    }
 	    catch (Exception e) {
 	    	logger.warn("Failed checking live status.",e.getMessage());

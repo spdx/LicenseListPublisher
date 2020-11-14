@@ -20,18 +20,22 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.spdx.crossref.Live;
 import org.spdx.crossref.Timestamp;
-import org.spdx.crossref.UrlConstants;
 import org.spdx.crossref.Valid;
 import org.spdx.crossref.Wayback;
 import org.spdx.html.InvalidLicenseTemplateException;
+import org.spdx.rdfparser.InvalidSPDXAnalysisException;
+import org.spdx.rdfparser.license.CrossRef;
 import org.spdx.rdfparser.license.SpdxListedLicense;
 
 import com.github.mustachejava.DefaultMustacheFactory;
@@ -205,99 +209,86 @@ public class LicenseHTMLFile {
 		}
 	}
 	
-	
-	public String getVal(String url, Integer index, String[] licenseCrossRefs) {
-		String val = null;
-		String currentUrl = null;
-		if(licenseCrossRefs != null) {
-			for(String ref: licenseCrossRefs) {
-				if(ref != null) {
-					String crossRef = ref.substring(1, ref.length()-1);
-					String[] details = crossRef.split(",");
-					currentUrl = details[UrlConstants.CROSS_REF_INDEX_URL].split(": ")[1].trim();
-					if(url.equals(currentUrl)) {
-						val = details[index].split(": ")[1].trim();
-					}
-				}
-			}
-		}
-		return val;
-	}
-	
-	public boolean getIsValid(String url, String[] licenseCrossRefs) {
-		boolean b = Boolean.parseBoolean(getVal(url, UrlConstants.CROSS_REF_INDEX_ISVALID, licenseCrossRefs));
-		return b;
-	}
-	
-	public boolean getIsLive(String url, String[] licenseCrossRefs) {
-		boolean b = Boolean.parseBoolean(getVal(url, UrlConstants.CROSS_REF_INDEX_ISLIVE, licenseCrossRefs));
-		return b;
-	}
-	
-	public boolean getIsWayBackLink(String url, String[] licenseCrossRefs) {
-		boolean b = Boolean.parseBoolean(getVal(url, UrlConstants.CROSS_REF_INDEX_ISWAYBACKLINK, licenseCrossRefs));
-		return b;
-	}
-	
-	public String getMatch(String url, String[] licenseCrossRefs) {
-		return "--";
-	}
-
-	public String getTimestamp(String url, String[] licenseCrossRefs) {
-		return getVal(url, UrlConstants.CROSS_REF_INDEX_TIMESTAMP, licenseCrossRefs);
-	}
-	
 	/**
 	 * @return
 	 * @throws
 	 * @throws LicenseTemplateRuleException
 	 */
 	private Map<String, Object> buildMustachMap() throws InvalidLicenseTemplateException {
-			Map<String, Object> retval = Maps.newHashMap();
-			if (license != null) {
-				retval.put("licenseId", license.getLicenseId());
-				String licenseTextHtml = license.getLicenseTextHtml();
-				retval.put("licenseText", licenseTextHtml);
-				retval.put("licenseName", license.getName());
-				String notes;
-				if (license.getComment() != null && !license.getComment().isEmpty()) {
-					notes = license.getComment();
-				} else {
-					notes = null;
-				}
-				String templateText = license.getStandardLicenseTemplate();
-				if (templateText == null) {
-					templateText = StringEscapeUtils.escapeHtml4(license.getLicenseText());
-				}
-				retval.put("standardLicenseTemplate", templateText);
-				retval.put("notes", notes);
-				retval.put("osiApproved", license.isOsiApproved());
-				retval.put("fsfLibre", license.isFsfLibre());
-				retval.put("notFsfLibre", license.isNotFsfLibre());
-				List<FormattedUrl> otherWebPages = Lists.newArrayList();
-				if (license.getSeeAlso() != null && license.getSeeAlso().length > 0) {
-					for (String sourceUrl : license.getSeeAlso()) {
-						if (sourceUrl != null && !sourceUrl.isEmpty()) {
-							FormattedUrl formattedUrl = null;
-							try {
-								formattedUrl = new FormattedUrl(sourceUrl, getIsValid(sourceUrl, license.getCrossRef()), getIsLive(sourceUrl, license.getCrossRef()), getIsWayBackLink(sourceUrl, license.getCrossRef()), "---", getTimestamp(sourceUrl, license.getCrossRef()));
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-							otherWebPages.add(formattedUrl);
-						}
-				}
-				if (otherWebPages.size() == 0) {
-					otherWebPages = null;	// Force the template to print None
-				}
-				retval.put("otherWebPages", otherWebPages);
-				retval.put("title", license.getName());
-				String header = license.getLicenseHeaderHtml();
-				if (header != null && header.trim().isEmpty()) {
-					header = null;	// so the template will appropriately skip the header text
-				}
-				retval.put("licenseHeader", header);
+		Map<String, Object> retval = Maps.newHashMap();
+		if (license != null) {
+			retval.put("licenseId", license.getLicenseId());
+			String licenseTextHtml = license.getLicenseTextHtml();
+			retval.put("licenseText", licenseTextHtml);
+			retval.put("licenseName", license.getName());
+			String notes;
+			if (license.getComment() != null && !license.getComment().isEmpty()) {
+				notes = license.getComment();
+			} else {
+				notes = null;
 			}
+			String templateText = license.getStandardLicenseTemplate();
+			if (templateText == null) {
+				templateText = StringEscapeUtils.escapeHtml4(license.getLicenseText());
+			}
+			retval.put("standardLicenseTemplate", templateText);
+			retval.put("notes", notes);
+			retval.put("osiApproved", license.isOsiApproved());
+			retval.put("fsfLibre", license.isFsfLibre());
+			retval.put("notFsfLibre", license.isNotFsfLibre());
+			List<FormattedUrl> otherWebPages = Lists.newArrayList();
+			try {
+				CrossRef[] crossRefs = license.getCrossRef();
+				if (crossRefs != null && crossRefs.length > 0) {
+					Arrays.sort(crossRefs, new Comparator<CrossRef>() {
+
+						@Override
+						public int compare(CrossRef o1, CrossRef o2) {
+							Integer order1;
+							try {
+								order1 = o1.getOrder();
+							} catch (InvalidSPDXAnalysisException e) {
+								order1 = null;
+							}
+							Integer order2;
+							try {
+								order2 = o2.getOrder();
+							} catch (InvalidSPDXAnalysisException e) {
+								order2 = null;
+							}
+							if (Objects.nonNull(order1)) {
+								if (Objects.nonNull(order2)) {
+									return order1.compareTo(order2);
+								} else {
+									return -1;
+								}
+							} else {
+								if (Objects.nonNull(order2)) {
+									return 1;
+								} else {
+									return 0;
+								}
+							}
+						}
+						
+					});
+					for (CrossRef crossRef:license.getCrossRef()) {
+						otherWebPages.add(new FormattedUrl(crossRef.getUrl(), crossRef.isValid(), crossRef.isLive(), crossRef.isWayBackLink(), crossRef.getMatch(), crossRef.getTimestamp()));
+					}
+				}
+			} catch (InvalidSPDXAnalysisException e) {
+				throw new InvalidLicenseTemplateException("Error getting crossRefs",e);
+			}
+			if (otherWebPages.size() == 0) {
+				otherWebPages = null;	// Force the template to print None
+			}
+			retval.put("otherWebPages", otherWebPages);
+			retval.put("title", license.getName());
+			String header = license.getLicenseHeaderHtml();
+			if (header != null && header.trim().isEmpty()) {
+				header = null;	// so the template will appropriately skip the header text
+			}
+			retval.put("licenseHeader", header);
 		}
 		retval.put("deprecated", this.license.isDeprecated());
 		retval.put("deprecatedVersion", this.license.getDeprecatedVersion());

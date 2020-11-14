@@ -26,6 +26,7 @@ import org.apache.commons.validator.UrlValidator;
  * @author Smith Tanjong
  *
  */
+@SuppressWarnings("deprecation")
 public class Valid implements Callable<Boolean> {
 	String url;
 

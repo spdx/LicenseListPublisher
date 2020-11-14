@@ -42,7 +42,7 @@ import com.google.common.io.Files;
 public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 
 	Logger logger = LoggerFactory.getLogger(XmlLicenseProvider.class.getName());
-	private List<String> warnings = new ArrayList<String>();
+	protected List<String> warnings = new ArrayList<String>();
 
 	class XmlLicenseIterator implements Iterator<SpdxListedLicense> {
 		private int xmlFileIndex = 0;
