@@ -40,14 +40,14 @@ public class CrossRefHelper implements Callable<CrossRef[]> {
 	SpdxListedLicense license;
 
 	/**
-	 * @param crossRefUrls an array of url in string format
+	 * @param license license
 	 */
     public CrossRefHelper(SpdxListedLicense license) {
         this.license = license;
     }
 
     /**
-	 * @param crossRefUrls the array of urls
+	 * @param license license
 	 * @return urlDetails the Array of CrossRefs containing the details from the SeeAlso or existing CrossRef array
 	 */
 	public static CrossRef[] buildUrlDetails(SpdxListedLicense license) {

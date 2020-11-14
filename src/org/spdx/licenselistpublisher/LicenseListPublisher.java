@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -71,25 +72,13 @@ import au.com.bytecode.opencsv.CSVReader;
  * spdx/license-list-data, https://github.com/spdx/license-list-data
  *
  * The output is tagged by release
- *
- * To publish the license list to spdx.org/licenses, the following steps should be
- * performed on the linux server hosting the spdx.org/license website (currently phpphpweb1.linux-foundation.org):
- * 1.	Create a new subdirectory in the ~/licenseArchive directory with the format mm-dd-yyyy where mm is the month, dd is the day, and yyyy
- * 		is the year the files were uploaded.
- * 2.	Upload the files from the spdx/license-list-data github repository website folder from the correct tag to a the folder created in step 1
- * 3.	Backup the current files by replacing the files in the ~/backup folder with the files in ~/www/spdx/content/licenses.
- * 		IMPORTANT NOTE: Do NOT do a recursive copy, only copy the files and do NOT copy any subdirectories.
- * 4.	Create a new subdirectory ~/www/spdx/content/licenses/archive/archived_ll_vx.xx where x.xx is the version of the PREVIOUSLY PUBLISHED
- * 		license list being replaced.
- * 5.	Copy the files from ~/backup to the subdirectory created in step 4
- * 6.	Edit the file ~/www/spdx/content/licenses/archive/archived_ll_vx.xx/index.html.  Add the line
- * 		"<p style="color: #FA0207;"><strong>THIS IS NOT THE CURRENT VERSION OF THE SPDX LICENSE LIST.  
- * 		PLEASE USE THE CURRENT VERSION, LOCATED AT: <a href="http://spdx.org/licenses/">http://spdx.org/licenses/</a>"
- * 		immediately prior to the line "<h1>SPDX License List</h1>"
- * 7.	Copy the files from the subdirectory created in steps 1 and 2 to ~/www/spdx/content/licenses
- * 8.	If there are any problems, copy the files from the backup back to ~/www/spdx/content/licenses
+ * 
+ *  If there is testfiles is passed in as a parameter, text from the test files will be used for the verbatim
+ *  license or exception text.  To override this behavior, set an environment variable USE_SYSTEM_TEST to false
  */
 public class LicenseListPublisher {
+	
+	private static final String ENV_USE_SYSTEM_TEST = "USE_TEST_FOR_TEXT";
 
 	static final Comparator<String> versionComparer = new Comparator<String>() {
 
@@ -395,6 +384,15 @@ public class LicenseListPublisher {
 		File licenseDataDir = null;
 		Git licenseDataGit = null;
 		boolean dataReleaseTagExists = false;
+		boolean useTestText = true;	// default to true
+		try {
+			String useTestTextStr = System.getenv(ENV_USE_SYSTEM_TEST);
+			if (Objects.nonNull(useTestTextStr)) {
+				useTestText = Boolean.parseBoolean(useTestTextStr);
+			}
+		} catch(SecurityException ex) {
+			System.out.println("Security exception checking for the environment variable "+ENV_USE_SYSTEM_TEST+".  Using the default useTestText = true.");
+		}
 		try {
 			licenseDataDir = Files.createTempDirectory("LicenseData").toFile();
 			if (!testOnly) {
@@ -421,7 +419,7 @@ public class LicenseListPublisher {
 				version = getVersionFromGitTag(sourceDirectory);
 			}
 			List<String> warnings = LicenseRDFAGenerator.generateLicenseData(new File(sourceDirectory.getPath() + File.separator + "src"),
-												licenseDataDir, version, todayDate, licenseTestDir);
+												licenseDataDir, version, todayDate, licenseTestDir, useTestText);
 			if (warnings.size() > 0 && !ignoreWarnings) {
 				List<String> nonIgnoredWarnings = Lists.newArrayList();
 				for (String warning:warnings) {

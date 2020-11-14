@@ -40,7 +40,7 @@ public class Live implements Callable<Boolean>  {
     }
 	
     /**
-	 * @param url the url in string form
+	 * @param URLName the url in string form
 	 * @return true/false if the url is live or not
 	 */
 	public static boolean urlLinkExists(String URLName){
