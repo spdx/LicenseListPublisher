@@ -249,7 +249,7 @@ public class ExceptionHtmlToc {
 
 			@Override
 			public int compare(ExceptionRow arg0, ExceptionRow arg1) {
-				return arg0.getLicenseExceptionId().compareTo(arg1.getLicenseExceptionId());
+				return arg0.getLicenseExceptionId().compareToIgnoreCase(arg1.getLicenseExceptionId());
 			}
 
 		});
