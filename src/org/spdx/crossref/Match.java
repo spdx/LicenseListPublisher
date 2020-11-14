@@ -38,7 +38,7 @@ public class Match implements Callable<String> {
 
 	/**
 	 * @param url the url in string form
-	 * @param licenseText the license text in string form
+	 * @param license the license
 	 */
     public Match(String url, SpdxListedLicense license) {
     	this.url = url;

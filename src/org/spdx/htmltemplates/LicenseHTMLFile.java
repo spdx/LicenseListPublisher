@@ -152,10 +152,7 @@ public class LicenseHTMLFile {
 	}
 	private SpdxListedLicense license;
 	/**
-	 * @param templateFileName File name for the Mustache template file
 	 * @param license Listed license to be used
-	 * @param isDeprecated True if the license has been deprecated
-	 * @param deprecatedVersion Version since the license has been deprecated (null if not deprecated)
 	 */
 	public LicenseHTMLFile(SpdxListedLicense license) {
 		this.license = license;

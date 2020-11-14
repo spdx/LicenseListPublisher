@@ -28,6 +28,7 @@ import java.io.StringReader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -87,6 +88,9 @@ import au.com.bytecode.opencsv.CSVReader;
  *
  *  To add a new output format, create a class supporting the ILicenseFormatWriter interface and add it
  *  to the writers list.
+ *  
+ *  If there is testfiles is passed in as a parameter, text from the test files will be used for the verbatim
+ *  license or exception text.  To override this behavior, set an environment variable USE_SYSTEM_TEST to false
  *
  * @author Gary O'Neall
  *
@@ -118,6 +122,7 @@ public class LicenseRDFAGenerator {
 	private static final String RDFNT_FOLDER_NAME = "rdfnt";
 	private static final String TABLE_OF_CONTENTS_FILE_NAME = "licenses.md";
 	private static final String RDF_JSON_LD_FOLDER_NAME = "jsonld";
+	private static final String ENV_USE_SYSTEM_TEST = "USE_TEST_FOR_TEXT";
 
 	/**
 	 * @param args Arg 0 is either a license XML file or a directory of licenses in XML format, arg 1 is the directory for the output html files
@@ -192,8 +197,19 @@ public class LicenseRDFAGenerator {
 				}
 			}
 		}
+		
+		boolean useTestText = true;	// default to true
 		try {
-			List<String> warnings = generateLicenseData(licenseXmlFileOrDir, dir, version, releaseDate, testFileDir);
+			String useTestTextStr = System.getenv(ENV_USE_SYSTEM_TEST);
+			if (Objects.nonNull(useTestTextStr)) {
+				useTestText = Boolean.parseBoolean(useTestTextStr);
+			}
+		} catch(SecurityException ex) {
+			System.out.println("Security exception checking for the environment variable "+ENV_USE_SYSTEM_TEST+".  Using the default useTestText = true.");
+		}
+		
+		try {
+			List<String> warnings = generateLicenseData(licenseXmlFileOrDir, dir, version, releaseDate, testFileDir, useTestText);
 			if (warnings != null && warnings.size() > 0) {
 				int numUnexpectedWarnings = warnings.size();
 				for (String warning:warnings) {
@@ -222,14 +238,15 @@ public class LicenseRDFAGenerator {
 	 * Generate license data
 	 * @param licenseXml License XML file or directory containing license XML files
 	 * @param dir Output directory for the generated results
-	 * @param version Version for the license lise
+	 * @param version Version for the license list
 	 * @param releaseDate Release data string for the license
 	 * @param testFileDir Directory of license text to test the generated licenses against
+	 * @param useTestText use the text file from the testFileDir for the verbatim text rather than the text from the XML document
 	 * @return warnings
 	 * @throws LicenseGeneratorException
 	 */
 	public static List<String> generateLicenseData(File licenseXml, File dir,
-			String version, String releaseDate, File testFileDir) throws LicenseGeneratorException {
+			String version, String releaseDate, File testFileDir, boolean useTestText) throws LicenseGeneratorException {
 		List<String> warnings = Lists.newArrayList();
 		List<ILicenseFormatWriter> writers = Lists.newArrayList();
 		ISpdxListedLicenseProvider licenseProvider = null;
@@ -304,10 +321,12 @@ public class LicenseRDFAGenerator {
 				tester = new SimpleLicenseTester(testFileDir);
 			}
 			System.out.print("Processing License List");
-			Set<String> licenseIds = writeLicenseList(version, releaseDate, licenseProvider, warnings, writers, tester);
+			Set<String> licenseIds = writeLicenseList(version, releaseDate, licenseProvider, warnings, 
+					writers, tester, useTestText);
 			System.out.println();
 			System.out.print("Processing Exceptions");
-			writeExceptionList(version, releaseDate, licenseProvider, warnings, writers, tester, licenseIds);
+			writeExceptionList(version, releaseDate, licenseProvider, warnings, writers, tester, 
+					licenseIds, useTestText);
 			System.out.println();
 			System.out.print("Writing table of contents");
 			for (ILicenseFormatWriter writer : writers) {
@@ -344,6 +363,7 @@ public class LicenseRDFAGenerator {
 	 * @param writers License Format Writers to handle the writing for the different formats
 	 * @param tester License tester used to test the results of licenses
 	 * @param licenseIds license IDs
+	 * @param useTestText use the text file from the testFileDir for the verbatim text rather than the text from the XML document
 	 * @throws IOException
 	 * @throws SpreadsheetException
 	 * @throws LicenseRestrictionException
@@ -352,7 +372,7 @@ public class LicenseRDFAGenerator {
 	*/
 	private static void writeExceptionList(String version, String releaseDate,
 			ISpdxListedLicenseProvider licenseProvider, List<String> warnings, List<ILicenseFormatWriter> writers,
-			ILicenseTester tester, Set<String> licenseIds) throws IOException, LicenseRestrictionException, SpreadsheetException, LicenseGeneratorException, InvalidLicenseTemplateException {
+			ILicenseTester tester, Set<String> licenseIds, boolean useTestText) throws IOException, LicenseRestrictionException, SpreadsheetException, LicenseGeneratorException, InvalidLicenseTemplateException {
 		// Collect license ID's to check for any duplicate ID's being used (e.g. license ID == exception ID)
 		Iterator<ListedLicenseException> exceptionIter = licenseProvider.getExceptionIterator();
 		Map<String, String> addedExceptionsMap = Maps.newHashMap();
@@ -379,18 +399,22 @@ public class LicenseRDFAGenerator {
 				}
 				checkText(nextException.getLicenseExceptionText(),
 						"License Exception Text for "+nextException.getLicenseExceptionId(), warnings);
-				for (ILicenseFormatWriter writer:writers) {
-					writer.writeException(nextException);
-				}
 				if (tester != null) {
 					List<String> testResults = tester.testException(nextException);
 					if (testResults != null && testResults.size() > 0) {
 						for (String testResult:testResults) {
 							warnings.add("Test for exception "+nextException.getLicenseExceptionId() + " failed: "+testResult);
 						}
+					} else if (useTestText) {
+						String testText = tester.getExceptionTestText(nextException.getLicenseExceptionId());
+						if (Objects.nonNull(testText)) {
+							nextException.setLicenseExceptionText(testText);
+						}
 					}
 				}
-
+				for (ILicenseFormatWriter writer:writers) {
+					writer.writeException(nextException);
+				}
 			}
 		}
 	}
@@ -445,6 +469,7 @@ public class LicenseRDFAGenerator {
 	 * @param warnings Populated with any warnings if they occur
 	 * @param writers License Format Writers to handle the writing for the different formats
 	 * @param tester license tester to test the results of each license added
+	 * @param useTestText use the text file from the testFileDir for the verbatim text rather than the text from the XML document
 	 * @return list of license ID's which have been added
 	 * @throws LicenseGeneratorException
 	 * @throws InvalidSPDXAnalysisException
@@ -454,7 +479,7 @@ public class LicenseRDFAGenerator {
 	 */
 	private static Set<String> writeLicenseList(String version, String releaseDate,
 			ISpdxListedLicenseProvider licenseProvider, List<String> warnings,
-			List<ILicenseFormatWriter> writers, ILicenseTester tester) throws LicenseGeneratorException, InvalidSPDXAnalysisException, IOException, SpdxListedLicenseException, SpdxCompareException {
+			List<ILicenseFormatWriter> writers, ILicenseTester tester, boolean useTestText) throws LicenseGeneratorException, InvalidSPDXAnalysisException, IOException, SpdxListedLicenseException, SpdxCompareException {
 		Iterator<SpdxListedLicense> licenseIter = licenseProvider.getLicenseIterator();
 		try {
 			Map<String, String> addedLicIdTextMap = Maps.newHashMap();	// keep track for duplicate checking
@@ -478,16 +503,21 @@ public class LicenseRDFAGenerator {
 						addedLicIdTextMap.put(license.getLicenseId(), license.getLicenseText());
 					}
 					checkText(license.getLicenseText(), "License text for "+license.getLicenseId(), warnings);
-					for (ILicenseFormatWriter writer : writers) {
-						writer.writeLicense(license, license.isDeprecated(), license.getDeprecatedVersion());
-					}
 					if (tester != null) {
 						List<String> testResults = tester.testLicense(license);
 						if (testResults != null && testResults.size() > 0) {
 							for (String testResult:testResults) {
 								warnings.add("Test for license "+license.getLicenseId() + " failed: "+testResult);
 							}
+						} else if (useTestText) {
+							String testText = tester.getLicenseTestText(license.getLicenseId());
+							if (Objects.nonNull(testText)) {
+								license.setLicenseText(testText);
+							}
 						}
+					}
+					for (ILicenseFormatWriter writer : writers) {
+						writer.writeLicense(license, license.isDeprecated(), license.getDeprecatedVersion());
 					}
 				}
 			}

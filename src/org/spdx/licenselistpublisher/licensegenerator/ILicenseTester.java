@@ -18,6 +18,8 @@ package org.spdx.licenselistpublisher.licensegenerator;
 import java.io.IOException;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import org.spdx.compare.SpdxCompareException;
 import org.spdx.rdfparser.license.License;
 import org.spdx.rdfparser.license.LicenseException;
@@ -45,5 +47,18 @@ public interface ILicenseTester {
 	 * @throws SpdxCompareException
 	 */
 	public List<String> testLicense(License license) throws IOException, SpdxCompareException;
+
+	/**
+	 * @param licenseId
+	 * @return text for the test for a license ID, null if no license text is found
+	 */
+	public @Nullable String getLicenseTestText(String licenseId) throws IOException;
+
+	/**
+	 * @param licenseExceptionId
+	 * @return text for the test for a exception ID, null if no license text is found
+	 * @throws IOException 
+	 */
+	public @Nullable String getExceptionTestText(String licenseExceptionId) throws IOException;
 
 }

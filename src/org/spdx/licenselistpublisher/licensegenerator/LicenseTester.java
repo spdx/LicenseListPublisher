@@ -158,4 +158,14 @@ public class LicenseTester implements ILicenseTester {
 		}
 		return retval;
 	}
+
+	@Override
+	public String getLicenseTestText(String licenseId) throws IOException {
+		throw new RuntimeException("Unimplemented getLicenseTestText");
+	}
+
+	@Override
+	public String getExceptionTestText(String licenseExceptionId) throws IOException {
+		throw new RuntimeException("Unimplemented getExceptionTestText");
+	}
 }

@@ -105,4 +105,24 @@ public class SimpleLicenseTester implements ILicenseTester {
 		return retval;
 	}
 
+	@Override
+	public String getLicenseTestText(String licenseId) throws IOException {
+		File licenseTextFile = new File(testFileDir.getPath() + File.separator + licenseId + ".txt");
+		if (licenseTextFile.exists()) {
+			return readText(licenseTextFile);
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public String getExceptionTestText(String licenseExceptionId) throws IOException {
+		File exceptionFile = new File(testFileDir.getPath() + File.separator + licenseExceptionId + ".txt");
+		if (exceptionFile.exists()) {
+			return readText(exceptionFile);
+		} else {
+			return null;
+		}
+	}
+
 }
