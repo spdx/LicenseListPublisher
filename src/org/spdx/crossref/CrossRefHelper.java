@@ -16,7 +16,7 @@
 */
 package org.spdx.crossref;
 
-import java.util.Objects;
+import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,16 +25,16 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spdx.rdfparser.InvalidSPDXAnalysisException;
-import org.spdx.rdfparser.license.CrossRef;
-import org.spdx.rdfparser.license.SpdxListedLicense;
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.model.license.CrossRef;
+import org.spdx.library.model.license.SpdxListedLicense;
 
 /**
  * Helper class that provides details for each url in the array it receives
  * @author Smith Tanjong
  *
  */
-public class CrossRefHelper implements Callable<CrossRef[]> {
+public class CrossRefHelper implements Callable<Collection<CrossRef>> {
 	static final Logger logger = LoggerFactory.getLogger(CrossRefHelper.class.getName());
 	
 	SpdxListedLicense license;
@@ -49,27 +49,18 @@ public class CrossRefHelper implements Callable<CrossRef[]> {
     /**
 	 * @param license license
 	 * @return urlDetails the Array of CrossRefs containing the details from the SeeAlso or existing CrossRef array
+     * @throws InvalidSPDXAnalysisException 
 	 */
-	public static CrossRef[] buildUrlDetails(SpdxListedLicense license) {
-		CrossRef[] crossRefs;
-		try {
-			crossRefs = license.getCrossRef();
-		} catch (InvalidSPDXAnalysisException e1) {
-			crossRefs = null;
-		}
-		if (Objects.isNull(crossRefs) || crossRefs.length == 0) {
-			String[] crossRefUrls = license.getSeeAlso();
-			if (Objects.isNull(crossRefUrls)) {
-				crossRefs = new CrossRef[0];
-			} else {
-				crossRefs = new CrossRef[crossRefUrls.length];
-				for (int i = 0; i < crossRefs.length; i++) {
-					crossRefs[i] = new CrossRef(crossRefUrls[i]);
-				}
+	public static Collection<CrossRef> buildUrlDetails(SpdxListedLicense license) throws InvalidSPDXAnalysisException {
+		Collection<CrossRef> crossRefs;
+		crossRefs = license.getCrossRef();
+		if (crossRefs.size() == 0) {
+			for (String seeAlso:license.getSeeAlso()) {
+				crossRefs.add(license.createCrossRef(seeAlso).build());
 			}
 		}
-		for (int i = 0; i < crossRefs.length; i++) {
-			String url = crossRefs[i].getUrl();
+		for (CrossRef crossRef:crossRefs) {
+			String url = crossRef.getUrl().get();
 			ExecutorService executorService = Executors.newFixedThreadPool(10);
 			Future<Boolean> isValid = executorService.submit(new Valid(url));
 			Future<Boolean> isLive = executorService.submit(new Live(url));
@@ -83,7 +74,7 @@ public class CrossRefHelper implements Callable<CrossRef[]> {
 		    	Boolean isWaybackUrl = isValidUrl ? isWayback.get(5, TimeUnit.SECONDS) : false;
 		    	String currentDate = timestamp.get(5, TimeUnit.SECONDS);
 		    	String matchStatus = isValidUrl ? match.get(50, TimeUnit.SECONDS) : "N/A";
-		    	crossRefs[i].setDetails(isValidUrl, isLiveUrl, isWaybackUrl, matchStatus, currentDate);
+		    	crossRef.setDetails(isValidUrl, isLiveUrl, isWaybackUrl, matchStatus, currentDate);
 		    } catch (Exception e) {
 		        // interrupts if there is any possible error
 		    	isValid.cancel(true);
@@ -91,8 +82,8 @@ public class CrossRefHelper implements Callable<CrossRef[]> {
 		    	isWayback.cancel(true);
 		    	timestamp.cancel(true);
 		    	logger.error("Interrupted.",e.getMessage());
-		    	crossRefs[i].setUrl(url);
-		    	crossRefs[i].setDetails(Valid.urlValidator(url), false, Wayback.isWayBackUrl(url), "--", Timestamp.getTimestamp());
+		    	crossRef.setUrl(url);
+		    	crossRef.setDetails(Valid.urlValidator(url), false, Wayback.isWayBackUrl(url), "--", Timestamp.getTimestamp());
 		    } finally {
 		    	executorService.shutdown();
 		    }
@@ -106,7 +97,7 @@ public class CrossRefHelper implements Callable<CrossRef[]> {
 	}
 	
 	@Override
-	public CrossRef[] call() throws Exception {
+	public Collection<CrossRef> call() throws Exception {
 		return buildUrlDetails(license);
 	}
 }
