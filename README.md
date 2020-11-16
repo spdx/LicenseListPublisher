@@ -4,6 +4,10 @@
 
 This is the source code repository for the tool that generates license data found in the [license-list-data](https://github.com/spdx/license-list-data) repository.  The source for the the data is located in the [license-list-XML](https://github.com/spdx/license-list-XML) repository.
 
+## Getting Starting
+
+The LicenseListPublisher binaries can be downloaded from the [BinTray LicenseListPublisher](https://bintray.com/spdx/spdx-tools/LicenseListPublisher) repo under the respective release.  The package is also available in [Maven Central](https://search.maven.org/artifact/org.spdx/licenseListPublisher) (organization org.spdx, artifact licenseListPublisher).
+
 ## Contributing
 See the file [CONTRIBUTING.md](CONTRIBUTING.md) for information on making contributions to the LicenseListPublisher.
 
