@@ -20,14 +20,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.spdx.rdfparser.IModelContainer;
-import org.spdx.rdfparser.InvalidSPDXAnalysisException;
-import org.spdx.rdfparser.license.AnyLicenseInfo;
-import org.spdx.rdfparser.license.LicenseException;
-import org.spdx.rdfparser.license.ListedLicenseException;
-import org.spdx.rdfparser.license.SpdxListedLicense;
-import org.json.simple.JSONArray;
-import org.spdx.licenselistpublisher.LicenseContainer;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
 
 /**

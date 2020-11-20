@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.spdx.rdfparser.license.LicenseException;
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.model.license.LicenseException;
 
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
@@ -217,9 +218,10 @@ public class ExceptionHtmlToc {
 	 * Add an exception to the table of contents
 	 * @param exception
 	 * @param exceptionHTMLReference
+	 * @throws InvalidSPDXAnalysisException 
 	 */
 	public void addException(LicenseException exception,
-			String exceptionHTMLReference) {
+			String exceptionHTMLReference) throws InvalidSPDXAnalysisException {
 		exceptions.add(new ExceptionRow(
 				StringEscapeUtils.escapeHtml4(exception.getLicenseExceptionId()),
 				StringEscapeUtils.escapeHtml4(exception.getName()),
@@ -227,7 +229,7 @@ public class ExceptionHtmlToc {
 	}
 
 	public void addDeprecatedException(LicenseException exception,
-			String exceptionHTMLReference, String deprecatedVersion) {
+			String exceptionHTMLReference, String deprecatedVersion) throws InvalidSPDXAnalysisException {
 		deprecatedExceptions.add(new DeprecatedExceptionRow(
 				StringEscapeUtils.escapeHtml4(exception.getLicenseExceptionId()),
 				StringEscapeUtils.escapeHtml4(exception.getName()),

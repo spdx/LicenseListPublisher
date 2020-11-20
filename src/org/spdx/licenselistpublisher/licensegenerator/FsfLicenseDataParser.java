@@ -22,10 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.jena.ext.com.google.common.collect.Lists;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Model;
@@ -173,7 +173,7 @@ public class FsfLicenseDataParser {
 		Node identifiersProp = model.getProperty(namespace, propertyName).asNode();
 		Triple identifersMatch = Triple.createMatch(subject, identifiersProp, null);
 		ExtendedIterator<Triple> identifiersIterator = model.getGraph().find(identifersMatch);
-		List<String> retval = Lists.newArrayList();
+		List<String> retval = new ArrayList<>();
 		while (identifiersIterator.hasNext()) {
 			Node identifiersObject = identifiersIterator.next().getObject();
 			if (identifiersObject == null) {

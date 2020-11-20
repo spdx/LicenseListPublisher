@@ -23,8 +23,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.spdx.rdfparser.license.LicenseException;
-import org.spdx.rdfparser.license.SpdxListedLicense;
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.model.license.LicenseException;
+import org.spdx.library.model.license.SpdxListedLicense;
 
 /**
  * Holds license information and generates a file in markdown format which links to the HTML version of the license files
@@ -108,8 +109,9 @@ public class MarkdownTable {
 	 * Add an exception to be added to the markdown table of contents
 	 * @param exception
 	 * @param deprecated
+	 * @throws InvalidSPDXAnalysisException 
 	 */
-	public void addException(LicenseException exception, boolean deprecated) {
+	public void addException(LicenseException exception, boolean deprecated) throws InvalidSPDXAnalysisException {
 		exceptions.add(new ExceptionInfo(exception.getLicenseExceptionId(), exception.getName(), deprecated));
 	}
 
@@ -117,8 +119,9 @@ public class MarkdownTable {
 	 * Add a license to be included in the markdown table of contents
 	 * @param license
 	 * @param deprecated
+	 * @throws InvalidSPDXAnalysisException 
 	 */
-	public void addLicense(SpdxListedLicense license, boolean deprecated) {
+	public void addLicense(SpdxListedLicense license, boolean deprecated) throws InvalidSPDXAnalysisException {
 		licenses.add(new LicenseInfo(license.getLicenseId(), license.getName(), deprecated, license.isOsiApproved(), license.isFsfLibre()));
 	}
 

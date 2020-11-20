@@ -24,13 +24,13 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.List;
 
-import org.spdx.compare.LicenseCompareHelper;
-import org.spdx.compare.SpdxCompareException;
-import org.spdx.compare.CompareTemplateOutputHandler.DifferenceDescription;
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.model.license.SpdxListedLicense;
 import org.spdx.licensexml.LicenseXmlDocument;
 import org.spdx.licensexml.LicenseXmlException;
-import org.spdx.rdfparser.InvalidSPDXAnalysisException;
-import org.spdx.rdfparser.license.SpdxListedLicense;
+import org.spdx.utility.compare.CompareTemplateOutputHandler.DifferenceDescription;
+import org.spdx.utility.compare.LicenseCompareHelper;
+import org.spdx.utility.compare.SpdxCompareException;
 
 /**
  * Tests a license XML file against license text expected to match

@@ -18,12 +18,10 @@ package org.spdx.licenselistpublisher.licensegenerator;
 import java.io.File;
 import java.io.IOException;
 import org.spdx.crossref.CrossRefHelper;
-import org.spdx.html.ExceptionTOCJSONFile;
-import org.spdx.html.LicenseExceptionJSONFile;
-import org.spdx.html.LicenseJSONFile;
-import org.spdx.html.LicenseTOCJSONFile;
-import org.spdx.rdfparser.license.ListedLicenseException;
-import org.spdx.rdfparser.license.SpdxListedLicense;
+import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.storage.listedlicense.ExceptionJsonTOC;
+import org.spdx.storage.listedlicense.LicenseJson;
+import org.spdx.storage.listedlicense.LicenseJsonTOC;
 
 /**
  * Writes JSON format license information
@@ -38,9 +36,9 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 	private File jsonFolder;
 	private File jsonFolderExceptions;
 	private File jsonFolderDetails;
-	LicenseJSONFile licJson;
-	LicenseTOCJSONFile tableOfContentsJSON;
-	ExceptionTOCJSONFile jsonExceptionToc;
+	LicenseJson licJson;
+	LicenseJsonTOC tableOfContentsJSON;
+	ExceptionJsonTOC jsonExceptionToc;
 
 	/**
 	 * @param version License list version
@@ -54,9 +52,9 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 		this.jsonFolder = jsonFolder;
 		this.jsonFolderDetails = jsonFolderDetails;
 		this.jsonFolderExceptions = jsonFolderExceptions;
-		licJson = new LicenseJSONFile();
-		tableOfContentsJSON = new LicenseTOCJSONFile(version, releaseDate);
-		jsonExceptionToc = new ExceptionTOCJSONFile(version, releaseDate);
+		licJson = new LicenseJson();
+		tableOfContentsJSON = new LicenseJsonTOC(version, releaseDate);
+		jsonExceptionToc = new ExceptionJsonTOC(version, releaseDate);
 	}
 
 	/**

@@ -20,21 +20,15 @@ import java.io.IOException;
 
 import org.spdx.htmltemplates.ExceptionHtml;
 import org.spdx.htmltemplates.ExceptionHtmlToc;
-import org.json.simple.JSONArray;
-import org.spdx.html.ExceptionTOCJSONFile;
-import org.spdx.html.InvalidLicenseTemplateException;
-import org.spdx.html.LicenseExceptionJSONFile;
 import org.spdx.htmltemplates.LicenseHTMLFile;
-import org.spdx.html.LicenseJSONFile;
 import org.spdx.htmltemplates.LicenseTOCHTMLFile;
-import org.spdx.html.LicenseTOCJSONFile;
-import org.spdx.rdfparser.InvalidSPDXAnalysisException;
-import org.spdx.rdfparser.license.AnyLicenseInfo;
-import org.spdx.rdfparser.license.LicenseException;
-import org.spdx.rdfparser.license.ListedLicenseException;
-import org.spdx.rdfparser.license.SpdxListedLicense;
-import org.spdx.licenselistpublisher.LicenseContainer;
+import org.spdx.library.model.license.ListedLicenseException;
+import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
+import org.spdx.storage.listedlicense.ExceptionJsonTOC;
+import org.spdx.storage.listedlicense.LicenseJson;
+import org.spdx.storage.listedlicense.LicenseJsonTOC;
 
 import com.github.mustachejava.MustacheException;
 
@@ -53,11 +47,11 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 	private File websiteFolder;
 	private LicenseHTMLFile licHtml;
 	private LicenseTOCHTMLFile tableOfContentsHTML;
-	LicenseJSONFile licJson;
-	LicenseTOCJSONFile tableOfContentsJSON;
+	LicenseJson licJson;
+	LicenseJsonTOC tableOfContentsJSON;
 	String exceptionHtmlTocReference = "./" + EXCEPTION_TOC_FILE_NAME;
 	ExceptionHtmlToc htmlExceptionToc;
-	ExceptionTOCJSONFile jsonExceptionToc;
+	ExceptionJsonTOC jsonExceptionToc;
 	private String version;
 	private String releaseDate;
 
@@ -70,10 +64,10 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 		this.websiteFolder = websiteFolder;
 		this.tableOfContentsHTML = new LicenseTOCHTMLFile(version, releaseDate);
 		this.licHtml = new LicenseHTMLFile();
-		licJson = new LicenseJSONFile();
-		tableOfContentsJSON = new LicenseTOCJSONFile(version, releaseDate);
+		licJson = new LicenseJson();
+		tableOfContentsJSON = new LicenseJsonTOC(version, releaseDate);
 		htmlExceptionToc = new ExceptionHtmlToc();
-		jsonExceptionToc = new ExceptionTOCJSONFile(version, releaseDate);
+		jsonExceptionToc = new ExceptionJsonTOC(version, releaseDate);
 		this.version = version;
 		this.releaseDate = releaseDate;
 	}
@@ -117,7 +111,7 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 	/**
 	 * @return the licJson
 	 */
-	public LicenseJSONFile getLicJson() {
+	public LicenseJson getLicJson() {
 		return licJson;
 	}
 
@@ -126,7 +120,7 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 	/**
 	 * @return the tableOfContentsJSON
 	 */
-	public LicenseTOCJSONFile getTableOfContentsJSON() {
+	public LicenseJsonTOC getTableOfContentsJSON() {
 		return tableOfContentsJSON;
 	}
 
@@ -144,7 +138,7 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 	/**
 	 * @return the jsonExceptionToc
 	 */
-	public ExceptionTOCJSONFile getJsonExceptionToc() {
+	public ExceptionJsonTOC getJsonExceptionToc() {
 		return jsonExceptionToc;
 	}
 

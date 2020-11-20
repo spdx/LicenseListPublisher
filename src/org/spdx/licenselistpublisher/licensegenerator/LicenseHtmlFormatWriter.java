@@ -20,11 +20,11 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Set;
 
-import org.json.simple.JSONArray;
-import org.spdx.html.InvalidLicenseTemplateException;
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.model.license.ListedLicenseException;
+import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
 import org.spdx.licenseTemplate.SpdxLicenseTemplateHelper;
-import org.spdx.rdfparser.license.ListedLicenseException;
-import org.spdx.rdfparser.license.SpdxListedLicense;
 
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
@@ -80,7 +80,7 @@ public class LicenseHtmlFormatWriter implements ILicenseFormatWriter {
 	 * @see org.spdx.licenselistpublisher.licensegenerator.ILicenseFormatWriter#addLicense(org.spdx.rdfparser.license.SpdxListedLicense, boolean)
 	 */
 	@Override
-	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException {
+	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, InvalidSPDXAnalysisException {
 		String licBaseHtmlFileName = formLicenseHTMLFileName(license.getLicenseId());
 		String licHtmlFileName = licBaseHtmlFileName + ".html";
 		File htmlTextFile = new File(htmlFolder.getPath() + File.separator + licHtmlFileName);
@@ -121,14 +121,10 @@ public class LicenseHtmlFormatWriter implements ILicenseFormatWriter {
 	 */
 	@Override
 	public void writeException(ListedLicenseException exception)
-			throws IOException {
+			throws IOException, InvalidSPDXAnalysisException {
 		String exceptionHtmlFileName = formLicenseHTMLFileName(exception.getLicenseExceptionId());
 		File htmlTextFile = new File(htmlFolder.getPath() + File.separator + exceptionHtmlFileName + ".html");
-		try {
-			Files.write(exception.getExceptionTextHtml(), htmlTextFile, utf8);
-		} catch (InvalidLicenseTemplateException e) {
-			Files.write(SpdxLicenseTemplateHelper.formatEscapeHTML(exception.getLicenseExceptionText()), htmlTextFile, utf8);
-		}
+		Files.write(exception.getExceptionTextHtml(), htmlTextFile, utf8);
 	}
 
 }

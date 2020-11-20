@@ -19,6 +19,7 @@ package org.spdx.licensexml;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -32,13 +33,11 @@ import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spdx.crossref.CrossRefHelper;
-import org.spdx.rdfparser.InvalidSPDXAnalysisException;
-import org.spdx.rdfparser.license.CrossRef;
-import org.spdx.rdfparser.license.LicenseRestrictionException;
-import org.spdx.rdfparser.license.ListedLicenseException;
-import org.spdx.rdfparser.license.SpdxListedLicense;
-import org.spdx.rdfparser.license.SpdxListedLicenseException;
-import org.spdx.spdxspreadsheet.SpreadsheetException;
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.model.license.CrossRef;
+import org.spdx.library.model.license.ListedLicenseException;
+import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.library.model.license.SpdxListedLicenseException;
 
 /**
  * Provide license information from XML files
@@ -56,7 +55,7 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 
 	class XmlLicenseIterator extends XmlLicenseProvider.XmlLicenseIterator implements Closeable {
 		private ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_THREADS);
-		private Map<SpdxListedLicense, Future<CrossRef[]>> urlDetailsInProgress = new HashMap<>();
+		private Map<SpdxListedLicense, Future<Collection<CrossRef>>> urlDetailsInProgress = new HashMap<>();
 		
 		private void fillCrossRefPool() {
 			while (super.hasNext() && urlDetailsInProgress.size() < NUMBER_THREADS) {
@@ -80,8 +79,8 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 		 */
 		@Override
 		public synchronized SpdxListedLicense next() {
-			Entry<SpdxListedLicense, Future<CrossRef[]>> readyLicense = null;
-			for (Entry<SpdxListedLicense, Future<CrossRef[]>> licenseInProgress:urlDetailsInProgress.entrySet()) {
+			Entry<SpdxListedLicense, Future<Collection<CrossRef>>> readyLicense = null;
+			for (Entry<SpdxListedLicense, Future<Collection<CrossRef>>> licenseInProgress:urlDetailsInProgress.entrySet()) {
 				if (licenseInProgress.getValue().isDone()) {
 					readyLicense = licenseInProgress;
 					break;
@@ -99,7 +98,10 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 			
 			SpdxListedLicense retval = readyLicense.getKey();
 			try {
-				retval.setCrossRef(readyLicense.getValue().get());
+				for (CrossRef crossRef:readyLicense.getValue().get()) {
+					retval.getCrossRef().add(crossRef);
+				}
+				
 			} catch (InterruptedException | ExecutionException e) {
 				logger.error("Error getting URL value.  URL values will not be filled in for license ID "+retval.getLicenseId(),e);
 				warnings.add("Error getting URL value.  URL values will not be filled in for license ID "+retval.getLicenseId());
@@ -119,7 +121,7 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 	}
 
 	class XmlExceptionIterator extends XmlLicenseProvider.XmlExceptionIterator {
-		public XmlExceptionIterator() {
+		public XmlExceptionIterator() throws InvalidSPDXAnalysisException {
 			
 		}
 	}
@@ -145,8 +147,7 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 	 * @see org.spdx.rdfparser.license.ISpdxListedLicenseProvider#getExceptionIterator()
 	 */
 	@Override
-	public Iterator<ListedLicenseException> getExceptionIterator()
-			throws LicenseRestrictionException, SpreadsheetException {
+	public Iterator<ListedLicenseException> getExceptionIterator() throws InvalidSPDXAnalysisException {
 		return new XmlExceptionIterator();
 	}
 }
