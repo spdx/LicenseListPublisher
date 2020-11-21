@@ -18,10 +18,6 @@ package org.spdx.crossref;
 
 import java.util.Collection;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,37 +57,19 @@ public class CrossRefHelper implements Callable<Collection<CrossRef>> {
 		}
 		for (CrossRef crossRef:crossRefs) {
 			String url = crossRef.getUrl().get();
-			ExecutorService executorService = Executors.newFixedThreadPool(10);
-			Future<Boolean> isValid = executorService.submit(new Valid(url));
-			Future<Boolean> isLive = executorService.submit(new Live(url));
-			Future<Boolean> isWayback = executorService.submit(new Wayback(url));
-			Future<String> timestamp = executorService.submit(new Timestamp());
-			Future<String> match = executorService.submit(new Match(url, license));
 			
 			try {
-				Boolean isValidUrl = isValid.get(10, TimeUnit.SECONDS);
-		    	Boolean isLiveUrl = isValidUrl ? isLive.get(10, TimeUnit.SECONDS) : false;
-		    	Boolean isWaybackUrl = isValidUrl ? isWayback.get(5, TimeUnit.SECONDS) : false;
-		    	String currentDate = timestamp.get(5, TimeUnit.SECONDS);
-		    	String matchStatus = isValidUrl ? match.get(50, TimeUnit.SECONDS) : "N/A";
+				Boolean isValidUrl = Valid.urlValidator(url);
+		    	Boolean isLiveUrl = isValidUrl ? Live.urlLinkExists(url) : false;
+		    	Boolean isWaybackUrl = isValidUrl ? Wayback.isWayBackUrl(url) : false;
+		    	String currentDate = Timestamp.getTimestamp();
+		    	String matchStatus = isLiveUrl ? Match.checkMatch(url, license) : "N/A";
 		    	crossRef.setDetails(isValidUrl, isLiveUrl, isWaybackUrl, matchStatus, currentDate);
 		    } catch (Exception e) {
-		        // interrupts if there is any possible error
-		    	isValid.cancel(true);
-		    	isLive.cancel(true);
-		    	isWayback.cancel(true);
-		    	timestamp.cancel(true);
-		    	logger.error("Interrupted.",e.getMessage());
+		    	logger.error("Unexpected exception",e.getMessage());
 		    	crossRef.setUrl(url);
 		    	crossRef.setDetails(Valid.urlValidator(url), false, Wayback.isWayBackUrl(url), "--", Timestamp.getTimestamp());
-		    } finally {
-		    	executorService.shutdown();
 		    }
-		    try {
-				executorService.awaitTermination(1000, TimeUnit.SECONDS);
-			} catch (InterruptedException e) {
-				logger.error("Interrupted while waiting for termination",e.getMessage());
-			}
 		}
 		return crossRefs;
 	}
