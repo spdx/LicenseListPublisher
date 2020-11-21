@@ -38,8 +38,9 @@ public interface ILicenseFormatWriter {
 	 * @throws IOException
 	 * @throws LicenseGeneratorException
 	 * @throws InvalidSPDXAnalysisException 
+	 * @throws InvalidLicenseTemplateException 
 	 */
-	void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, LicenseGeneratorException, InvalidSPDXAnalysisException;
+	void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, LicenseGeneratorException, InvalidSPDXAnalysisException, InvalidLicenseTemplateException;
 
 	/**
 	 * Write the Table of Contents file for the format if applicable

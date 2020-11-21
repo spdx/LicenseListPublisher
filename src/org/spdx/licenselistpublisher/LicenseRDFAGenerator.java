@@ -472,10 +472,11 @@ public class LicenseRDFAGenerator {
 	 * @throws IOException
 	 * @throws SpdxListedLicenseException
 	 * @throws SpdxCompareException
+	 * @throws InvalidLicenseTemplateException 
 	 */
 	private static Set<String> writeLicenseList(String version, String releaseDate,
 			ISpdxListedLicenseProvider licenseProvider, List<String> warnings,
-			List<ILicenseFormatWriter> writers, ILicenseTester tester, boolean useTestText) throws LicenseGeneratorException, InvalidSPDXAnalysisException, IOException, SpdxListedLicenseException, SpdxCompareException {
+			List<ILicenseFormatWriter> writers, ILicenseTester tester, boolean useTestText) throws LicenseGeneratorException, InvalidSPDXAnalysisException, IOException, SpdxListedLicenseException, SpdxCompareException, InvalidLicenseTemplateException {
 		Iterator<SpdxListedLicense> licenseIter = licenseProvider.getLicenseIterator();
 		try {
 			Map<String, String> addedLicIdTextMap = Maps.newHashMap();	// keep track for duplicate checking

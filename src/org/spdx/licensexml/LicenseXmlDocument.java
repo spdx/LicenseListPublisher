@@ -204,13 +204,9 @@ public class LicenseXmlDocument {
 		}
 		NodeList urlNodes = licenseElement.getElementsByTagName(SpdxConstants.LICENSEXML_ELEMENT_CROSS_REF);
 		ArrayList<String> sourceUrls = new ArrayList<>();
-		List<CrossRef> crossRefs = new ArrayList<>();
 		for (int i = 0; i < urlNodes.getLength(); i++) {
 			String sourceUrl = urlNodes.item(i).getTextContent().trim();
 			sourceUrls.add(sourceUrl);
-			CrossRef crossRef = new CrossRef(sourceUrl);
-			crossRef.setOrder(i);
-			crossRefs.add(crossRef);
 		}
 		String licenseHeader = null;
 		String licenseHeaderTemplate = null;
@@ -254,7 +250,13 @@ public class LicenseXmlDocument {
 				deprecated, deprecatedVersion);
 		retval.setLicenseHeaderHtml(licenseHeaderTemplateHtml);
 		retval.setStandardLicenseHeaderTemplate(licenseHeaderTemplate);
-		retval.getCrossRef().addAll(crossRefs);
+		int i = 0;
+		for (String sourceUrl:sourceUrls) {
+			CrossRef crossRef = retval.createCrossRef(sourceUrl)
+					.setOrder(i++)
+					.build();
+			retval.getCrossRef().add(crossRef);
+		}
 		return retval;
 	}
 

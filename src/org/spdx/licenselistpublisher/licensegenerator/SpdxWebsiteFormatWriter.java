@@ -16,21 +16,30 @@
 package org.spdx.licenselistpublisher.licensegenerator;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 import org.spdx.htmltemplates.ExceptionHtml;
 import org.spdx.htmltemplates.ExceptionHtmlToc;
 import org.spdx.htmltemplates.LicenseHTMLFile;
 import org.spdx.htmltemplates.LicenseTOCHTMLFile;
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.ModelCopyManager;
 import org.spdx.library.model.license.ListedLicenseException;
 import org.spdx.library.model.license.SpdxListedLicense;
 import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
+import org.spdx.spdxRdfStore.OutputFormat;
+import org.spdx.spdxRdfStore.RdfStore;
+import org.spdx.storage.listedlicense.ExceptionJson;
 import org.spdx.storage.listedlicense.ExceptionJsonTOC;
 import org.spdx.storage.listedlicense.LicenseJson;
 import org.spdx.storage.listedlicense.LicenseJsonTOC;
 
 import com.github.mustachejava.MustacheException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * Writer to format all files for the https://spdx.org/licenses website
@@ -54,6 +63,7 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 	ExceptionJsonTOC jsonExceptionToc;
 	private String version;
 	private String releaseDate;
+	Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
 	/**
 	 * @param version License list version
@@ -190,7 +200,7 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 	 * @see org.spdx.licenselistpublisher.licensegenerator.ILicenseFormatWriter#addLicense(org.spdx.rdfparser.license.SpdxListedLicense, boolean)
 	 */
 	@Override
-	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, LicenseGeneratorException {
+	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, LicenseGeneratorException, InvalidSPDXAnalysisException, InvalidLicenseTemplateException {
 		this.licHtml.setLicense(license);
 		String licBaseHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(license.getLicenseId());
 		String licHtmlFileName = licBaseHtmlFileName + ".html";
@@ -210,8 +220,8 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 		} catch (InvalidLicenseTemplateException e) {
 			throw new LicenseGeneratorException("License template error for license HTML file: "+e.getMessage(),e);
 		}
-		licJson.setLicense(license, deprecated);
-		licJson.writeToFile(licJsonFile);
+		licJson.copyFrom(license);
+		writeToFile(licJsonFile, licJson);
 		tableOfContentsJSON.addLicense(license, licHTMLReference, licJSONReference, deprecated);
 		if (deprecated) {
 			tableOfContentsHTML.addDeprecatedLicense(license, licHTMLReference);
@@ -219,14 +229,23 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 			tableOfContentsHTML.addLicense(license, licHTMLReference);
 		}
 		// JSON-LD format
-		LicenseContainer onlyThisLicense = new LicenseContainer();
-		AnyLicenseInfo licenseClone = license.clone();
-		try {
-			licenseClone.createResource(onlyThisLicense);
-		} catch (InvalidSPDXAnalysisException e) {
-			throw new LicenseGeneratorException("SPDX Analysis error cloning license: "+e.getMessage(),e);
+		RdfStore onlyThisLicense = new RdfStore();
+		ModelCopyManager copyManager = new ModelCopyManager();
+		copyManager.copy(onlyThisLicense, license.getDocumentUri(), license.getModelStore(), license.getDocumentUri(), 
+				license.getId(), license.getType());
+		LicenseRdfFormatWriter.writeRdf(onlyThisLicense, license.getDocumentUri(), websiteFolder.getPath() + File.separator + licBaseHtmlFileName + ".jsonld", OutputFormat.JSON_LD);
+	}
+	
+	/**
+	 * Serializes a Gson compatible POJO class to a file
+	 * @param file File to write to
+	 * @param jsonSerializableObject Object to serialize as a JSON file
+	 * @throws IOException 
+	 */
+	private void writeToFile(File file, Object jsonSerializableObject) throws IOException {
+		try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8")) {
+			writer.write(gson.toJson(jsonSerializableObject));
 		}
-		LicenseRdfFormatWriter.writeRdf(onlyThisLicense, websiteFolder.getPath() + File.separator + licBaseHtmlFileName + ".jsonld", "JSON-LD");
 	}
 
 	/* (non-Javadoc)
@@ -237,16 +256,16 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 		File tocJsonFile = new File(websiteFolder.getPath()+File.separator+LICENSE_TOC_JSON_FILE_NAME);
 		File tocHtmlFile = new File(websiteFolder.getPath()+File.separator+LICENSE_TOC_HTML_FILE_NAME);
 		File exceptionTocFile = new File(websiteFolder.getPath()+File.separator+EXCEPTION_TOC_FILE_NAME);
-		tableOfContentsJSON.writeToFile(tocJsonFile);
+		writeToFile(tocJsonFile, tableOfContentsJSON);
 		tableOfContentsHTML.writeToFile(tocHtmlFile);
 		htmlExceptionToc.writeToFile(exceptionTocFile, this.version);
 		File exceptionJsonTocFile = new File(websiteFolder.getPath()+File.separator+EXCEPTION_JSON_TOC_FILE_NAME);
-		jsonExceptionToc.writeToFile(exceptionJsonTocFile);
+		writeToFile(exceptionJsonTocFile, jsonExceptionToc);
 	}
 
 	@Override
 	public void writeException(ListedLicenseException exception)
-			throws IOException, InvalidLicenseTemplateException, LicenseGeneratorException {
+			throws IOException, InvalidLicenseTemplateException, LicenseGeneratorException, InvalidSPDXAnalysisException {
 		ExceptionHtml exceptionHtml = new ExceptionHtml(exception);
 		String exceptionHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(exception.getLicenseExceptionId());
 		String exceptionHTMLReference = "./"+exceptionHtmlFileName + ".html";
@@ -260,18 +279,16 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 			htmlExceptionToc.addException(exception, exceptionHTMLReference);
 		}
 		jsonExceptionToc.addException(exception, exceptionHTMLReference, exceptionJSONReference, exception.isDeprecated());
-		LicenseExceptionJSONFile exceptionJson = new LicenseExceptionJSONFile();
-		exceptionJson.setException(exception, exception.isDeprecated());
+		ExceptionJson exceptionJson = new ExceptionJson();
+		exceptionJson.copyFrom(exception);
 		File exceptionJsonFile = new File(websiteFolder.getPath() + File.separator + exceptionJsonFileName);
-		exceptionJson.writeToFile(exceptionJsonFile);
+		writeToFile(exceptionJsonFile, exceptionJson);
 		// JSON-LD format
-		LicenseException exceptionClone = exception.clone();
-		LicenseContainer onlyThisException = new LicenseContainer();
-		try {
-			exceptionClone.createResource(onlyThisException);
-		} catch (InvalidSPDXAnalysisException e) {
-			throw new LicenseGeneratorException("SPDX Analysis error cloning exception: "+e.getMessage(),e);
-		}
-		LicenseRdfFormatWriter.writeRdf(onlyThisException, websiteFolder.getPath() + File.separator + exceptionHtmlFileName + ".jsonld", "JSON-LD");
+		RdfStore onlyThisException = new RdfStore();	
+		ModelCopyManager copyManager = new ModelCopyManager();
+		copyManager.copy(onlyThisException, exception.getDocumentUri(), exception.getModelStore(), exception.getDocumentUri(), 
+				exception.getId(), exception.getType());
+		LicenseRdfFormatWriter.writeRdf(onlyThisException, exception.getDocumentUri(), 
+				websiteFolder.getPath() + File.separator + exceptionHtmlFileName + ".jsonld", OutputFormat.JSON_LD);
 	}
 }

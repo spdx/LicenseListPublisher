@@ -16,12 +16,21 @@
 package org.spdx.licenselistpublisher.licensegenerator;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import org.spdx.crossref.CrossRefHelper;
+import java.io.OutputStreamWriter;
+
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.model.license.ListedLicenseException;
 import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
+import org.spdx.storage.listedlicense.ExceptionJson;
 import org.spdx.storage.listedlicense.ExceptionJsonTOC;
 import org.spdx.storage.listedlicense.LicenseJson;
 import org.spdx.storage.listedlicense.LicenseJsonTOC;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * Writes JSON format license information
@@ -39,6 +48,7 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 	LicenseJson licJson;
 	LicenseJsonTOC tableOfContentsJSON;
 	ExceptionJsonTOC jsonExceptionToc;
+	Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
 	/**
 	 * @param version License list version
@@ -101,16 +111,28 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 
 
 	@Override
-	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException {
-		licJson.setLicense(license, deprecated);
+	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, InvalidSPDXAnalysisException, InvalidLicenseTemplateException {
+		licJson.copyFrom(license);
 		String licBaseHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(license.getLicenseId());
 		String licHtmlFileName = licBaseHtmlFileName + ".html";
 		String licJsonFileName = licBaseHtmlFileName + ".json";
 		String licHTMLReference = "./"+licHtmlFileName;
 		String licJSONReference = "./"+licJsonFileName;
 		File licJsonFile = new File(jsonFolder.getPath()+File.separator+"details"+File.separator+licJsonFileName);
-		licJson.writeToFile(licJsonFile);
+		writeToFile(licJsonFile, licJson);
 		tableOfContentsJSON.addLicense(license, licHTMLReference, licJSONReference, deprecated);
+	}
+
+	/**
+	 * Serializes a Gson compatible POJO class to a file
+	 * @param file File to write to
+	 * @param jsonSerializableObject Object to serialize as a JSON file
+	 * @throws IOException 
+	 */
+	private void writeToFile(File file, Object jsonSerializableObject) throws IOException {
+		try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8")) {
+			writer.write(gson.toJson(jsonSerializableObject));
+		}
 	}
 
 	/* (non-Javadoc)
@@ -119,23 +141,23 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 	@Override
 	public void writeToC() throws IOException {
 		File tocJsonFile = new File(jsonFolder.getPath()+File.separator+LICENSE_TOC_JSON_FILE_NAME);
-		tableOfContentsJSON.writeToFile(tocJsonFile);
+		writeToFile(tocJsonFile, tableOfContentsJSON);
 		File exceptionJsonTocFile = new File(jsonFolder.getPath()+File.separator+EXCEPTION_JSON_TOC_FILE_NAME);
-		jsonExceptionToc.writeToFile(exceptionJsonTocFile);
+		writeToFile(exceptionJsonTocFile, jsonExceptionToc);
 	}
 
 	@Override
 	public void writeException(ListedLicenseException exception)
-			throws IOException {
+			throws IOException, InvalidSPDXAnalysisException {
 		String exceptionHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(exception.getLicenseExceptionId());
 		String exceptionJsonFileName = exceptionHtmlFileName + ".json";
 		String exceptionJSONReference= "./" + exceptionJsonFileName;
 		String exceptionHTMLReference = "./"+exceptionHtmlFileName + ".html";
-		LicenseExceptionJSONFile exceptionJson = new LicenseExceptionJSONFile();
+		ExceptionJson exceptionJson = new ExceptionJson();
 		jsonExceptionToc.addException(exception, exceptionHTMLReference, exceptionJSONReference, exception.isDeprecated());
-		exceptionJson.setException(exception, exception.isDeprecated());
+		exceptionJson.copyFrom(exception);
 		File exceptionJsonFile = new File(jsonFolder.getPath() + File.separator + "exceptions" + File.separator +  exceptionJsonFileName);
-		exceptionJson.writeToFile(exceptionJsonFile);
+		writeToFile(exceptionJsonFile, exceptionJson);
 	}
 
 

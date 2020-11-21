@@ -20,6 +20,7 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -29,11 +30,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.spdx.html.InvalidLicenseTemplateException;
-import org.spdx.rdfparser.InvalidSPDXAnalysisException;
-import org.spdx.rdfparser.license.LicenseException;
-import org.spdx.rdfparser.license.ListedLicenseException;
-import org.spdx.rdfparser.license.SpdxListedLicense;
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.model.license.LicenseException;
+import org.spdx.library.model.license.ListedLicenseException;
+import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
 import org.spdx.licenselistpublisher.UnitTestHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -54,7 +55,7 @@ public class LicenseXmlDocumentTest {
 			"\n\n   1.\n\n   List item 1\n\n   2.\n\n   List item 2\n\n" +
 			"Last Paragraph Alternate Text Non matching line. Optional text";
 	private static final String TEST_LICENSE_NAME = "Test License";
-	private static final String[] TEST_LICENSE_URLS = new String[] {"http://test/url1","http://test/url2"};
+	private static final List<String>  TEST_LICENSE_URLS = Arrays.asList(new String[] {"http://test/url1","http://test/url2"});
 	private static final String TEST_LICENSE_HEADER = "Test header optional var";
 	private static final String TEST_LICENSE_HEADER_TEMPLATE = "Test header<<beginOptional>> optional<<endOptional>> <<var;name=\"h1test\";original=\"var\";match=\".+\">>";
 	private static final String TEST_LICENSE_TEMPLATE = "<<var;name=\"copyright\";original=\"Test Copyright\";match=\".{0,1000}\">>\n\nparagraph 1" +
@@ -67,7 +68,7 @@ public class LicenseXmlDocumentTest {
 			"\n\n   1.d\n\n   List item 1d\n\n   2.d\n\n   List item 2d\n\n" +
 			"Last Paragraph dep Alternate Text dep Non matching line dep. Optional text dep";
 	private static final String TEST_DEP_LICENSE_NAME = "Test Deprecated License";
-	private static final String[] TEST_DEP_LICENSE_URLS = new String[] {"http://test/url1d","http://test/url2d"};
+	private static final List<String> TEST_DEP_LICENSE_URLS = Arrays.asList(new String[] {"http://test/url1d","http://test/url2d"});
 	private static final String TEST_DEP_LICENSE_HEADER = "Test header dep";
 	private static final String TEST_DEP_LICENSE_TEMPLATE = "<<var;name=\"copyright\";original=\"Test Copyright dep\";match=\".{0,1000}\">>\n\nparagraph 1d" +
 			"\n\n   <<var;name=\"bullet\";original=\"1.d\";match=\".{0,20}\">>\n\n   List item 1d\n\n   <<var;name=\"bullet\";original=\"2.d\";match=\".{0,20}\">>\n\n   List item 2d\n\n" +
@@ -79,7 +80,7 @@ public class LicenseXmlDocumentTest {
 			"\n\n   1.e\n\n   List item 1e\n\n   2.e\n\n   List item 2e\n\n" +
 			"Last Paragraph exc Alternate Text exc Non matching line. e Optional text exc";
 	private static final String TEST_EXCEPTION_NAME = "Test Exception";
-	private static final String[] TEST_EXCEPTION_URLS = new String[] {"http://test/url1e","http://test/url2e"};
+	private static final List<String> TEST_EXCEPTION_URLS = Arrays.asList(new String[] {"http://test/url1e","http://test/url2e"});
 	@SuppressWarnings("unused")
 	private static final String TEST_EXCEPTION_TEMPLATE = "Test Copyrighte\n\nparagraph 1e" +
 			"\n   1.e\n   List item 1e\n   2.e\n   List item 2e\n" +
@@ -146,7 +147,7 @@ public class LicenseXmlDocumentTest {
 				assertEquals(TEST_DEP_LICENSE_ID, license.getLicenseId());
 				assertEquals(TEST_DEP_LICENSE_TEXT, license.getLicenseText());
 				assertEquals(TEST_DEP_LICENSE_NAME, license.getName());
-				UnitTestHelper.isArraysEqual(TEST_DEP_LICENSE_URLS, license.getSeeAlso());
+				assertTrue(UnitTestHelper.isCollectionsEqual(TEST_DEP_LICENSE_URLS, license.getSeeAlso()));
 				assertEquals(TEST_DEP_LICENSE_HEADER, license.getStandardLicenseHeader());
 				assertEquals(TEST_DEP_LICENSE_TEMPLATE, license.getStandardLicenseTemplate());
 			} else {
@@ -155,7 +156,7 @@ public class LicenseXmlDocumentTest {
 				assertEquals(TEST_LICENSE_ID, license.getLicenseId());
 				assertEquals(TEST_LICENSE_TEXT, license.getLicenseText());
 				assertEquals(TEST_LICENSE_NAME, license.getName());
-				UnitTestHelper.isArraysEqual(TEST_LICENSE_URLS, license.getSeeAlso());
+				assertTrue(UnitTestHelper.isCollectionsEqual(TEST_LICENSE_URLS, license.getSeeAlso()));
 				assertEquals(TEST_LICENSE_HEADER, license.getStandardLicenseHeader());
 				assertEquals(TEST_LICENSE_HEADER_TEMPLATE, license.getStandardLicenseHeaderTemplate());
 				assertEquals(TEST_LICENSE_TEMPLATE, license.getStandardLicenseTemplate());
@@ -179,7 +180,7 @@ public class LicenseXmlDocumentTest {
 		assertEquals(TEST_EXCEPTION_ID, exception.getLicenseExceptionId());
 		assertEquals(TEST_EXCEPTION_TEXT, exception.getLicenseExceptionText());
 		assertEquals(TEST_EXCEPTION_NAME, exception.getName());
-		UnitTestHelper.isArraysEqual(TEST_EXCEPTION_URLS, exception.getSeeAlso());
+		assertTrue(UnitTestHelper.isCollectionsEqual(TEST_EXCEPTION_URLS, exception.getSeeAlso()));
 	}
 
 	@Test
