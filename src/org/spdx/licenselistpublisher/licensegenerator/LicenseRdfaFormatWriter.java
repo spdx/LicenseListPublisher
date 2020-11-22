@@ -20,12 +20,12 @@ import java.io.IOException;
 
 import org.spdx.htmltemplates.ExceptionHtml;
 import org.spdx.htmltemplates.ExceptionHtmlToc;
-import org.json.simple.JSONArray;
-import org.spdx.html.InvalidLicenseTemplateException;
 import org.spdx.htmltemplates.LicenseHTMLFile;
 import org.spdx.htmltemplates.LicenseTOCHTMLFile;
-import org.spdx.rdfparser.license.ListedLicenseException;
-import org.spdx.rdfparser.license.SpdxListedLicense;
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.model.license.ListedLicenseException;
+import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
 
 import com.github.mustachejava.MustacheException;
@@ -154,7 +154,7 @@ public class LicenseRdfaFormatWriter implements ILicenseFormatWriter {
 	 */
 	@Override
 	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion)
-			throws IOException, LicenseGeneratorException {
+			throws IOException, LicenseGeneratorException, InvalidSPDXAnalysisException {
 		this.licHtml.setLicense(license);
 		String licBaseHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(license.getLicenseId());
 		String licHtmlFileName = licBaseHtmlFileName + ".html";
@@ -188,7 +188,7 @@ public class LicenseRdfaFormatWriter implements ILicenseFormatWriter {
 
 	@Override
 	public void writeException(ListedLicenseException exception)
-			throws IOException, InvalidLicenseTemplateException {
+			throws IOException, InvalidLicenseTemplateException, InvalidSPDXAnalysisException {
 		ExceptionHtml exceptionHtml = new ExceptionHtml(exception);
 		String exceptionHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(exception.getLicenseExceptionId());
 		String exceptionHTMLReference = "./"+exceptionHtmlFileName + ".html";

@@ -24,11 +24,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.spdx.compare.CompareTemplateOutputHandler.DifferenceDescription;
-import org.spdx.compare.LicenseCompareHelper;
-import org.spdx.compare.SpdxCompareException;
-import org.spdx.rdfparser.license.License;
-import org.spdx.rdfparser.license.LicenseException;
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.model.license.License;
+import org.spdx.library.model.license.LicenseException;
+import org.spdx.utility.compare.CompareTemplateOutputHandler.DifferenceDescription;
+import org.spdx.utility.compare.LicenseCompareHelper;
+import org.spdx.utility.compare.SpdxCompareException;
 
 /**
  * Test SPDX licenses against a directory of test licenses.
@@ -73,9 +74,10 @@ public class LicenseTester implements ILicenseTester {
 	 * @return list of test failure descriptions.  List is empty if all tests pass.
 	 * @throws IOException
 	 * @throws SpdxCompareException
+	 * @throws InvalidSPDXAnalysisException 
 	 */
 	@Override
-	public List<String> testLicense(License license) throws IOException, SpdxCompareException{
+	public List<String> testLicense(License license) throws IOException, SpdxCompareException, InvalidSPDXAnalysisException {
 		List<String> retval = new ArrayList<String>();
 		File licenseDir = this.licenseIdToTestMap.get(license.getLicenseId());
 		if (licenseDir == null || !licenseDir.exists()) {
@@ -124,9 +126,10 @@ public class LicenseTester implements ILicenseTester {
 	 * @param exception
 	 * @return
 	 * @throws IOException
+	 * @throws InvalidSPDXAnalysisException 
 	 */
 	@Override
-	public List<String> testException(LicenseException exception) throws IOException {
+	public List<String> testException(LicenseException exception) throws IOException, InvalidSPDXAnalysisException {
 		List<String> retval = new ArrayList<String>();
 		File exceptionDir = this.licenseIdToTestMap.get(exception.getLicenseExceptionId());
 		if (exceptionDir == null || !exceptionDir.exists()) {

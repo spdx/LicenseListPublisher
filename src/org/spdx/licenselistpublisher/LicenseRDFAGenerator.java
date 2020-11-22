@@ -32,19 +32,17 @@ import java.util.Objects;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.spdx.compare.LicenseCompareHelper;
-import org.spdx.compare.SpdxCompareException;
 import org.spdx.crossref.CrossRefHelper;
-import org.spdx.html.InvalidLicenseTemplateException;
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.model.license.LicenseException;
+import org.spdx.library.model.license.ListedLicenseException;
+import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.library.model.license.SpdxListedLicenseException;
+import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
 import org.spdx.licensexml.XmlLicenseProviderSingleFile;
 import org.spdx.licensexml.XmlLicenseProviderWithCrossRefDetails;
-import org.spdx.rdfparser.InvalidSPDXAnalysisException;
-import org.spdx.rdfparser.license.ISpdxListedLicenseProvider;
-import org.spdx.rdfparser.license.LicenseException;
-import org.spdx.rdfparser.license.LicenseRestrictionException;
-import org.spdx.rdfparser.license.ListedLicenseException;
-import org.spdx.rdfparser.license.SpdxListedLicense;
-import org.spdx.rdfparser.license.SpdxListedLicenseException;
+import org.spdx.utility.compare.LicenseCompareHelper;
+import org.spdx.utility.compare.SpdxCompareException;
 import org.spdx.licenselistpublisher.licensegenerator.FsfLicenseDataParser;
 import org.spdx.licenselistpublisher.licensegenerator.ILicenseFormatWriter;
 import org.spdx.licenselistpublisher.licensegenerator.ILicenseTester;
@@ -57,7 +55,6 @@ import org.spdx.licenselistpublisher.licensegenerator.LicenseTemplateFormatWrite
 import org.spdx.licenselistpublisher.licensegenerator.LicenseTextFormatWriter;
 import org.spdx.licenselistpublisher.licensegenerator.SimpleLicenseTester;
 import org.spdx.licenselistpublisher.licensegenerator.SpdxWebsiteFormatWriter;
-import org.spdx.spdxspreadsheet.SpreadsheetException;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -344,8 +341,6 @@ public class LicenseRDFAGenerator {
 			}
 			System.out.println("Completed processing licenses");
 			return warnings;
-		} catch (SpreadsheetException e) {
-			throw new LicenseGeneratorException("\nInvalid spreadsheet: "+e.getMessage(),e);
 		} catch (SpdxListedLicenseException e) {
 			throw new LicenseGeneratorException("\nError reading standard licenses: "+e.getMessage(),e);
 		} catch (LicenseGeneratorException e) {
@@ -369,10 +364,11 @@ public class LicenseRDFAGenerator {
 	 * @throws LicenseRestrictionException
 	 * @throws LicenseGeneratorException
 	 * @throws InvalidLicenseTemplateException
+	 * @throws InvalidSPDXAnalysisException 
 	*/
 	private static void writeExceptionList(String version, String releaseDate,
 			ISpdxListedLicenseProvider licenseProvider, List<String> warnings, List<ILicenseFormatWriter> writers,
-			ILicenseTester tester, Set<String> licenseIds, boolean useTestText) throws IOException, LicenseRestrictionException, SpreadsheetException, LicenseGeneratorException, InvalidLicenseTemplateException {
+			ILicenseTester tester, Set<String> licenseIds, boolean useTestText) throws IOException, LicenseGeneratorException, InvalidLicenseTemplateException, InvalidSPDXAnalysisException {
 		// Collect license ID's to check for any duplicate ID's being used (e.g. license ID == exception ID)
 		Iterator<ListedLicenseException> exceptionIter = licenseProvider.getExceptionIterator();
 		Map<String, String> addedExceptionsMap = Maps.newHashMap();
@@ -476,10 +472,11 @@ public class LicenseRDFAGenerator {
 	 * @throws IOException
 	 * @throws SpdxListedLicenseException
 	 * @throws SpdxCompareException
+	 * @throws InvalidLicenseTemplateException 
 	 */
 	private static Set<String> writeLicenseList(String version, String releaseDate,
 			ISpdxListedLicenseProvider licenseProvider, List<String> warnings,
-			List<ILicenseFormatWriter> writers, ILicenseTester tester, boolean useTestText) throws LicenseGeneratorException, InvalidSPDXAnalysisException, IOException, SpdxListedLicenseException, SpdxCompareException {
+			List<ILicenseFormatWriter> writers, ILicenseTester tester, boolean useTestText) throws LicenseGeneratorException, InvalidSPDXAnalysisException, IOException, SpdxListedLicenseException, SpdxCompareException, InvalidLicenseTemplateException {
 		Iterator<SpdxListedLicense> licenseIter = licenseProvider.getLicenseIterator();
 		try {
 			Map<String, String> addedLicIdTextMap = Maps.newHashMap();	// keep track for duplicate checking
@@ -487,7 +484,7 @@ public class LicenseRDFAGenerator {
 				System.out.print(".");
 				SpdxListedLicense license = licenseIter.next();
 				if (licenseProvider instanceof XmlLicenseProviderSingleFile) {
-					license.setCrossRef(CrossRefHelper.buildUrlDetails(license));
+					license.getCrossRef().addAll(CrossRefHelper.buildUrlDetails(license));
 				}
 				addExternalMetaData(license);
 				if (license.getLicenseId() != null && !license.getLicenseId().isEmpty()) {
@@ -534,8 +531,9 @@ public class LicenseRDFAGenerator {
 	 * Update license fields based on information from external metadata
 	 * @param license
 	 * @throws LicenseGeneratorException
+	 * @throws InvalidSPDXAnalysisException 
 	 */
-	private static void addExternalMetaData(SpdxListedLicense license) throws LicenseGeneratorException {
+	private static void addExternalMetaData(SpdxListedLicense license) throws LicenseGeneratorException, InvalidSPDXAnalysisException {
 		license.setFsfLibre(FsfLicenseDataParser.getFsfLicenseDataParser().isSpdxLicenseFsfLibre(license.getLicenseId()));
 	}
 

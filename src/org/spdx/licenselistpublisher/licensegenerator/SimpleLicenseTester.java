@@ -22,11 +22,12 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.spdx.compare.LicenseCompareHelper;
-import org.spdx.compare.SpdxCompareException;
-import org.spdx.compare.CompareTemplateOutputHandler.DifferenceDescription;
-import org.spdx.rdfparser.license.License;
-import org.spdx.rdfparser.license.LicenseException;
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.model.license.License;
+import org.spdx.library.model.license.LicenseException;
+import org.spdx.utility.compare.CompareTemplateOutputHandler.DifferenceDescription;
+import org.spdx.utility.compare.LicenseCompareHelper;
+import org.spdx.utility.compare.SpdxCompareException;
 
 /**
  * Tests licenses against cononical text.
@@ -51,7 +52,7 @@ public class SimpleLicenseTester implements ILicenseTester {
 	 * @see org.spdx.licenselistpublisher.licensegenerator.ILicenseTester#testException(org.spdx.rdfparser.license.LicenseException)
 	 */
 	@Override
-	public List<String> testException(LicenseException exception) throws IOException {
+	public List<String> testException(LicenseException exception) throws IOException, InvalidSPDXAnalysisException {
 		File exceptionFile = new File(testFileDir.getPath() + File.separator + exception.getLicenseExceptionId() + ".txt");
 		List<String> retval = new ArrayList<String>();
 		if (!exceptionFile.exists()) {
@@ -83,7 +84,7 @@ public class SimpleLicenseTester implements ILicenseTester {
 	 * @see org.spdx.licenselistpublisher.licensegenerator.ILicenseTester#testLicense(org.spdx.rdfparser.license.License)
 	 */
 	@Override
-	public List<String> testLicense(License license) throws IOException {
+	public List<String> testLicense(License license) throws IOException, InvalidSPDXAnalysisException {
 		List<String> retval = new ArrayList<String>();
 		File licenseTextFile = new File(testFileDir.getPath() + File.separator + license.getLicenseId() + ".txt");
 		if (!licenseTextFile.exists()) {

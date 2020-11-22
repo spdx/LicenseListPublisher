@@ -25,9 +25,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.json.simple.JSONArray;
-import org.spdx.rdfparser.license.ListedLicenseException;
-import org.spdx.rdfparser.license.SpdxListedLicense;
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.model.license.ListedLicenseException;
+import org.spdx.library.model.license.SpdxListedLicense;
 
 
 /**
@@ -68,7 +68,7 @@ public class LicenseTextFormatWriter implements ILicenseFormatWriter {
 	 * @see org.spdx.licenselistpublisher.licensegenerator.ILicenseFormatWriter#writeLicense(org.spdx.rdfparser.license.SpdxListedLicense, boolean)
 	 */
 	@Override
-	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException {
+	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, InvalidSPDXAnalysisException {
 		String licBaseHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(license.getLicenseId());
 		if (deprecated) {
 			licBaseHtmlFileName = "deprecated_" + licBaseHtmlFileName;
@@ -108,7 +108,7 @@ public class LicenseTextFormatWriter implements ILicenseFormatWriter {
 
 	@Override
 	public void writeException(ListedLicenseException exception)
-			throws IOException {
+			throws IOException, InvalidSPDXAnalysisException {
 
 		String exceptionHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(exception.getLicenseExceptionId());
 		Path textFilePath = Paths.get(textFolder.getPath(), exceptionHtmlFileName + ".txt");

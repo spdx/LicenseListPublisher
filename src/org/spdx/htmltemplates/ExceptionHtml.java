@@ -20,17 +20,18 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.spdx.html.InvalidLicenseTemplateException;
-import org.spdx.rdfparser.license.ListedLicenseException;
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.model.license.ListedLicenseException;
+import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
 
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheException;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 
 /**
@@ -44,19 +45,17 @@ public class ExceptionHtml {
 	static final String TEMPLATE_ROOT_PATH = "resources" + File.separator + "htmlTemplate";
 	static final String HTML_TEMPLATE = "ExceptionHTMLTemplate.html";
 
-	Map<String, Object> mustacheMap = Maps.newHashMap();
+	Map<String, Object> mustacheMap = new HashMap<>();
 
 	/**
 	 * @param exception
 	 * @throws InvalidLicenseTemplateException
+	 * @throws InvalidSPDXAnalysisException 
 	 */
-	public ExceptionHtml(ListedLicenseException exception) throws InvalidLicenseTemplateException {
-		List<String> alSourceUrls = Lists.newArrayList();
-		String[] sourceUrls = exception.getSeeAlso();
-		if (sourceUrls != null) {
-			for (String sourceUrl: sourceUrls) {
-				alSourceUrls.add(sourceUrl);
-			}
+	public ExceptionHtml(ListedLicenseException exception) throws InvalidLicenseTemplateException, InvalidSPDXAnalysisException {
+		List<String> alSourceUrls = new ArrayList<>();
+		for (String sourceUrl: exception.getSeeAlso()) {
+			alSourceUrls.add(sourceUrl);
 		}
 		mustacheMap.put("name", exception.getName());
 		mustacheMap.put("id", exception.getLicenseExceptionId());

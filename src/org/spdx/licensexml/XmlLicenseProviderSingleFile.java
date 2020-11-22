@@ -25,14 +25,11 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spdx.rdfparser.InvalidSPDXAnalysisException;
-import org.spdx.rdfparser.license.ISpdxListedLicenseProvider;
-import org.spdx.rdfparser.license.LicenseRestrictionException;
-import org.spdx.rdfparser.license.ListedLicenseException;
-import org.spdx.rdfparser.license.SpdxListedLicense;
-import org.spdx.rdfparser.license.SpdxListedLicenseException;
-import org.spdx.spdxspreadsheet.SpreadsheetException;
-
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.model.license.ListedLicenseException;
+import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.library.model.license.SpdxListedLicenseException;
+import org.spdx.licenselistpublisher.ISpdxListedLicenseProvider;
 /**
  *
  * @author Gary O'Neall
@@ -68,8 +65,7 @@ public class XmlLicenseProviderSingleFile implements ISpdxListedLicenseProvider 
 	 * @see org.spdx.rdfparser.license.ISpdxListedLicenseProvider#getExceptionIterator()
 	 */
 	@Override
-	public Iterator<ListedLicenseException> getExceptionIterator()
-			throws LicenseRestrictionException, SpreadsheetException {
+	public Iterator<ListedLicenseException> getExceptionIterator() throws InvalidSPDXAnalysisException {
 		try {
 			return licDoc.getLicenseExceptions().iterator();
 		} catch (LicenseXmlException e) {

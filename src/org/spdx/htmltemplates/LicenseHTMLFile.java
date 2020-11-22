@@ -20,11 +20,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,10 +34,10 @@ import org.spdx.crossref.Live;
 import org.spdx.crossref.Timestamp;
 import org.spdx.crossref.Valid;
 import org.spdx.crossref.Wayback;
-import org.spdx.html.InvalidLicenseTemplateException;
-import org.spdx.rdfparser.InvalidSPDXAnalysisException;
-import org.spdx.rdfparser.license.CrossRef;
-import org.spdx.rdfparser.license.SpdxListedLicense;
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.model.license.CrossRef;
+import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
 
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
@@ -86,13 +87,14 @@ public class LicenseHTMLFile {
 			this.url = url;
 			this.licenseCrossRefs = licenseCrossRefs;
 		}
-		public FormattedUrl(String url, Boolean isValid, Boolean isLive, Boolean isWayBackLink, String match, String timestamp) {
-			this.url = url;
-			this.isValid = isValid;
-			this.isLive = isLive;
-			this.isWayBackLink = isWayBackLink;
-			this.match = match;
-			this.timestamp = timestamp;
+		public FormattedUrl(Optional<String> url, Optional<Boolean> isValid, Optional<Boolean> isLive, 
+				Optional<Boolean> isWayBackLink, Optional<String> match, Optional<String> timestamp) {
+			this.url = (url.isPresent()) ? url.get() : "N/A";
+			this.isValid = (isValid.isPresent()) ? isValid.get() : false;
+			this.isLive = (isLive.isPresent()) ? isLive.get() : false;
+			this.isWayBackLink = (isWayBackLink.isPresent()) ? isWayBackLink.get() : false;
+			this.match = (match.isPresent()) ? match.get() : "N/A";
+			this.timestamp = (timestamp.isPresent()) ? timestamp.get() : "N/A";
 		}
 		public String getUrl() {
 			return this.url;
@@ -176,7 +178,7 @@ public class LicenseHTMLFile {
 		this.license = license;
 	}
 
-	public void writeToFile(File htmlFile, String tableOfContentsReference) throws IOException, MustacheException, InvalidLicenseTemplateException {
+	public void writeToFile(File htmlFile, String tableOfContentsReference) throws IOException, MustacheException, InvalidLicenseTemplateException, InvalidSPDXAnalysisException {
 		FileOutputStream stream = null;
 		OutputStreamWriter writer = null;
 		if (!htmlFile.exists()) {
@@ -208,10 +210,11 @@ public class LicenseHTMLFile {
 	
 	/**
 	 * @return
+	 * @throws InvalidSPDXAnalysisException 
 	 * @throws
 	 * @throws LicenseTemplateRuleException
 	 */
-	private Map<String, Object> buildMustachMap() throws InvalidLicenseTemplateException {
+	private Map<String, Object> buildMustachMap() throws InvalidLicenseTemplateException, InvalidSPDXAnalysisException {
 		Map<String, Object> retval = Maps.newHashMap();
 		if (license != null) {
 			retval.put("licenseId", license.getLicenseId());
@@ -235,44 +238,48 @@ public class LicenseHTMLFile {
 			retval.put("notFsfLibre", license.isNotFsfLibre());
 			List<FormattedUrl> otherWebPages = Lists.newArrayList();
 			try {
-				CrossRef[] crossRefs = license.getCrossRef();
-				if (crossRefs != null && crossRefs.length > 0) {
-					Arrays.sort(crossRefs, new Comparator<CrossRef>() {
+				List<CrossRef> crossRefCopy = new ArrayList<>();
+				for (CrossRef crossRef:license.getCrossRef()) {
+					crossRefCopy.add(crossRef);
+				}
+				Collections.sort(crossRefCopy, new Comparator<CrossRef>() {
 
 						@Override
 						public int compare(CrossRef o1, CrossRef o2) {
-							Integer order1;
+							Optional<Integer> order1;
 							try {
 								order1 = o1.getOrder();
 							} catch (InvalidSPDXAnalysisException e) {
-								order1 = null;
+								order1 = Optional.empty();
 							}
-							Integer order2;
+							Optional<Integer> order2;
 							try {
 								order2 = o2.getOrder();
 							} catch (InvalidSPDXAnalysisException e) {
-								order2 = null;
+								order2 = Optional.empty();;
 							}
-							if (Objects.nonNull(order1)) {
-								if (Objects.nonNull(order2)) {
-									return order1.compareTo(order2);
+							if (order1.isPresent()) {
+								if (order2.isPresent()) {
+									return order1.get().compareTo(order2.get());
 								} else {
 									return -1;
 								}
 							} else {
-								if (Objects.nonNull(order2)) {
-									return 1;
-								} else {
+								if (order2.isPresent()) {
 									return 0;
+								} else {
+									return 1;
 								}
 							}
 						}
 						
 					});
-					for (CrossRef crossRef:license.getCrossRef()) {
-						otherWebPages.add(new FormattedUrl(crossRef.getUrl(), crossRef.isValid(), crossRef.isLive(), crossRef.isWayBackLink(), crossRef.getMatch(), crossRef.getTimestamp()));
+
+					for (CrossRef crossRef:crossRefCopy) {
+						otherWebPages.add(new FormattedUrl(crossRef.getUrl(), crossRef.getValid(), 
+								crossRef.getLive(), crossRef.getIsWayBackLink(), 
+								crossRef.getMatch(), crossRef.getTimestamp()));
 					}
-				}
 			} catch (InvalidSPDXAnalysisException e) {
 				throw new InvalidLicenseTemplateException("Error getting crossRefs",e);
 			}

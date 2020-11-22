@@ -24,7 +24,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import org.spdx.rdfparser.license.SpdxListedLicense;
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.model.license.SpdxListedLicense;
 
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
@@ -263,7 +264,7 @@ public class LicenseTOCHTMLFile {
     	  this.releaseDate = releaseDate;
       }
 
-	public void addLicense(SpdxListedLicense license, String licHTMLReference) {
+	public void addLicense(SpdxListedLicense license, String licHTMLReference) throws InvalidSPDXAnalysisException {
 		listedLicenses.add(new ListedSpdxLicense(licHTMLReference, String.valueOf(this.currentRefNumber),
 				license.getLicenseId(), license.isOsiApproved(), license.getFsfLibre(), license.getName()));
 		currentRefNumber++;
@@ -328,9 +329,10 @@ public class LicenseTOCHTMLFile {
 	/**
 	 * @param deprecatedLicense
 	 * @param licHTMLReference
+	 * @throws InvalidSPDXAnalysisException 
 	 */
 	public void addDeprecatedLicense(SpdxListedLicense deprecatedLicense,
-			String licHTMLReference) {
+			String licHTMLReference) throws InvalidSPDXAnalysisException {
 		deprecatedLicenses.add(new DeprecatedLicense(licHTMLReference, String.valueOf(this.currentRefNumber),
 				deprecatedLicense.getLicenseId(),
 				deprecatedLicense.getName(),

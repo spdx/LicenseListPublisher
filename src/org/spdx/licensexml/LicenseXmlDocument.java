@@ -37,11 +37,11 @@ import javax.xml.validation.Validator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spdx.rdfparser.InvalidSPDXAnalysisException;
-import org.spdx.rdfparser.SpdxRdfConstants;
-import org.spdx.rdfparser.license.CrossRef;
-import org.spdx.rdfparser.license.ListedLicenseException;
-import org.spdx.rdfparser.license.SpdxListedLicense;
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.SpdxConstants;
+import org.spdx.library.model.license.CrossRef;
+import org.spdx.library.model.license.ListedLicenseException;
+import org.spdx.library.model.license.SpdxListedLicense;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -170,7 +170,7 @@ public class LicenseXmlDocument {
 	public List<SpdxListedLicense> getListedLicenses() throws InvalidSPDXAnalysisException, LicenseXmlException {
 		List<SpdxListedLicense> retval = new ArrayList<SpdxListedLicense>();
 		Element rootElement = this.xmlDocument.getDocumentElement();
-		NodeList licenseElements = rootElement.getElementsByTagName(SpdxRdfConstants.LICENSEXML_ELEMENT_LICENSE);
+		NodeList licenseElements = rootElement.getElementsByTagName(SpdxConstants.LICENSEXML_ELEMENT_LICENSE);
 		for (int i = 0; i < licenseElements.getLength(); i++) {
 			Element licenseElement = (Element)(licenseElements.item(i));
 			retval.add(getListedLicense(licenseElement));
@@ -179,20 +179,20 @@ public class LicenseXmlDocument {
 	}
 
 	private SpdxListedLicense getListedLicense(Element licenseElement) throws InvalidSPDXAnalysisException, LicenseXmlException {
-		String name = licenseElement.getAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_NAME);
-		String id = licenseElement.getAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_ID);
-		boolean deprecated = licenseElement.hasAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_DEPRECATED_VERSION);
+		String name = licenseElement.getAttribute(SpdxConstants.LICENSEXML_ATTRIBUTE_NAME);
+		String id = licenseElement.getAttribute(SpdxConstants.LICENSEXML_ATTRIBUTE_ID);
+		boolean deprecated = licenseElement.hasAttribute(SpdxConstants.LICENSEXML_ATTRIBUTE_DEPRECATED_VERSION);
 		String deprecatedVersion = null;
 		if (deprecated) {
-			deprecatedVersion = licenseElement.getAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_DEPRECATED_VERSION);
+			deprecatedVersion = licenseElement.getAttribute(SpdxConstants.LICENSEXML_ATTRIBUTE_DEPRECATED_VERSION);
 		}
-		NodeList textNodes = licenseElement.getElementsByTagName(SpdxRdfConstants.LICENSEXML_ELEMENT_TEXT);
+		NodeList textNodes = licenseElement.getElementsByTagName(SpdxConstants.LICENSEXML_ELEMENT_TEXT);
 		if (textNodes.getLength() != 1) {
 			throw new LicenseXmlException("Invalid number of text elements.  Expected 1 - found "+textNodes.getLength());
 		}
 		Element textElement = (Element)textNodes.item(0);
 		String text = LicenseXmlHelper.getLicenseText(textElement);
-		NodeList notes = licenseElement.getElementsByTagName(SpdxRdfConstants.LICENSEXML_ELEMENT_NOTES);
+		NodeList notes = licenseElement.getElementsByTagName(SpdxConstants.LICENSEXML_ELEMENT_NOTES);
 		String comment = null;
 		if (notes.getLength() > 0) {
 			StringBuilder commentBuilder = new StringBuilder(LicenseXmlHelper.getNoteText((Element)(notes.item(0))));
@@ -202,18 +202,16 @@ public class LicenseXmlDocument {
 			}
 			comment = commentBuilder.toString();
 		}
-		NodeList urlNodes = licenseElement.getElementsByTagName(SpdxRdfConstants.LICENSEXML_ELEMENT_CROSS_REF);
-		String[] sourceUrls = new String[urlNodes.getLength()];
-		CrossRef[] crossRefs = new CrossRef[urlNodes.getLength()];
+		NodeList urlNodes = licenseElement.getElementsByTagName(SpdxConstants.LICENSEXML_ELEMENT_CROSS_REF);
+		ArrayList<String> sourceUrls = new ArrayList<>();
 		for (int i = 0; i < urlNodes.getLength(); i++) {
-			sourceUrls[i] = urlNodes.item(i).getTextContent().trim();
-			crossRefs[i] = new CrossRef(sourceUrls[i]);
-			crossRefs[i].setOrder(i);
+			String sourceUrl = urlNodes.item(i).getTextContent().trim();
+			sourceUrls.add(sourceUrl);
 		}
 		String licenseHeader = null;
 		String licenseHeaderTemplate = null;
 		String licenseHeaderTemplateHtml = null;
-		NodeList headerNodes = licenseElement.getElementsByTagName(SpdxRdfConstants.LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER);
+		NodeList headerNodes = licenseElement.getElementsByTagName(SpdxConstants.LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER);
 		if (headerNodes.getLength() > 0) {
 			StringBuilder sbText = new StringBuilder();
 			StringBuilder sbTemplate = new StringBuilder();
@@ -235,34 +233,42 @@ public class LicenseXmlDocument {
 		}
 		String template = LicenseXmlHelper.getLicenseTemplate(textElement);
 		boolean osiApproved;
-		if (licenseElement.hasAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_OSI_APPROVED)) {
-			osiApproved = "true".equals(licenseElement.getAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_OSI_APPROVED).toLowerCase());
+		if (licenseElement.hasAttribute(SpdxConstants.LICENSEXML_ATTRIBUTE_OSI_APPROVED)) {
+			osiApproved = "true".equals(licenseElement.getAttribute(SpdxConstants.LICENSEXML_ATTRIBUTE_OSI_APPROVED).toLowerCase());
 		} else {
 			osiApproved = false;
 		}
 		boolean fsfLibre;
-		if (licenseElement.hasAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_FSF_LIBRE)) {
-			fsfLibre = "true".equals(licenseElement.getAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_FSF_LIBRE).toLowerCase());
+		if (licenseElement.hasAttribute(SpdxConstants.LICENSEXML_ATTRIBUTE_FSF_LIBRE)) {
+			fsfLibre = "true".equals(licenseElement.getAttribute(SpdxConstants.LICENSEXML_ATTRIBUTE_FSF_LIBRE).toLowerCase());
 		} else {
 			fsfLibre = false;
 		}
 		String licenseHtml = LicenseXmlHelper.getLicenseTextHtml(textElement);
 		SpdxListedLicense retval = new SpdxListedLicense(name, id, text, sourceUrls, comment, licenseHeader,
-				template, licenseHeaderTemplate, osiApproved, fsfLibre, licenseHtml, licenseHeaderTemplateHtml);
-		retval.setCrossRef(crossRefs);
-		retval.setDeprecated(deprecated);
-		retval.setDeprecatedVersion(deprecatedVersion);
+				template, osiApproved, fsfLibre, licenseHtml,
+				deprecated, deprecatedVersion);
+		retval.setLicenseHeaderHtml(licenseHeaderTemplateHtml);
+		retval.setStandardLicenseHeaderTemplate(licenseHeaderTemplate);
+		int i = 0;
+		for (String sourceUrl:sourceUrls) {
+			CrossRef crossRef = retval.createCrossRef(sourceUrl)
+					.setOrder(i++)
+					.build();
+			retval.getCrossRef().add(crossRef);
+		}
 		return retval;
 	}
 
 	/**
 	 * @return
 	 * @throws LicenseXmlException
+	 * @throws InvalidSPDXAnalysisException 
 	 */
-	public List<ListedLicenseException> getLicenseExceptions() throws LicenseXmlException {
+	public List<ListedLicenseException> getLicenseExceptions() throws LicenseXmlException, InvalidSPDXAnalysisException {
 		List<ListedLicenseException> retval = new ArrayList<ListedLicenseException>();
 		Element rootElement = this.xmlDocument.getDocumentElement();
-		NodeList exceptionElements = rootElement.getElementsByTagName(SpdxRdfConstants.LICENSEXML_ELEMENT_EXCEPTION);
+		NodeList exceptionElements = rootElement.getElementsByTagName(SpdxConstants.LICENSEXML_ELEMENT_EXCEPTION);
 		for (int i = 0; i < exceptionElements.getLength(); i++) {
 			Element exceptionElement = (Element)(exceptionElements.item(i));
 			retval.add(getException(exceptionElement));
@@ -270,15 +276,15 @@ public class LicenseXmlDocument {
 		return retval;
 	}
 
-	private ListedLicenseException getException(Element exceptionElement) throws LicenseXmlException {
-		String name = exceptionElement.getAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_NAME);
-		String id = exceptionElement.getAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_ID);
-		boolean deprecated = exceptionElement.hasAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_DEPRECATED_VERSION);
+	private ListedLicenseException getException(Element exceptionElement) throws LicenseXmlException, InvalidSPDXAnalysisException {
+		String name = exceptionElement.getAttribute(SpdxConstants.LICENSEXML_ATTRIBUTE_NAME);
+		String id = exceptionElement.getAttribute(SpdxConstants.LICENSEXML_ATTRIBUTE_ID);
+		boolean deprecated = exceptionElement.hasAttribute(SpdxConstants.LICENSEXML_ATTRIBUTE_DEPRECATED_VERSION);
 		String deprecatedVersion = null;
 		if (deprecated) {
-			deprecatedVersion = exceptionElement.getAttribute(SpdxRdfConstants.LICENSEXML_ATTRIBUTE_DEPRECATED_VERSION);
+			deprecatedVersion = exceptionElement.getAttribute(SpdxConstants.LICENSEXML_ATTRIBUTE_DEPRECATED_VERSION);
 		}
-		NodeList textNodes = exceptionElement.getElementsByTagName(SpdxRdfConstants.LICENSEXML_ELEMENT_TEXT);
+		NodeList textNodes = exceptionElement.getElementsByTagName(SpdxConstants.LICENSEXML_ELEMENT_TEXT);
 		if (textNodes.getLength() != 1) {
 			throw new LicenseXmlException("Invalid number of text elements.  Expected 1 - found "+textNodes.getLength());
 		}
@@ -286,7 +292,7 @@ public class LicenseXmlDocument {
 		String text = LicenseXmlHelper.getLicenseText(textElement);
 		String template = LicenseXmlHelper.getLicenseTemplate(textElement);
 		String html = LicenseXmlHelper.getLicenseTextHtml(textElement);
-		NodeList notes = exceptionElement.getElementsByTagName(SpdxRdfConstants.LICENSEXML_ELEMENT_NOTES);
+		NodeList notes = exceptionElement.getElementsByTagName(SpdxConstants.LICENSEXML_ELEMENT_NOTES);
 		String comment = null;
 		if (notes.getLength() > 0) {
 			StringBuilder commentBuilder = new StringBuilder(LicenseXmlHelper.getNoteText((Element)(notes.item(0))));
@@ -296,12 +302,17 @@ public class LicenseXmlDocument {
 			}
 			comment = commentBuilder.toString();
 		}
-		NodeList urlNodes = exceptionElement.getElementsByTagName(SpdxRdfConstants.LICENSEXML_ELEMENT_CROSS_REF);
-		String[] sourceUrls = new String[urlNodes.getLength()];
+		NodeList urlNodes = exceptionElement.getElementsByTagName(SpdxConstants.LICENSEXML_ELEMENT_CROSS_REF);
+		List<String> sourceUrls = new ArrayList<>();
 		for (int i = 0; i < urlNodes.getLength(); i++) {
-			sourceUrls[i] = urlNodes.item(i).getTextContent().trim();
+			sourceUrls.add(urlNodes.item(i).getTextContent().trim());
 		}
-		return new ListedLicenseException(id, name, text, template, sourceUrls, comment, html, deprecated, deprecatedVersion);
+		ListedLicenseException retval = new ListedLicenseException(id, name, text, template, sourceUrls, 
+				comment);
+		retval.setExceptionTextHtml(html);
+		retval.setDeprecated(deprecated);
+		retval.setDeprecatedVersion(deprecatedVersion);
+		return retval;
 	}
 
 }

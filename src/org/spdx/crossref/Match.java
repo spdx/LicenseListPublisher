@@ -27,9 +27,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spdx.compare.LicenseCompareHelper;
-import org.spdx.compare.SpdxCompareException;
-import org.spdx.rdfparser.license.SpdxListedLicense;
+import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.utility.compare.LicenseCompareHelper;
+import org.spdx.utility.compare.SpdxCompareException;
 
 public class Match implements Callable<String> {
 	static final Logger logger = LoggerFactory.getLogger(Match.class.getName());
@@ -62,6 +63,9 @@ public class Match implements Callable<String> {
 			} catch (SpdxCompareException e) {
 				logger.warn("Error getting optional text for license ID "+license.getLicenseId(),e);
 				return "false";
+			} catch (InvalidSPDXAnalysisException e) {
+				logger.warn("Error getting optional text for license ID "+license.getLicenseId(),e);
+				return "false";
 			}
 			Pattern licenseMatchPattern = LicenseCompareHelper.nonOptionalTextToStartPattern(nonOptionalText, UrlConstants.CROSS_REF_NUM_WORDS_MATCH);
 			String compareLicenseText = LicenseCompareHelper.normalizeText(bodyText);
@@ -76,6 +80,9 @@ public class Match implements Callable<String> {
 						match = new Boolean(!matchBool).toString();
 					}
 				} catch (SpdxCompareException e) {
+					logger.warn("Compare exception for license ID "+license.getLicenseId(),e);
+					match = "false";
+				} catch (InvalidSPDXAnalysisException e) {
 					logger.warn("Compare exception for license ID "+license.getLicenseId(),e);
 					match = "false";
 				}
