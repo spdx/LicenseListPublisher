@@ -50,7 +50,8 @@ public class Live implements Callable<Boolean>  {
 	      con.setRequestMethod("HEAD");
 	      con.setConnectTimeout(8500);
 	      int responseCode = con.getResponseCode();
-	      return (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_NOT_MODIFIED);
+	      return (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_NOT_MODIFIED
+	    		  || responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP);
 	    }
 	    catch (Exception e) {
 	    	logger.warn("Failed checking live status.",e.getMessage());
