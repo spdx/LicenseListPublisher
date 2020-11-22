@@ -77,7 +77,7 @@
 		<dependency>
 			<groupId>org.spdx</groupId>
 			<artifactId>java-spdx-library</artifactId>
-			<version>0.0.5-SNAPSHOT</version>
+			<version>0.0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.spullara.mustache.java</groupId>
@@ -97,7 +97,7 @@
 		<dependency>
 			<groupId>org.spdx</groupId>
 			<artifactId>spdx-rdf-store</artifactId>
-			<version>0.0.5-SNAPSHOT</version>
+			<version>0.0.5</version>
 		</dependency>
 	</dependencies>
 	<profiles>
