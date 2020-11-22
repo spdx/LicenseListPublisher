@@ -87,13 +87,14 @@ public class LicenseHTMLFile {
 			this.url = url;
 			this.licenseCrossRefs = licenseCrossRefs;
 		}
-		public FormattedUrl(String url, Boolean isValid, Boolean isLive, Boolean isWayBackLink, String match, String timestamp) {
-			this.url = url;
-			this.isValid = isValid;
-			this.isLive = isLive;
-			this.isWayBackLink = isWayBackLink;
-			this.match = match;
-			this.timestamp = timestamp;
+		public FormattedUrl(Optional<String> url, Optional<Boolean> isValid, Optional<Boolean> isLive, 
+				Optional<Boolean> isWayBackLink, Optional<String> match, Optional<String> timestamp) {
+			this.url = (url.isPresent()) ? url.get() : "N/A";
+			this.isValid = (isValid.isPresent()) ? isValid.get() : false;
+			this.isLive = (isLive.isPresent()) ? isLive.get() : false;
+			this.isWayBackLink = (isWayBackLink.isPresent()) ? isWayBackLink.get() : false;
+			this.match = (match.isPresent()) ? match.get() : "N/A";
+			this.timestamp = (timestamp.isPresent()) ? timestamp.get() : "N/A";
 		}
 		public String getUrl() {
 			return this.url;
@@ -275,9 +276,9 @@ public class LicenseHTMLFile {
 					});
 
 					for (CrossRef crossRef:crossRefCopy) {
-						otherWebPages.add(new FormattedUrl(crossRef.getUrl().get(), crossRef.getValid().get(), 
-								crossRef.getLive().get(), crossRef.getIsWayBackLink().get(), 
-								crossRef.getMatch().get(), crossRef.getTimestamp().get()));
+						otherWebPages.add(new FormattedUrl(crossRef.getUrl(), crossRef.getValid(), 
+								crossRef.getLive(), crossRef.getIsWayBackLink(), 
+								crossRef.getMatch(), crossRef.getTimestamp()));
 					}
 			} catch (InvalidSPDXAnalysisException e) {
 				throw new InvalidLicenseTemplateException("Error getting crossRefs",e);
