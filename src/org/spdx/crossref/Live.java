@@ -47,6 +47,8 @@ public class Live implements Callable<Boolean>  {
 	    try {
 	      HttpURLConnection.setFollowRedirects(true);
 	      HttpURLConnection con = (HttpURLConnection) new URL(URLName).openConnection();
+	      // fake request coming from browser
+	      con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36");
 	      con.setRequestMethod("HEAD");
 	      con.setConnectTimeout(8500);
 	      int responseCode = con.getResponseCode();
