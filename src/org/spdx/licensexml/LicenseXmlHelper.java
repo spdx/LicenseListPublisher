@@ -440,9 +440,9 @@ public class LicenseXmlHelper {
 			}
 		} else if (includeHtmlTags) {
 			if (includesFlowControl(element)) {
-				sb.append("\n<div class=\"");
+				sb.append("<div class=\"");
 			} else {
-				sb.append("\n<var class=\"");
+				sb.append("<var class=\"");
 			}
 			sb.append(HtmlTemplateOutputHandler.REPLACEABLE_LICENSE_TEXT_CLASS);
 			sb.append("\">");
