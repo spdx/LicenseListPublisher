@@ -63,21 +63,28 @@ public class LicenseTextFormatWriter implements ILicenseFormatWriter {
 	public void setTextFolder(File textFolder) {
 		this.textFolder = textFolder;
 	}
-
-	/* (non-Javadoc)
-	 * @see org.spdx.licenselistpublisher.licensegenerator.ILicenseFormatWriter#writeLicense(org.spdx.rdfparser.license.SpdxListedLicense, boolean)
+	
+	/**
+	 * @param license license to write
+	 * @param deprecated true if deprecated
+	 * @param deprecatedVersion version deprecated in
+	 * @param wordWrapText if true, reformat the license text wrapping words
+	 * @throws InvalidSPDXAnalysisException 
+	 * @throws IOException 
 	 */
-	@Override
-	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, InvalidSPDXAnalysisException {
+	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion, boolean wordWrapText) throws InvalidSPDXAnalysisException, IOException {
 		String licBaseHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(license.getLicenseId());
 		if (deprecated) {
 			licBaseHtmlFileName = "deprecated_" + licBaseHtmlFileName;
 		}
 		Path textFilePath = Paths.get(textFolder.getPath(), licBaseHtmlFileName + ".txt");
+		if (wordWrapText) {
+			
+		}
 		String[] lines = license.getLicenseText().split("\\n");
 		List<String> wordWrappedLines = new ArrayList<String>();
 		for (String line:lines) {
-			if (line.length() < MAX_LINE_CHARS) {
+			if (line.length() < MAX_LINE_CHARS || !wordWrapText) {
 				wordWrappedLines.add(line);
 			} else {
 				String[] words = line.split(" ");
@@ -98,6 +105,14 @@ public class LicenseTextFormatWriter implements ILicenseFormatWriter {
 			}
 		}
 		Files.write(textFilePath, wordWrappedLines, utf8);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.spdx.licenselistpublisher.licensegenerator.ILicenseFormatWriter#writeLicense(org.spdx.rdfparser.license.SpdxListedLicense, boolean)
+	 */
+	@Override
+	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, InvalidSPDXAnalysisException {
+		writeLicense(license, deprecated, deprecatedVersion, true);
 	}
 
 	@Override
