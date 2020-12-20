@@ -78,9 +78,6 @@ public class LicenseTextFormatWriter implements ILicenseFormatWriter {
 			licBaseHtmlFileName = "deprecated_" + licBaseHtmlFileName;
 		}
 		Path textFilePath = Paths.get(textFolder.getPath(), licBaseHtmlFileName + ".txt");
-		if (wordWrapText) {
-			
-		}
 		String[] lines = license.getLicenseText().split("\\n");
 		List<String> wordWrappedLines = new ArrayList<String>();
 		for (String line:lines) {
