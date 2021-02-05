@@ -140,7 +140,7 @@ public class LicenseXmlHelper {
 					throw(new LicenseXmlException("Missing match attribute for variable text"));
 				}
 				String match = element.getAttribute(SpdxConstants.LICENSEXML_ATTRIBUTE_ALT_MATCH);
-				appendAltText(element, altName, match, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags);
+				noNextSpace = appendAltText(element, altName, match, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags, noNextSpace);
 			} else if (SpdxConstants.LICENSEXML_ELEMENT_OPTIONAL.equals(tagName)) {
 				noNextSpace = appendOptionalText(element, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags, noSpace);
 			} else if (SpdxConstants.LICENSEXML_ELEMENT_BREAK.equals(tagName)) {
@@ -171,13 +171,15 @@ public class LicenseXmlHelper {
 				}
 			} else if (SpdxConstants.LICENSEXML_ELEMENT_COPYRIGHT_TEXT.equals(tagName)) {
 				if (!inALtBlock(element)) {
-					appendAltText(element, COPYRIGHT_ALT_NAME, COPYRIGHT_ALT_MATCH, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags);
+					appendAltText(element, COPYRIGHT_ALT_NAME, COPYRIGHT_ALT_MATCH, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags, noNextSpace);
+					noNextSpace = false;
 				} else {
 					appendElementChildrenText(element, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags);
 				}
 			} else if (SpdxConstants.LICENSEXML_ELEMENT_BULLET.equals(tagName)) {
 				if (!inALtBlock(element)) {
-					appendAltText(element, BULLET_ALT_NAME, BULLET_ALT_MATCH, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags);
+					appendAltText(element, BULLET_ALT_NAME, BULLET_ALT_MATCH, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags, noNextSpace);
+					noNextSpace = false;
 				} else {
 					appendElementChildrenText(element, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags);
 				}
@@ -397,11 +399,20 @@ public class LicenseXmlHelper {
 	 * @param indentCount number of indentations (e.g. number of embedded lists)
 	 * @param unprocessedTags Tags that do not require any process - text of the children of that tag should just be appended.
 	 * @param includeHtmlTags if true, include HTML tags for creating an HTML fragment including the formatting from the original XML element
+	 * @param noSpace true if no space should be added prior to this text element
+	 * @return true if no space should be added before the next text element
 	 * @throws LicenseXmlException
 	 */
-	private static void appendAltText(Element element, String altName, String match,
+	private static boolean appendAltText(Element element, String altName, String match,
 			boolean useTemplateFormat, StringBuilder sb, int indentCount, Set<String> unprocessedTags,
-			boolean includeHtmlTags) throws LicenseXmlException {
+			boolean includeHtmlTags, boolean noSpace) throws LicenseXmlException {
+		String spacing = SPACING_DEFAULT;
+		if (element.hasAttribute(SPACING_ATTRIBUTE)) {
+			spacing = element.getAttribute(SPACING_ATTRIBUTE);
+		}
+		if (!(SPACING_DEFAULT.equals(spacing) || SPACING_BOTH.equals(spacing) || SPACING_BEFORE.equals(spacing) || SPACING_AFTER.equals(spacing) || SPACING_NONE.equals(spacing))) {
+			throw new LicenseXmlException("Invalid spacing attribute for optional text: "+spacing);
+		}
 		StringBuilder originalSb = new StringBuilder();
 		if (element.hasChildNodes()) {
 			appendElementChildrenText(element, useTemplateFormat, originalSb, indentCount,
@@ -413,7 +424,8 @@ public class LicenseXmlHelper {
 			if (originalSb.length() > 0 && originalSb.charAt(0) == ' ') {
 				sb.append(' ');
 				originalSb.delete(0, 1);
-			} else if (sb.length() > 0 && !Character.isWhitespace(sb.charAt(sb.length()-1))) {
+			} else if (sb.length() > 0 && !Character.isWhitespace(sb.charAt(sb.length()-1)) &&
+					!noSpace && (SPACING_BOTH.equals(spacing) || SPACING_BEFORE.equals(spacing) || SPACING_DEFAULT.equals(spacing))) {
 				sb.append(' ');
 			}
 			sb.append("<<var;name=\"");
@@ -423,11 +435,14 @@ public class LicenseXmlHelper {
 			sb.append("\";match=\"");
 			sb.append(match);
 			sb.append("\">>");
+			if (SPACING_BOTH.equals(spacing) || SPACING_AFTER.equals(spacing)) {
+				sb.append(' ');
+			}
 		} else if (includeHtmlTags) {
 			if (includesFlowControl(element)) {
-				sb.append("\n<div class=\"");
+				sb.append("<div class=\"");
 			} else {
-				sb.append("\n<var class=\"");
+				sb.append("<var class=\"");
 			}
 			sb.append(HtmlTemplateOutputHandler.REPLACEABLE_LICENSE_TEXT_CLASS);
 			sb.append("\">");
@@ -438,11 +453,16 @@ public class LicenseXmlHelper {
 				sb.append("</var>");
 			}
 		} else {
-			if (sb.length() > 0 && !Character.isWhitespace(sb.charAt(sb.length()-1))) {
+			if (sb.length() > 0 && !Character.isWhitespace(sb.charAt(sb.length()-1)) &&
+					!noSpace && (SPACING_BOTH.equals(spacing) || SPACING_BEFORE.equals(spacing) || SPACING_DEFAULT.equals(spacing))) {
 				sb.append(' ');
 			}
 			sb.append(originalSb);
+			if (SPACING_BOTH.equals(spacing) || SPACING_AFTER.equals(spacing)) {
+				sb.append(' ');
+			}
 		}
+		return SPACING_BEFORE.equals(spacing) || SPACING_NONE.equals(spacing);
 	}
 
 	/**
