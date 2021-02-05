@@ -514,7 +514,11 @@ public class LicenseRDFAGenerator {
 						}
 					}
 					for (ILicenseFormatWriter writer : writers) {
-						writer.writeLicense(license, license.isDeprecated(), license.getDeprecatedVersion());
+						if (writer instanceof LicenseTextFormatWriter) {
+							((LicenseTextFormatWriter)(writer)).writeLicense(license, license.isDeprecated(), license.getDeprecatedVersion(), !useTestText);
+						} else {
+							writer.writeLicense(license, license.isDeprecated(), license.getDeprecatedVersion());
+						}
 					}
 				}
 			}
