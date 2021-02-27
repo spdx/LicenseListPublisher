@@ -161,6 +161,8 @@ public class LicenseXmlHelper {
 				appendElementChildrenText(element, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags);
 				if (includeHtmlTags) {
 					sb.append("</p>\n");
+				} else {
+				    addNewline(sb, indentCount);
 				}
 			} else if (SpdxConstants.LICENSEXML_ELEMENT_TITLE_TEXT.equals(tagName)) {
 				if (!inALtBlock(element)) {
@@ -431,7 +433,7 @@ public class LicenseXmlHelper {
 			sb.append("<<var;name=\"");
 			sb.append(altName);
 			sb.append("\";original=\"");
-			sb.append(originalSb);
+			sb.append(originalSb.toString().replaceAll("\n", " "));  // Remove any new lines
 			sb.append("\";match=\"");
 			sb.append(match);
 			sb.append("\">>");
@@ -638,7 +640,9 @@ public class LicenseXmlHelper {
 	 * @return Text normalized for different character variations
 	 */
 	private static String fixUpText(String string) {
-		return string.replaceAll(DOUBLE_QUOTES_REGEX, "\"").replaceAll(SINGLE_QUOTES_REGEX, "'");
+		return string.replaceAll(DOUBLE_QUOTES_REGEX, "\"")
+		        .replaceAll(SINGLE_QUOTES_REGEX, "'")
+		        .replaceAll("\\n\\s*\\n\\s*\\n", "\n\n");
 	}
 
 	/**
