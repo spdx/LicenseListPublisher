@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.spdx</groupId>
 	<artifactId>licenseListPublisher</artifactId>
-	<version>2.2.0-SNAPSHOT</version>
+	<version>2.2.0</version>
 	<name>License List Publisher</name>
 	<description>Tool that generates license data found in the license-list-data repository from the license-list-XML source</description>
 	<licenses>
@@ -33,11 +33,11 @@
 		<developerConnection>scm:git:ssh://git@github.com:spdx/LicenseListPublisher.git</developerConnection>
 	</scm>
 	<distributionManagement>
-		<repository>
-			<id>bintray-spdx-spdx-LicenseListPublisher</id>
-			<name>spdx-spdx-LicenseListPublisher</name>
-        <url>https://api.bintray.com/maven/spdx/spdx-tools/LicenseListPublisher/;publish=1</url>
-    </repository>
+	  <repository>
+        <id>ossrh</id>
+        <name>spdx-spdx-tools</name>
+        <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      </repository>
 	</distributionManagement>
 	  <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -77,7 +77,7 @@
 		<dependency>
 			<groupId>org.spdx</groupId>
 			<artifactId>java-spdx-library</artifactId>
-			<version>0.0.5</version>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.spullara.mustache.java</groupId>
@@ -97,7 +97,7 @@
 		<dependency>
 			<groupId>org.spdx</groupId>
 			<artifactId>spdx-rdf-store</artifactId>
-			<version>0.0.5</version>
+			<version>1.0.0</version>
 		</dependency>
 	</dependencies>
 	<profiles>
