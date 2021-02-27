@@ -522,6 +522,24 @@ public class LicenseRDFAGenerator {
 					}
 				}
 			}
+			if (addedLicIdTextMap.size() == 1) {
+			    // Since we are only creating a single file, we should check the listed licenses for duplicates
+			    addedLicIdTextMap.entrySet().forEach(entry -> {
+		             String[] matchingLicenseIds;
+                    try {
+                        matchingLicenseIds = LicenseCompareHelper.matchingStandardLicenseIds(entry.getValue());
+                        for (String matchingId:matchingLicenseIds) {
+                            if (!entry.getKey().equals(matchingId)) {
+                                warnings.add("Duplicates licenses: "+entry.getKey()+", "+matchingId);
+                            }
+                        }
+                    } catch (InvalidSPDXAnalysisException e) {
+                        warnings.add("Error comparing single license to existing listed licenses: "+e.getMessage());
+                    } catch (SpdxCompareException e) {
+                        warnings.add("Error comparing single license to existing listed licenses: "+e.getMessage());
+                    }
+			    });
+			}
 			return addedLicIdTextMap.keySet();
 		} finally {
 			if (licenseIter instanceof Closeable) {

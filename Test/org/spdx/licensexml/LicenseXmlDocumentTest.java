@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -53,32 +54,32 @@ public class LicenseXmlDocumentTest {
 	private static final String TEST_LICENSE_ID = "test-id";
 	private static final String TEST_LICENSE_TEXT = "Test Copyright\n\nparagraph 1" +
 			"\n\n   1.\n\n   List item 1\n\n   2.\n\n   List item 2\n\n" +
-			"Last Paragraph Alternate Text Non matching line. Optional text";
+			"Last Paragraph Alternate Text Non matching line. Optional text\n\n";
 	private static final String TEST_LICENSE_NAME = "Test License";
 	private static final List<String>  TEST_LICENSE_URLS = Arrays.asList(new String[] {"http://test/url1","http://test/url2"});
 	private static final String TEST_LICENSE_HEADER = "Test header optional var";
 	private static final String TEST_LICENSE_HEADER_TEMPLATE = "Test header<<beginOptional>> optional<<endOptional>> <<var;name=\"h1test\";original=\"var\";match=\".+\">>";
-	private static final String TEST_LICENSE_TEMPLATE = "<<var;name=\"copyright\";original=\"Test Copyright\";match=\".{0,1000}\">>\n\nparagraph 1" +
+	private static final String TEST_LICENSE_TEMPLATE = "<<var;name=\"copyright\";original=\"Test Copyright  \";match=\".{0,1000}\">>\n\nparagraph 1" +
 			"\n\n   <<var;name=\"bullet\";original=\"1.\";match=\".{0,20}\">>\n\n   List item 1\n\n   <<var;name=\"bullet\";original=\"2.\";match=\".{0,20}\">>\n\n   List item 2\n\n" +
-			"Last Paragraph <<var;name=\"alttest\";original=\"Alternate Text\";match=\".+\">> Non matching line.<<beginOptional>> Optional text<<endOptional>>";
+			"Last Paragraph <<var;name=\"alttest\";original=\"Alternate Text\";match=\".+\">> Non matching line.<<beginOptional>> Optional text<<endOptional>>\n\n";
 
 	private static final String TEST_DEP_LICENSE_COMMENT = "Test dep note";
 	private static final String TEST_DEP_LICENSE_ID = "test-dep";
 	private static final String TEST_DEP_LICENSE_TEXT = "Test Copyright dep\n\nparagraph 1d" +
 			"\n\n   1.d\n\n   List item 1d\n\n   2.d\n\n   List item 2d\n\n" +
-			"Last Paragraph dep Alternate Text dep Non matching line dep. Optional text dep";
+			"Last Paragraph dep Alternate Text dep Non matching line dep. Optional text dep\n\n";
 	private static final String TEST_DEP_LICENSE_NAME = "Test Deprecated License";
 	private static final List<String> TEST_DEP_LICENSE_URLS = Arrays.asList(new String[] {"http://test/url1d","http://test/url2d"});
 	private static final String TEST_DEP_LICENSE_HEADER = "Test header dep";
-	private static final String TEST_DEP_LICENSE_TEMPLATE = "<<var;name=\"copyright\";original=\"Test Copyright dep\";match=\".{0,1000}\">>\n\nparagraph 1d" +
+	private static final String TEST_DEP_LICENSE_TEMPLATE = "<<var;name=\"copyright\";original=\"Test Copyright dep  \";match=\".{0,1000}\">>\n\nparagraph 1d" +
 			"\n\n   <<var;name=\"bullet\";original=\"1.d\";match=\".{0,20}\">>\n\n   List item 1d\n\n   <<var;name=\"bullet\";original=\"2.d\";match=\".{0,20}\">>\n\n   List item 2d\n\n" +
-			"Last Paragraph dep <<var;name=\"alttestd\";original=\"Alternate Text dep\";match=\".+\">> Non matching line dep.<<beginOptional>> Optional text dep<<endOptional>>";
+			"Last Paragraph dep <<var;name=\"alttestd\";original=\"Alternate Text dep\";match=\".+\">> Non matching line dep.<<beginOptional>> Optional text dep<<endOptional>>\n\n";
 
 	private static final String TEST_EXCEPTION_COMMENT = "Test note exception";
 	private static final String TEST_EXCEPTION_ID = "test-ex";
 	private static final String TEST_EXCEPTION_TEXT = "Test Copyrighte\n\nparagraph 1e" +
 			"\n\n   1.e\n\n   List item 1e\n\n   2.e\n\n   List item 2e\n\n" +
-			"Last Paragraph exc Alternate Text exc Non matching line. e Optional text exc";
+			"Last Paragraph exc Alternate Text exc Non matching line. e Optional text exc\n\n";
 	private static final String TEST_EXCEPTION_NAME = "Test Exception";
 	private static final List<String> TEST_EXCEPTION_URLS = Arrays.asList(new String[] {"http://test/url1e","http://test/url2e"});
 	@SuppressWarnings("unused")
@@ -87,7 +88,7 @@ public class LicenseXmlDocumentTest {
 			"Last Paragraph exc <<var;name=\"altteste\";original=\"Alternate Text exc\";match=\".+\">> Non matching line. e<<beginOptional>> Optional text exc<<endOptional>>";
 	private static final String TEST_DEP_LICENSE_VERSION = "2.2";
 	private static final String AGPL3ONLY_FILE_PATH = "TestFiles" + File.separator + "AGPL-3.0-only.xml";
-
+	private static final String BSD_PROTECTION_FILE_PATH = "TestFiles" + File.separator + "BSD-Protection.xml";
 
 
 	/**
@@ -199,5 +200,17 @@ public class LicenseXmlDocumentTest {
 		LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile);
 		List<SpdxListedLicense> licenses = doc.getListedLicenses();
 		assertEquals(1, licenses.size());
+	}
+	
+	@Test
+	public void testRegressionBsdProtection() throws LicenseXmlException, InvalidSPDXAnalysisException, InvalidLicenseTemplateException {
+        File licenseFile = new File(BSD_PROTECTION_FILE_PATH);
+        LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile);
+        List<SpdxListedLicense> licenses = doc.getListedLicenses();
+        assertEquals(1, licenses.size());
+        SpdxListedLicense result = licenses.get(0);
+        String template = result.getStandardLicenseTemplate();
+        Pattern matchingModificationLine = Pattern.compile("<<beginOptional>>\\s?----------------------------------------------------------------<<endOptional>>",Pattern.MULTILINE);
+        assertTrue(matchingModificationLine.matcher(template).find());       
 	}
 }
