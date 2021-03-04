@@ -77,7 +77,7 @@
 		<dependency>
 			<groupId>org.spdx</groupId>
 			<artifactId>java-spdx-library</artifactId>
-			<version>1.0.1</version>
+			<version>1.0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.spullara.mustache.java</groupId>

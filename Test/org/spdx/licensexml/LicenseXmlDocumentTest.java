@@ -59,7 +59,7 @@ public class LicenseXmlDocumentTest {
 	private static final List<String>  TEST_LICENSE_URLS = Arrays.asList(new String[] {"http://test/url1","http://test/url2"});
 	private static final String TEST_LICENSE_HEADER = "Test header optional var";
 	private static final String TEST_LICENSE_HEADER_TEMPLATE = "Test header<<beginOptional>> optional<<endOptional>> <<var;name=\"h1test\";original=\"var\";match=\".+\">>";
-	private static final String TEST_LICENSE_TEMPLATE = "<<var;name=\"copyright\";original=\"Test Copyright  \";match=\".{0,1000}\">>\n\nparagraph 1" +
+	private static final String TEST_LICENSE_TEMPLATE = "<<var;name=\"copyright\";original=\"Test Copyright  \";match=\".{0,5000}\">>\n\nparagraph 1" +
 			"\n\n   <<var;name=\"bullet\";original=\"1.\";match=\".{0,20}\">>\n\n   List item 1\n\n   <<var;name=\"bullet\";original=\"2.\";match=\".{0,20}\">>\n\n   List item 2\n\n" +
 			"Last Paragraph <<var;name=\"alttest\";original=\"Alternate Text\";match=\".+\">> Non matching line.<<beginOptional>> Optional text<<endOptional>>\n\n";
 
@@ -71,7 +71,7 @@ public class LicenseXmlDocumentTest {
 	private static final String TEST_DEP_LICENSE_NAME = "Test Deprecated License";
 	private static final List<String> TEST_DEP_LICENSE_URLS = Arrays.asList(new String[] {"http://test/url1d","http://test/url2d"});
 	private static final String TEST_DEP_LICENSE_HEADER = "Test header dep";
-	private static final String TEST_DEP_LICENSE_TEMPLATE = "<<var;name=\"copyright\";original=\"Test Copyright dep  \";match=\".{0,1000}\">>\n\nparagraph 1d" +
+	private static final String TEST_DEP_LICENSE_TEMPLATE = "<<var;name=\"copyright\";original=\"Test Copyright dep  \";match=\".{0,5000}\">>\n\nparagraph 1d" +
 			"\n\n   <<var;name=\"bullet\";original=\"1.d\";match=\".{0,20}\">>\n\n   List item 1d\n\n   <<var;name=\"bullet\";original=\"2.d\";match=\".{0,20}\">>\n\n   List item 2d\n\n" +
 			"Last Paragraph dep <<var;name=\"alttestd\";original=\"Alternate Text dep\";match=\".+\">> Non matching line dep.<<beginOptional>> Optional text dep<<endOptional>>\n\n";
 

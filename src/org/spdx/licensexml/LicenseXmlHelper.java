@@ -37,14 +37,23 @@ import org.w3c.dom.NodeList;
  */
 public class LicenseXmlHelper {
 	static final Logger logger = LoggerFactory.getLogger(LicenseXmlHelper.class);
+	
+	/**
+	 * Maximum number of characters in a copyright
+	 */
+	private static final int MAX_COPYRIGHT_LENGTH = 5000;
+	/**
+	 * Maximum number of characters in a bullet
+	 */
+	private static final int MAX_BULLET_LENGTH = 20;
 
 	private static final String INDENT_STRING = "   ";
 
-	private static final String BULLET_ALT_MATCH = ".{0,20}";
+	private static final String BULLET_ALT_MATCH = ".{0," + Integer.toString(MAX_BULLET_LENGTH) + "}";
 
 	private static final String BULLET_ALT_NAME = "bullet";
 
-	private static final String COPYRIGHT_ALT_MATCH = ".{0,1000}";
+	private static final String COPYRIGHT_ALT_MATCH = ".{0," + Integer.toString(MAX_COPYRIGHT_LENGTH) + "}";
 
 	private static final String COPYRIGHT_ALT_NAME = "copyright";
 
