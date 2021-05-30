@@ -336,14 +336,16 @@ public class LicenseXmlHelper {
 			childSb.append(element.getTextContent());
 		}
 		if (useTemplateFormat) {
-			sb.append("<<beginOptional>>");
+			boolean appendLeadingSpace = false;
 			if (childSb.length() > 0 && childSb.charAt(0) == ' ') {
-				sb.append(' ');
+				appendLeadingSpace = true;
 				childSb.delete(0, 1);
 			} else if (sb.length() > 0 && !Character.isWhitespace(sb.charAt(sb.length()-1)) &&
 					!noSpace && (SPACING_BOTH.equals(spacing) || SPACING_BEFORE.equals(spacing) || SPACING_DEFAULT.equals(spacing))) {
-				sb.append(' ');
+				appendLeadingSpace = true;
 			}
+			sb.append("<<beginOptional>>");
+			if (appendLeadingSpace) sb.append(' ');
 			sb.append(childSb);
 			if (SPACING_BOTH.equals(spacing) || SPACING_AFTER.equals(spacing)) {
 				sb.append(' ');
