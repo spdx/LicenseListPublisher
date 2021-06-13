@@ -4,6 +4,10 @@
 
 This is the source code repository for the tool that generates license data found in the [license-list-data](https://github.com/spdx/license-list-data) repository.  The source for the the data is located in the [license-list-XML](https://github.com/spdx/license-list-XML) repository.
 
+# Code quality badges
+
+|   [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=licenseListPublisher&metric=bugs)](https://sonarcloud.io/dashboard?id=licenseListPublisher)    | [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=licenseListPublisher&metric=security_rating)](https://sonarcloud.io/dashboard?id=licenseListPublisher) | [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=licenseListPublisher&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=licenseListPublisher) | [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=licenseListPublisher&metric=sqale_index)](https://sonarcloud.io/dashboard?id=licenseListPublisher) |
+
 ## Getting Starting
 
 The LicenseListPublisher binaries can be downloaded from the [BinTray LicenseListPublisher](https://bintray.com/spdx/spdx-tools/LicenseListPublisher) repo under the respective release.  The package is also available in [Maven Central](https://search.maven.org/artifact/org.spdx/licenseListPublisher) (organization org.spdx, artifact licenseListPublisher).
