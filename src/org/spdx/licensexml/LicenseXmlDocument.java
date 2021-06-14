@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -98,7 +99,7 @@ public class LicenseXmlDocument {
 				String schemaFilePath = System.getProperty(PROP_SCHEMA_FILENAME);
 				if (schemaFilePath != null) {
 					try {
-					schemaIs = new FileInputStream(schemaFilePath);
+					    schemaIs = new FileInputStream(schemaFilePath);
 					} catch (IOException e) {
 						logger.error("IO Exception opening specified schema file "+schemaFilePath,e);
 						throw new LicenseXmlException("Invalid license XML schema file");
@@ -140,6 +141,9 @@ public class LicenseXmlDocument {
 		try {
 			Source xmlSource = new StreamSource(licenseXmlFile);
 			Schema schema = getSchema();
+			if (Objects.isNull(schema)) {
+			    throw new LicenseXmlException("Unable to open schema file for validation");
+			}
 			Validator validator = schema.newValidator();
 			validator.validate(xmlSource);
 		} catch (MalformedURLException e) {
