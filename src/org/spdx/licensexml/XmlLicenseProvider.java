@@ -21,6 +21,8 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +96,11 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 		public SpdxListedLicense next() {
 			SpdxListedLicense retval = this.nextListedLicense;
 			this.findNextItem();
-			return retval;
+			if (Objects.isNull(retval)) {
+			    throw new NoSuchElementException();
+			} else {
+			    return retval;
+			}
 		}
 
 		/* (non-Javadoc)
@@ -157,7 +163,11 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 			} catch (InvalidSPDXAnalysisException e) {
 				throw new RuntimeException(e);
 			}
-			return retval;
+			if (Objects.isNull(retval)) {
+			    throw new NoSuchElementException();
+			} else {
+			    return retval;
+			}
 		}
 
 		/* (non-Javadoc)
