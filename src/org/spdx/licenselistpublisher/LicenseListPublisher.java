@@ -581,7 +581,9 @@ public class LicenseListPublisher {
 				}
 			}
 		} else {
-			file.delete();
+			if (!file.delete()) {
+			    logger.warn("Unable to delete file "+file.getName());
+			}
 		}
 	}
 

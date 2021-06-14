@@ -53,7 +53,7 @@ public class Valid implements Callable<Boolean> {
 			UrlValidator defaultValidator = new UrlValidator();
 			return defaultValidator.isValid(url) && !containsInvalidUrl;
 		} catch (Exception e) {
-			e.printStackTrace();
+			// Assume this is invalid
 			return false;
 		}
 	}

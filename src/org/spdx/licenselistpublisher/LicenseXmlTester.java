@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.spdx.library.InvalidSPDXAnalysisException;
 import org.spdx.library.model.license.SpdxListedLicense;
@@ -115,11 +116,13 @@ public class LicenseXmlTester {
 	private static String readText(File f) throws IOException {
 		Charset utf8 = Charset.forName("UTF-8");
 		StringBuilder text = new StringBuilder();
-		Files.lines(f.toPath(), utf8).forEach(line -> {
-			text.append(line);
-			text.append("\n");
-			});
-		return text.toString();
+		try(Stream<String> fileLines = Files.lines(f.toPath(), utf8)) {
+		    fileLines.forEach(line -> {
+    			text.append(line);
+    			text.append("\n");
+    			});
+		}
+        return text.toString();
 	}
 
 	private static void usage() {

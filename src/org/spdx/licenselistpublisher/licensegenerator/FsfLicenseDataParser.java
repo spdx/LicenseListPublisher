@@ -31,6 +31,8 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.util.iterator.ExtendedIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
 
 import com.google.common.collect.Maps;
@@ -55,6 +57,8 @@ import com.google.common.collect.Maps;
  *
  */
 public class FsfLicenseDataParser {
+    
+    static final Logger logger = LoggerFactory.getLogger(FsfLicenseDataParser.class);
 
 	static final String PROP_USE_ONLY_LOCAL_FILE = "LocalFsfFreeJson";
 	static final String PROP_FSF_FREE_JSON_URL = "FsfFreeJsonUrl";
@@ -144,7 +148,7 @@ public class FsfLicenseDataParser {
 				try {
 					input.close();
 				} catch (IOException e) {
-					throw new LicenseGeneratorException("Unable to close input for the FSF API");
+					logger.error("Unable to close input for the FSF API");
 				}
 			}
 			Thread.currentThread().setContextClassLoader(oldContextCL);
