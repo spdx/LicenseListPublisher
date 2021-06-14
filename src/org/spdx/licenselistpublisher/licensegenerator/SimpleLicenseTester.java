@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.spdx.library.InvalidSPDXAnalysisException;
 import org.spdx.library.model.license.License;
@@ -74,10 +75,12 @@ public class SimpleLicenseTester implements ILicenseTester {
 
 	private String readText(File f) throws IOException {
 		StringBuilder text = new StringBuilder();
-		Files.lines(f.toPath(), utf8).forEach(line -> {
-			text.append(line);
-			text.append("\n");
-			});
+		try(Stream<String> fileLines = Files.lines(f.toPath(), utf8)) {
+		      fileLines.forEach(line -> {
+		            text.append(line);
+		            text.append("\n");
+		            });
+		}
 		return text.toString();
 	}
 	/* (non-Javadoc)
