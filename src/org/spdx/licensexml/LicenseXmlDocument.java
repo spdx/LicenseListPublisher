@@ -69,6 +69,8 @@ public class LicenseXmlDocument {
 	 */
 	public LicenseXmlDocument(File file) throws LicenseXmlException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, ""); // Disable external access to prevent confidential file disclosures or SSRFs.
+		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, ""); // Disable external access to prevent confidential file disclosures or SSRFs.
 		DocumentBuilder builder;
 		try {
 			builder = factory.newDocumentBuilder();
