@@ -30,8 +30,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spdx.crossref.CrossRefHelper;
 import org.spdx.library.InvalidSPDXAnalysisException;
 import org.spdx.library.model.license.CrossRef;
@@ -51,8 +49,6 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 	 */
 	private static final int NUMBER_THREADS = 10;
 	
-	Logger logger = LoggerFactory.getLogger(XmlLicenseProviderWithCrossRefDetails.class.getName());
-
 	class XmlLicenseIterator extends XmlLicenseProvider.XmlLicenseIterator implements Closeable {
 		private ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_THREADS);
 		private Map<SpdxListedLicense, Future<Collection<CrossRef>>> urlDetailsInProgress = new HashMap<>();
