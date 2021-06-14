@@ -60,6 +60,38 @@ public class LicenseHTMLFile {
 
 	static final Pattern SITE_PATTERN = Pattern.compile("http://(.*)\\.(.*)(\\.org|\\.com|\\.net|\\.info)");
 
+	static Comparator<CrossRef> licenseComparator =	new Comparator<CrossRef>() {
+
+        @Override
+        public int compare(CrossRef o1, CrossRef o2) {
+            Optional<Integer> order1;
+            try {
+                order1 = o1.getOrder();
+            } catch (InvalidSPDXAnalysisException e) {
+                order1 = Optional.empty();
+            }
+            Optional<Integer> order2;
+            try {
+                order2 = o2.getOrder();
+            } catch (InvalidSPDXAnalysisException e) {
+                order2 = Optional.empty();;
+            }
+            if (order1.isPresent()) {
+                if (order2.isPresent()) {
+                    return order1.get().compareTo(order2.get());
+                } else {
+                    return -1;
+                }
+            } else {
+                if (order2.isPresent()) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
+        }
+    };
+    
 	/**
 	 * Parses a URL and stores the site name and the original URL
 	 * @author Gary O'Neall
@@ -242,38 +274,7 @@ public class LicenseHTMLFile {
 				for (CrossRef crossRef:license.getCrossRef()) {
 					crossRefCopy.add(crossRef);
 				}
-				Collections.sort(crossRefCopy, new Comparator<CrossRef>() {
-
-						@Override
-						public int compare(CrossRef o1, CrossRef o2) {
-							Optional<Integer> order1;
-							try {
-								order1 = o1.getOrder();
-							} catch (InvalidSPDXAnalysisException e) {
-								order1 = Optional.empty();
-							}
-							Optional<Integer> order2;
-							try {
-								order2 = o2.getOrder();
-							} catch (InvalidSPDXAnalysisException e) {
-								order2 = Optional.empty();;
-							}
-							if (order1.isPresent()) {
-								if (order2.isPresent()) {
-									return order1.get().compareTo(order2.get());
-								} else {
-									return -1;
-								}
-							} else {
-								if (order2.isPresent()) {
-									return 0;
-								} else {
-									return 1;
-								}
-							}
-						}
-						
-					});
+				Collections.sort(crossRefCopy, licenseComparator);
 
 					for (CrossRef crossRef:crossRefCopy) {
 						otherWebPages.add(new FormattedUrl(crossRef.getUrl(), crossRef.getValid(), 
@@ -293,9 +294,9 @@ public class LicenseHTMLFile {
 				header = null;	// so the template will appropriately skip the header text
 			}
 			retval.put("licenseHeader", header);
+		    retval.put("deprecated", this.license.isDeprecated());
+	        retval.put("deprecatedVersion", this.license.getDeprecatedVersion());
 		}
-		retval.put("deprecated", this.license.isDeprecated());
-		retval.put("deprecatedVersion", this.license.getDeprecatedVersion());
 		return retval;
 	}
 
