@@ -59,7 +59,7 @@ public class CrossRefHelper implements Callable<Collection<CrossRef>> {
 		for (CrossRef crossRef:crossRefs) {
 		    Optional<String> crossRefUrl = crossRef.getUrl();
 		    if (crossRefUrl.isPresent()) {
-    			String url = crossRef.getUrl().get(); 			
+    			String url = crossRefUrl.get(); 			
     			try {
     				Boolean isValidUrl = Valid.urlValidator(url);
     		    	Boolean isLiveUrl = isValidUrl ? Live.urlLinkExists(url) : false;
