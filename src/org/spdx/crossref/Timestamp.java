@@ -34,7 +34,7 @@ public class Timestamp implements Callable<String> {
 	 */
     public static String getTimestamp(){
 		// Get current timestamp
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd - HH:mm:ss");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd - HH:mm:ss");
 		String timeStamp = ZonedDateTime.now( ZoneOffset.UTC ).format( formatter );
 		return timeStamp.toString();
 	}

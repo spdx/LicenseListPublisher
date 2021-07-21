@@ -17,6 +17,7 @@
 package org.spdx.crossref;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
@@ -56,19 +57,21 @@ public class CrossRefHelper implements Callable<Collection<CrossRef>> {
 			}
 		}
 		for (CrossRef crossRef:crossRefs) {
-			String url = crossRef.getUrl().get();
-			
-			try {
-				Boolean isValidUrl = Valid.urlValidator(url);
-		    	Boolean isLiveUrl = isValidUrl ? Live.urlLinkExists(url) : false;
-		    	Boolean isWaybackUrl = isValidUrl ? Wayback.isWayBackUrl(url) : false;
-		    	String currentDate = Timestamp.getTimestamp();
-		    	String matchStatus = isLiveUrl ? Match.checkMatch(url, license) : "N/A";
-		    	crossRef.setDetails(isValidUrl, isLiveUrl, isWaybackUrl, matchStatus, currentDate);
-		    } catch (Exception e) {
-		    	logger.error("Unexpected exception",e.getMessage());
-		    	crossRef.setUrl(url);
-		    	crossRef.setDetails(Valid.urlValidator(url), false, Wayback.isWayBackUrl(url), "--", Timestamp.getTimestamp());
+		    Optional<String> crossRefUrl = crossRef.getUrl();
+		    if (crossRefUrl.isPresent()) {
+    			String url = crossRefUrl.get(); 			
+    			try {
+    				Boolean isValidUrl = Valid.urlValidator(url);
+    		    	Boolean isLiveUrl = isValidUrl ? Live.urlLinkExists(url) : false;
+    		    	Boolean isWaybackUrl = isValidUrl ? Wayback.isWayBackUrl(url) : false;
+    		    	String currentDate = Timestamp.getTimestamp();
+    		    	String matchStatus = isLiveUrl ? Match.checkMatch(url, license) : "N/A";
+    		    	crossRef.setDetails(isValidUrl, isLiveUrl, isWaybackUrl, matchStatus, currentDate);
+    		    } catch (Exception e) {
+    		    	logger.error("Unexpected exception",e.getMessage());
+    		    	crossRef.setUrl(url);
+    		    	crossRef.setDetails(Valid.urlValidator(url), false, Wayback.isWayBackUrl(url), "--", Timestamp.getTimestamp());
+    		    }
 		    }
 		}
 		return crossRefs;

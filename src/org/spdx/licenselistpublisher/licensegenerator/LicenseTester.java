@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.spdx.library.InvalidSPDXAnalysisException;
 import org.spdx.library.model.license.License;
@@ -114,10 +115,12 @@ public class LicenseTester implements ILicenseTester {
 
 	private String readText(File f) throws IOException {
 		StringBuilder text = new StringBuilder();
-		Files.lines(f.toPath()).forEach(line -> {
-			text.append(line);
-			text.append("\n");
-			});
+		try (Stream<String> fileLines = Files.lines(f.toPath())) {
+		      fileLines.forEach(line -> {
+		            text.append(line);
+		            text.append("\n");
+		            });
+		}
 		return text.toString();
 	}
 

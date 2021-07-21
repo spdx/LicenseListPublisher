@@ -111,8 +111,11 @@ public class LicenseXmlDocumentTest {
 	@Test
 	public void testLicenseXmlDocumentFile() throws Exception {
 		File licenseFile = new File(TEST_FILE_PATH);
-		new LicenseXmlDocument(licenseFile);
-		// I guess if we don't get any exceptions, it passed
+		try {
+		    new LicenseXmlDocument(licenseFile);
+		} catch(Exception ex) {
+		    fail("Error creating XML document: "+ex.getMessage());
+		}
 	}
 
 	@Test
