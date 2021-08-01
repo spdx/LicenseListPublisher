@@ -54,7 +54,6 @@ public class LicenseHTMLFile {
 	static final String TEMPLATE_CLASS_PATH = "resources" + "/" + "htmlTemplate";
 	static final String TEMPLATE_ROOT_PATH = "resources" + File.separator + "htmlTemplate";
 	static final String TEMPLATE_FILE_NAME = "LicenseHTMLTemplate.html";
-	static final boolean USE_SITE = false;	// set to true to use the site name for the link of external web pages
 
 	static Comparator<CrossRef> licenseComparator =	new Comparator<CrossRef>() {
 
@@ -95,26 +94,13 @@ public class LicenseHTMLFile {
 	 */
 	public static class FormattedUrl {
 		String url;
-		/*		
-		 * license crossref information in the form of an array of strings. 
-		 * With the strings being of the form "{a:b, c:b}"
-		*/
-		String[] licenseCrossRefs;
-		
+	
 		Boolean isValid;
 		Boolean isLive;
 		Boolean isWayBackLink;
 		String match;
 		String timestamp;
 		
-		public FormattedUrl(String url) {
-			this.url = url;
-			this.licenseCrossRefs = null;
-		}
-		public FormattedUrl(String url, String [] licenseCrossRefs) {
-			this.url = url;
-			this.licenseCrossRefs = licenseCrossRefs;
-		}
 		public FormattedUrl(Optional<String> url, Optional<Boolean> isValid, Optional<Boolean> isLive, 
 				Optional<Boolean> isWayBackLink, Optional<String> match, Optional<String> timestamp) {
 			this.url = (url.isPresent()) ? url.get() : "N/A";
@@ -127,6 +113,11 @@ public class LicenseHTMLFile {
 		public String getUrl() {
 			return this.url;
 		}
+		
+		public String getSite() {
+		    return this.url;
+		}
+		
 		public void setUrl(String url) {
 			this.url = url;
 		}
