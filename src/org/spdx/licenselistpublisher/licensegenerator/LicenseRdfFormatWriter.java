@@ -129,7 +129,7 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 			writeRdf(rdfStore, documentUri, rdfXml.getPath() + File.separator + name + ".rdf", OutputFormat.XML_ABBREV);
 		}
 		if (rdfTurtle != null) {
-			writeRdf(rdfStore, documentUri, rdfTurtle.getPath() + File.separator + name + ".turtle", OutputFormat.TURTLE);
+			writeRdf(rdfStore, documentUri, rdfTurtle.getPath() + File.separator + name + ".ttl", OutputFormat.TURTLE);
 		}
 		if (rdfNt != null) {
 			writeRdf(rdfStore, documentUri, rdfNt.getPath() + File.separator + name + ".nt", OutputFormat.N_TRIPLET);
