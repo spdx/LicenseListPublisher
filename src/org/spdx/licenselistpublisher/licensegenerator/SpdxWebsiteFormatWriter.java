@@ -234,6 +234,8 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 		copyManager.copy(onlyThisLicense, license.getDocumentUri(), license.getModelStore(), license.getDocumentUri(), 
 				license.getId(), license.getType());
 		LicenseRdfFormatWriter.writeRdf(onlyThisLicense, license.getDocumentUri(), websiteFolder.getPath() + File.separator + licBaseHtmlFileName + ".jsonld", OutputFormat.JSON_LD);
+		// Turtle format
+		LicenseRdfFormatWriter.writeRdf(onlyThisLicense, license.getDocumentUri(), websiteFolder.getPath() + File.separator + licBaseHtmlFileName + ".ttl", OutputFormat.TURTLE);
 	}
 	
 	/**
@@ -290,5 +292,8 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 				exception.getId(), exception.getType());
 		LicenseRdfFormatWriter.writeRdf(onlyThisException, exception.getDocumentUri(), 
 				websiteFolder.getPath() + File.separator + exceptionHtmlFileName + ".jsonld", OutputFormat.JSON_LD);
+		// RDF Turtle format
+		LicenseRdfFormatWriter.writeRdf(onlyThisException, exception.getDocumentUri(), 
+                websiteFolder.getPath() + File.separator + exceptionHtmlFileName + ".ttl", OutputFormat.TURTLE);
 	}
 }
