@@ -517,8 +517,11 @@ public class LicenseXmlHelper {
 				} else {
 					throw(new LicenseXmlException("Expected only list item tags ('item') or lists ('list') in a list, found "+listItem.getTagName()));
 				}
-			} else if (listItemNodes.item(i).getNodeType() != Node.TEXT_NODE) {
-				throw(new LicenseXmlException("Expected only element children for a list element"));
+			} else if (listItemNodes.item(i).getNodeType() == Node.TEXT_NODE) {
+				appendNodeText(listItemNodes.item(i), useTemplateFormat, sb, indentCount, unprocessedTags,
+				        includeHtmlTags, false);
+			} else {
+			    throw(new LicenseXmlException("Expected only element children for a list element"));
 			}
 		}
 		if (includeHtmlTags) {
