@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -53,6 +54,7 @@ import org.spdx.licenselistpublisher.licensegenerator.LicenseRdfFormatWriter;
 import org.spdx.licenselistpublisher.licensegenerator.LicenseRdfaFormatWriter;
 import org.spdx.licenselistpublisher.licensegenerator.LicenseTemplateFormatWriter;
 import org.spdx.licenselistpublisher.licensegenerator.LicenseTextFormatWriter;
+import org.spdx.licenselistpublisher.licensegenerator.OsiLicenseDataParser;
 import org.spdx.licenselistpublisher.licensegenerator.SimpleLicenseTester;
 import org.spdx.licenselistpublisher.licensegenerator.SpdxWebsiteFormatWriter;
 
@@ -486,7 +488,7 @@ public class LicenseRDFAGenerator {
 				if (licenseProvider instanceof XmlLicenseProviderSingleFile) {
 					license.getCrossRef().addAll(CrossRefHelper.buildUrlDetails(license));
 				}
-				addExternalMetaData(license);
+				addExternalMetaData(license, warnings);
 				if (license.getLicenseId() != null && !license.getLicenseId().isEmpty()) {
 					// Check for duplicate licenses
 					if (!license.isDeprecated()) {
@@ -552,11 +554,25 @@ public class LicenseRDFAGenerator {
 	/**
 	 * Update license fields based on information from external metadata
 	 * @param license
+	 * @param warnings this list is updated if there are any warnings
 	 * @throws LicenseGeneratorException
 	 * @throws InvalidSPDXAnalysisException 
 	 */
-	private static void addExternalMetaData(SpdxListedLicense license) throws LicenseGeneratorException, InvalidSPDXAnalysisException {
+	private static void addExternalMetaData(SpdxListedLicense license, List<String> warnings) throws LicenseGeneratorException, InvalidSPDXAnalysisException {
 		license.setFsfLibre(FsfLicenseDataParser.getFsfLicenseDataParser().isSpdxLicenseFsfLibre(license.getLicenseId()));
+		Optional<Boolean> osiApproved = OsiLicenseDataParser.getOsiLicenseDataParser().isSpdxLicenseOsiApproved(license.getLicenseId());
+		if (osiApproved.isPresent()) {
+		    if (osiApproved.get()) {
+		        if (!license.isOsiApproved()) {
+		            warnings.add("License " + license.getLicenseId() + " osiApproved is set to true by OSI, but is not marked as OSI approved in the License XML");
+		        }
+		        //TODO: Consider setting OSI approved based on the OSI API
+		    } else if (license.isOsiApproved()) {
+		        warnings.add("License " + license.getLicenseId() + " osiApproved is set to false by OSI, but is marked as OSI approved in the License XML");
+		    }
+		} else if (license.isOsiApproved()) {
+		    warnings.add("License " + license.getLicenseId() + " is not included in the OSI metadata, but is marked as OSI approved in the License XML");
+		}
 	}
 
 	/**
