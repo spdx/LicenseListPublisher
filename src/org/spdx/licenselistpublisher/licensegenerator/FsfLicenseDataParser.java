@@ -40,7 +40,7 @@ import com.google.common.collect.Maps;
 /**
  * Singleton class which returns information maintained by the Free Software Foundation
  *
- * The default behavior is to pull the FSF data from <code>https://wking.github.io/fsf-api/licenses-full.json</code>
+ * The default behavior is to pull the FSF data from <code>https://spdx.github.io/fsf-api/licenses-full.json</code>
  *
  * If the URL is not accessible, the file resources/licenses-full.json in the same path as the .jar file will be used.
  * If the local file can not be found, then a properties file resources/licenses-full.json will be used.
@@ -63,7 +63,7 @@ public class FsfLicenseDataParser {
 	static final String PROP_USE_ONLY_LOCAL_FILE = "LocalFsfFreeJson";
 	static final String PROP_FSF_FREE_JSON_URL = "FsfFreeJsonUrl";
 
-	static final String DEFAULT_FSF_JSON_URL = "https://wking.github.io/fsf-api/licenses-full.json";
+	static final String DEFAULT_FSF_JSON_URL = "https://spdx.github.io/fsf-api/licenses-full.json";
 	static final String FSF_JSON_FILE_PATH = "resources" + File.separator + "licenses-full.json";
 	static final String FSF_JSON_CLASS_PATH = "licenses-full.json";
 
@@ -183,7 +183,7 @@ public class FsfLicenseDataParser {
 			if (identifiersObject == null) {
 				continue;
 			}
-			// Hack - adding all identifiers since we are not able to get the SPDX specific ID's - see https://github.com/wking/fsf-api/pull/12#issuecomment-376282369
+			// Hack - adding all identifiers since we are not able to get the SPDX specific ID's - see https://github.com/spdx/fsf-api/pull/12#issuecomment-376282369
 			retval.add(identifiersObject.toString(false));
 //			Node spdxIdProp = model.getProperty(FSF_JSON_NAMESPACE, PROPERTY_SPDXID).asNode();
 //			Triple spdxIdMatch = Triple.createMatch(identifiersObject, spdxIdProp, null);
