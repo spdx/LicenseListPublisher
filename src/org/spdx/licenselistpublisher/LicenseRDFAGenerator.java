@@ -36,7 +36,6 @@ import org.spdx.crossref.CrossRefHelper;
 import org.spdx.library.InvalidSPDXAnalysisException;
 import org.spdx.library.model.license.LicenseException;
 import org.spdx.library.model.license.ListedLicenseException;
-import org.spdx.library.model.license.ListedLicenses;
 import org.spdx.library.model.license.SpdxListedLicense;
 import org.spdx.library.model.license.SpdxListedLicenseException;
 import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
@@ -521,17 +520,6 @@ public class LicenseRDFAGenerator {
 							writer.writeLicense(license, license.isDeprecated(), license.getDeprecatedVersion());
 						}
 					}
-					// TEMP
-					try {
-					    Boolean oldFsfLibre = ListedLicenses.getListedLicenses().getListedLicenseById(license.getLicenseId()).getFsfLibre();
-					    Boolean newFsfLibre = license.getFsfLibre();
-					    if (!Objects.equals(oldFsfLibre, newFsfLibre)) {
-					        System.out.println("Different FSF Libre for ID "+license.getLicenseId()+".  Orig="+oldFsfLibre+"; new="+newFsfLibre);
-					    }
-					} catch(Exception ex) {
-					    System.out.println("Missing current license for ID"+license.getLicenseId());
-					}
-					// ENDTEMP
 				}
 			}
 			if (addedLicIdTextMap.size() == 1) {
