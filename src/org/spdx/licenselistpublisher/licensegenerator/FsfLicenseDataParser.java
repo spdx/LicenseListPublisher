@@ -143,7 +143,7 @@ public class FsfLicenseDataParser {
                         List<String> spdxIds = findSpdxIds(subject, model);
                         for (String spdxId:spdxIds) {
                             this.licenseIdToFsfFree.put(spdxId,false);
-                            }
+                        }
 					}
 				}
 			}
