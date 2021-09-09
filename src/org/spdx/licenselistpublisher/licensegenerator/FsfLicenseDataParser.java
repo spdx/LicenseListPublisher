@@ -138,6 +138,12 @@ public class FsfLicenseDataParser {
 						for (String spdxId:spdxIds) {
 							this.licenseIdToFsfFree.put(spdxId,true);
 						}
+					} else if ("non-free".equals(objectVal)) {
+					    Node subject = t.getSubject();
+                        List<String> spdxIds = findSpdxIds(subject, model);
+                        for (String spdxId:spdxIds) {
+                            this.licenseIdToFsfFree.put(spdxId,false);
+                        }
 					}
 				}
 			}
