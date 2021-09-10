@@ -1,28 +1,5 @@
 {
-    "@context": {
-    "id": {
-      "@id": "schema:identifier"
-    },
-    "identifiers": {
-      "@container": "@index",
-      "@id": "schema:identifier"
-    },
-    "licenses": {
-      "@container": "@index",
-      "@id": "https://wking.github.io/fsf-api/schema/license.jsonld"
-    },
-    "name": {
-      "@id": "schema:name"
-    },
-    "schema": "https://schema.org/",
-    "tags": {
-      "@id": "schema:keywords"
-    },
-    "uris": {
-      "@container": "@list",
-      "@id": "schema:url"
-    }
-  },
+  "@context": "https://spdx.github.io/fsf-api/schema/licenses.jsonld",
   "licenses": {
     "ACDL": {
       "id": "ACDL",
@@ -172,7 +149,19 @@
         "non-free"
       ],
       "uris": [
-        "https://www.gnu.org/licenses/license-list.html#Aladdin"
+        "https://www.gnu.org/licenses/license-list.html#Aladdin",
+        "https://directory.fsf.org/wiki/License:Aladdin"
+      ]
+    },
+    "Anti-996": {
+      "id": "Anti-996",
+      "name": "Anti-996 License",
+      "tags": [
+        "non-free"
+      ],
+      "uris": [
+        "https://www.gnu.org/licenses/license-list.html#Anti-996",
+        "https://directory.fsf.org/wiki/License:996"
       ]
     },
     "Arphic": {
@@ -245,13 +234,13 @@
           "CC-BY-NC-1.0"
         ]
       },
-      "name": "Creative Commons Nocommercial, any version",
+      "name": "Creative Commons NonCommercial, any version",
       "tags": [
         "non-free"
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#CC-BY-NC",
-        "https://www.gnu.org/licenses/license-list.html"
+        "https://creativecommons.org/licenses/by-nc-nd/4.0/"
       ]
     },
     "CC-BY-NC-2.0": {
@@ -261,13 +250,13 @@
           "CC-BY-NC-2.0"
         ]
       },
-      "name": "Creative Commons Nocommercial, any version",
+      "name": "Creative Commons NonCommercial, any version",
       "tags": [
         "non-free"
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#CC-BY-NC",
-        "https://www.gnu.org/licenses/license-list.html"
+        "https://creativecommons.org/licenses/by-nc-nd/4.0/"
       ]
     },
     "CC-BY-NC-2.5": {
@@ -277,13 +266,13 @@
           "CC-BY-NC-2.5"
         ]
       },
-      "name": "Creative Commons Nocommercial, any version",
+      "name": "Creative Commons NonCommercial, any version",
       "tags": [
         "non-free"
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#CC-BY-NC",
-        "https://www.gnu.org/licenses/license-list.html"
+        "https://creativecommons.org/licenses/by-nc-nd/4.0/"
       ]
     },
     "CC-BY-NC-3.0": {
@@ -293,13 +282,13 @@
           "CC-BY-NC-3.0"
         ]
       },
-      "name": "Creative Commons Nocommercial, any version",
+      "name": "Creative Commons NonCommercial, any version",
       "tags": [
         "non-free"
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#CC-BY-NC",
-        "https://www.gnu.org/licenses/license-list.html"
+        "https://creativecommons.org/licenses/by-nc-nd/4.0/"
       ]
     },
     "CC-BY-NC-4.0": {
@@ -309,13 +298,13 @@
           "CC-BY-NC-4.0"
         ]
       },
-      "name": "Creative Commons Nocommercial, any version",
+      "name": "Creative Commons NonCommercial, any version",
       "tags": [
         "non-free"
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#CC-BY-NC",
-        "https://www.gnu.org/licenses/license-list.html"
+        "https://creativecommons.org/licenses/by-nc-nd/4.0/"
       ]
     },
     "CC-BY-ND-1.0": {
@@ -331,7 +320,7 @@
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#CC-BY-ND",
-        "https://www.gnu.org/licenses/license-list.html"
+        "https://creativecommons.org/licenses/by-nc-nd/4.0/"
       ]
     },
     "CC-BY-ND-2.0": {
@@ -347,7 +336,7 @@
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#CC-BY-ND",
-        "https://www.gnu.org/licenses/license-list.html"
+        "https://creativecommons.org/licenses/by-nc-nd/4.0/"
       ]
     },
     "CC-BY-ND-2.5": {
@@ -363,7 +352,7 @@
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#CC-BY-ND",
-        "https://www.gnu.org/licenses/license-list.html"
+        "https://creativecommons.org/licenses/by-nc-nd/4.0/"
       ]
     },
     "CC-BY-ND-3.0": {
@@ -379,7 +368,7 @@
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#CC-BY-ND",
-        "https://www.gnu.org/licenses/license-list.html"
+        "https://creativecommons.org/licenses/by-nc-nd/4.0/"
       ]
     },
     "CC-BY-ND-4.0": {
@@ -396,7 +385,7 @@
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#CC-BY-ND",
-        "https://www.gnu.org/licenses/license-list.html",
+        "https://creativecommons.org/licenses/by-nc-nd/4.0/",
         "https://www.gnu.org/licenses/license-list.html#ccbynd",
         "https://creativecommons.org/licenses/by-nd/4.0/legalcode"
       ]
@@ -448,7 +437,7 @@
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#CPAL",
-        "https://www.socialtext.net/open/cpal_license_in_wikitext"
+        "https://directory.fsf.org/wiki/License:Common_Public_Attribution_License_Version_1.0"
       ]
     },
     "CeCILL": {
@@ -482,7 +471,7 @@
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#CeCILL-B",
-        "https://directory.fsf.org/wiki/License:CeCILL-B"
+        "https://cecill.info/licences/Licence_CeCILL-B_V1-en.html"
       ]
     },
     "CeCILL-C": {
@@ -498,7 +487,7 @@
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#CeCILL-C",
-        "https://directory.fsf.org/wiki/License:CeCILL-C"
+        "https://cecill.info/licences/Licence_CeCILL-C_V1-en.html"
       ]
     },
     "ClarifiedArtistic": {
@@ -516,7 +505,7 @@
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#ClarifiedArtistic",
-        "http://gianluca.dellavedova.org/2011/01/03/clarified-artistic-license/"
+        "https://directory.fsf.org/wiki/License:Clarified_Artistic_License_1.0"
       ]
     },
     "CommonPublicLicense10": {
@@ -572,7 +561,7 @@
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#DOR",
-        "http://dorepository.org/download.html"
+        "https://directory.fsf.org/wiki/License:CNRI"
       ]
     },
     "ECL2.0": {
@@ -621,7 +610,7 @@
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#EPL2",
-        "http://directory.fsf.org/wiki/License:EPLv2.0"
+        "https://directory.fsf.org/wiki/License:EPL-2.0"
       ]
     },
     "EUDataGrid": {
@@ -642,8 +631,8 @@
         "http://directory.fsf.org/wiki/License:EUDataGrid"
       ]
     },
-    "EUPL": {
-      "id": "EUPL",
+    "EUPL-1.1": {
+      "id": "EUPL-1.1",
       "identifiers": {
         "spdx": [
           "EUPL-1.1"
@@ -654,8 +643,24 @@
         "libre"
       ],
       "uris": [
-        "https://www.gnu.org/licenses/license-list.html#EUPL",
+        "https://www.gnu.org/licenses/license-list.html#EUPL-1.1",
         "http://directory.fsf.org/wiki/License:EUPLv1.1"
+      ]
+    },
+    "EUPL-1.2": {
+      "id": "EUPL-1.2",
+      "identifiers": {
+        "spdx": [
+          "EUPL-1.2"
+        ]
+      },
+      "name": "European Union Public License (EUPL) version 1.2",
+      "tags": [
+        "libre"
+      ],
+      "uris": [
+        "https://www.gnu.org/licenses/license-list.html#EUPL-1.2",
+        "http://directory.fsf.org/wiki/License:EUPLv1.2"
       ]
     },
     "Eiffel": {
@@ -769,7 +774,9 @@
       "id": "FreeBSD",
       "identifiers": {
         "spdx": [
-          "BSD-2-Clause-FreeBSD"
+          "BSD-2-Clause-FreeBSD",
+          "BSD-2-Clause",
+          "BSD-2-Clause-NetBSD"
         ]
       },
       "name": "FreeBSD license",
@@ -809,7 +816,8 @@
         "spdx": [
           "GPL-3.0-or-later",
           "GPL-3.0-only",
-          "GPL-3.0"
+          "GPL-3.0",
+          "GPL-3.0+"
         ]
       },
       "name": "GNU General Public License (GPL) version 3",
@@ -876,7 +884,8 @@
         "spdx": [
           "GPL-2.0-or-later",
           "GPL-2.0-only",
-          "GPL-2.0"
+          "GPL-2.0",
+          "GPL-2.0+"
         ]
       },
       "name": "GNU General Public License (GPL) version 2",
@@ -897,7 +906,7 @@
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#HESSLA",
-        "http://www.hacktivismo.com/about/hessla.php"
+        "https://directory.fsf.org/wiki/License:HESSLA"
       ]
     },
     "HPND": {
@@ -992,7 +1001,7 @@
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#Jahia",
-        "http://web.archive.org/web/20050317081359/http://www.jahia.org/jahia/page145.html"
+        "https://directory.fsf.org/wiki/License:JahiaCSL"
       ]
     },
     "LGPLv2.1": {
@@ -1001,7 +1010,8 @@
         "spdx": [
           "LGPL-2.1-or-later",
           "LGPL-2.1-only",
-          "LGPL-2.1"
+          "LGPL-2.1",
+          "LGPL-2.1+"
         ]
       },
       "name": "GNU Lesser General Public License (LGPL) version 2.1",
@@ -1021,7 +1031,8 @@
         "spdx": [
           "LGPL-3.0-or-later",
           "LGPL-3.0-only",
-          "LGPL-3.0"
+          "LGPL-3.0",
+          "LGPL-3.0+"
         ]
       },
       "name": "GNU Lesser General Public License (LGPL) version 3",
@@ -1349,14 +1360,14 @@
         "http://directory.fsf.org/wiki/License:OSLv3.0"
       ]
     },
-    "OculusRift": {
-      "id": "OculusRift",
+    "OculusRiftSDK": {
+      "id": "OculusRiftSDK",
       "name": "Oculus Rift SDK License",
       "tags": [
         "non-free"
       ],
       "uris": [
-        "https://www.gnu.org/licenses/license-list.html#OculusRift",
+        "https://www.gnu.org/licenses/license-list.html#OculusRiftSDK",
         "http://directory.fsf.org/wiki/License:Oculus_VR_Rift_SDK_License"
       ]
     },
@@ -1395,7 +1406,7 @@
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#OpenPublicationL",
-        "http://opencontent.org/openpub/"
+        "https://opencontent.org/openpub/"
       ]
     },
     "OpenSSL": {
@@ -1468,6 +1479,17 @@
         "http://directory.fsf.org/wiki/License:PPL"
       ]
     },
+    "PPL3a": {
+      "id": "PPL3a",
+      "name": "Personal Public License Version 3a",
+      "tags": [
+        "non-free"
+      ],
+      "uris": [
+        "https://www.gnu.org/licenses/license-list.html#PPL3a",
+        "https://directory.fsf.org/wiki/License:PPL3a"
+      ]
+    },
     "PerlLicense": {
       "id": "PerlLicense",
       "name": "License of Perl 5 and below",
@@ -1498,7 +1520,8 @@
         "non-free"
       ],
       "uris": [
-        "https://www.gnu.org/licenses/license-list.html#Plan9"
+        "https://www.gnu.org/licenses/license-list.html#Plan9",
+        "https://directory.fsf.org/wiki/License:Old-plan9"
       ]
     },
     "PublicDomain": {
@@ -1657,8 +1680,24 @@
         "http://directory.fsf.org/wiki/License:SGIFreeBv2"
       ]
     },
-    "SILOFL": {
-      "id": "SILOFL",
+    "SILOFL-1.0": {
+      "id": "SILOFL-1.0",
+      "identifiers": {
+        "spdx": [
+          "OFL-1.0"
+        ]
+      },
+      "name": "SIL Open Font License 1.1",
+      "tags": [
+        "libre"
+      ],
+      "uris": [
+        "https://www.gnu.org/licenses/license-list.html#SILOFL",
+        "http://directory.fsf.org/wiki/SIL_Open_Font_License_1.1"
+      ]
+    },
+    "SILOFL-1.1": {
+      "id": "SILOFL-1.1",
       "identifiers": {
         "spdx": [
           "OFL-1.1"
@@ -1675,13 +1714,13 @@
     },
     "SISSL": {
       "id": "SISSL",
-      "name": "Sun Industry Standards Source License 1.0",
+      "name": "Sun Industry Standards Source License 1.1",
       "tags": [
         "libre"
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#SISSL",
-        "http://www.openoffice.org/licenses/sissl_license.html"
+        "https://directory.fsf.org/wiki/License:SISSL-1.1"
       ]
     },
     "SML": {
@@ -1748,7 +1787,8 @@
       "id": "StandardMLofNJ",
       "identifiers": {
         "spdx": [
-          "SMLNJ"
+          "SMLNJ",
+          "StandardML-NJ"
         ]
       },
       "name": "Standard ML of New Jersey Copyright License",
@@ -1780,18 +1820,19 @@
         "non-free"
       ],
       "uris": [
-        "https://www.gnu.org/licenses/license-list.html#SunSolarisSourceCode"
+        "https://www.gnu.org/licenses/license-list.html#SunSolarisSourceCode",
+        "https://directory.fsf.org/wiki/License:SSSCFR-1.1"
       ]
     },
     "SystemC-3.0": {
       "id": "SystemC-3.0",
-      "name": "SystemC",
+      "name": "SystemC \u201cOpen Source\u201d License, Version 3.0",
       "tags": [
         "non-free"
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#SystemC-3.0",
-        "http://www.accellera.org/about/policies/SystemC_Open_Source_License.pdf"
+        "https://directory.fsf.org/wiki/License:SCOSL-3.0"
       ]
     },
     "Truecrypt-3.0": {
@@ -1856,13 +1897,13 @@
     },
     "UtahPublicLicense": {
       "id": "UtahPublicLicense",
-      "name": "University of Utah Public License",
+      "name": "University of Utah Research Foundation Public License",
       "tags": [
         "non-free"
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#UtahPublicLicense",
-        "http://www.cs.utah.edu/~gk/teem/txt/LICENSE.txt"
+        "https://directory.fsf.org/wiki/License:UnivUtahRFPL"
       ]
     },
     "Vim": {
@@ -1916,7 +1957,7 @@
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#WTFPL",
-        "http://sam.zoy.org/wtfpl/COPYING"
+        "https://directory.fsf.org/wiki/License:WTFPL-2"
       ]
     },
     "Watcom": {
@@ -1932,7 +1973,7 @@
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#Watcom",
-        "ftp://ftp.openwatcom.org/install/license.txt"
+        "https://directory.fsf.org/wiki/License:Watcom-1.0"
       ]
     },
     "WebM": {
@@ -1991,7 +2032,8 @@
         "non-free"
       ],
       "uris": [
-        "https://www.gnu.org/licenses/license-list.html#YaST"
+        "https://www.gnu.org/licenses/license-list.html#YaST",
+        "https://directory.fsf.org/wiki/License:YaST-license"
       ]
     },
     "Yahoo": {
@@ -2014,7 +2056,8 @@
       "id": "ZLib",
       "identifiers": {
         "spdx": [
-          "Zlib"
+          "Zlib",
+          "Nunit"
         ]
       },
       "name": "License of ZLib",
@@ -2057,7 +2100,7 @@
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#Zimbra",
-        "http://www.zimbra.com/license/zimbra-public-license-1-3.html"
+        "https://directory.fsf.org/wiki/License:ZPL-1.3"
       ]
     },
     "Zope": {
@@ -2068,7 +2111,7 @@
       ],
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#Zope",
-        "http://web.archive.org/web/20000816090640/http://www.zope.org/Resources/ZPL"
+        "https://directory.fsf.org/wiki/License:ZPL-1.0"
       ]
     },
     "Zope2.0": {
@@ -2105,6 +2148,16 @@
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#Zope2.0",
         "http://directory.fsf.org/wiki?title=License:ZopePLv2.1"
+      ]
+    },
+    "anticapitalist": {
+      "id": "anticapitalist",
+      "name": "Anti-Capitalist Software License",
+      "tags": [
+        "non-free"
+      ],
+      "uris": [
+        "https://www.gnu.org/licenses/license-list.html#anticapitalist"
       ]
     },
     "apache1": {
@@ -2148,7 +2201,6 @@
       },
       "name": "Apache License, Version 2.0",
       "tags": [
-        "gpl-2-compatible",
         "gpl-3-compatible",
         "libre"
       ],
@@ -2275,6 +2327,17 @@
         "http://directory.fsf.org/wiki/License:ClearBSD"
       ]
     },
+    "comclause": {
+      "id": "comclause",
+      "name": "Commons Clause",
+      "tags": [
+        "non-free"
+      ],
+      "uris": [
+        "https://www.gnu.org/licenses/license-list.html#comclause",
+        "https://directory.fsf.org/wiki/License:Commons-Clause"
+      ]
+    },
     "cpol": {
       "id": "cpol",
       "identifiers": {
@@ -2321,7 +2384,8 @@
       "id": "eCos2.0",
       "identifiers": {
         "spdx": [
-          "GPL-2.0+ WITH eCos-exception-2.0"
+          "GPL-2.0+ WITH eCos-exception-2.0",
+          "eCos-2.0"
         ]
       },
       "name": "eCos license version 2.0",
@@ -2344,6 +2408,17 @@
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#ecfonts",
         "http://directory.fsf.org/wiki/License:LaTeX_ecfonts"
+      ]
+    },
+    "fdk": {
+      "id": "fdk",
+      "name": "Fraunhofer FDK AAC license",
+      "tags": [
+        "libre"
+      ],
+      "uris": [
+        "https://www.gnu.org/licenses/license-list.html#fdk",
+        "http://directory.fsf.org/wiki/License:fdk"
       ]
     },
     "freetype": {
@@ -2377,6 +2452,17 @@
       "uris": [
         "https://www.gnu.org/licenses/license-list.html#gnuplot",
         "http://directory.fsf.org/wiki/License:Gnuplot"
+      ]
+    },
+    "hippocratic": {
+      "id": "hippocratic",
+      "name": "The Hippocratic License 1.1",
+      "tags": [
+        "non-free"
+      ],
+      "uris": [
+        "https://www.gnu.org/licenses/license-list.html#hippocratic",
+        "https://web.archive.org/web/20191217000421/https://firstdonoharm.dev/version/1/1/license.txt"
       ]
     },
     "iMatix": {
@@ -2481,7 +2567,8 @@
         "non-free"
       ],
       "uris": [
-        "https://www.gnu.org/licenses/license-list.html#ksh93"
+        "https://www.gnu.org/licenses/license-list.html#ksh93",
+        "https://directory.fsf.org/wiki/License:Old_ksh93"
       ]
     },
     "lucent102": {
