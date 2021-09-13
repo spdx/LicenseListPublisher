@@ -360,7 +360,14 @@ public class LicenseXmlHelper {
 
 			sb.append(HtmlTemplateOutputHandler.OPTIONAL_LICENSE_TEXT_CLASS);
 			sb.append("\">");
+			if (sb.length() > 0 && !Character.isWhitespace(sb.charAt(sb.length()-1)) &&
+                    !noSpace && (SPACING_BOTH.equals(spacing) || SPACING_BEFORE.equals(spacing) || SPACING_DEFAULT.equals(spacing))) {
+                sb.append(' ');
+            }
 			sb.append(childSb.toString());
+			if (SPACING_BOTH.equals(spacing) || SPACING_AFTER.equals(spacing)) {
+                sb.append(' ');
+            }
 			if (includesFlowControl(element)) {
 				sb.append("</div>");
 			} else {
@@ -459,7 +466,14 @@ public class LicenseXmlHelper {
 			}
 			sb.append(HtmlTemplateOutputHandler.REPLACEABLE_LICENSE_TEXT_CLASS);
 			sb.append("\">");
+			if (sb.length() > 0 && !Character.isWhitespace(sb.charAt(sb.length()-1)) &&
+                    !noSpace && (SPACING_BOTH.equals(spacing) || SPACING_BEFORE.equals(spacing) || SPACING_DEFAULT.equals(spacing))) {
+                sb.append(' ');
+            }
 			sb.append(originalSb);
+			if (SPACING_BOTH.equals(spacing) || SPACING_AFTER.equals(spacing)) {
+                sb.append(' ');
+            }
 			if (includesFlowControl(element)) {
 				sb.append("</div>");
 			} else {
