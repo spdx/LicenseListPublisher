@@ -22,6 +22,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Callable;
 
+import org.spdx.library.SpdxConstants;
+
 /**
  * Gets the current timestamp, to be added to the url details
  * @author Smith Tanjong
@@ -34,7 +36,7 @@ public class Timestamp implements Callable<String> {
 	 */
     public static String getTimestamp(){
 		// Get current timestamp
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd - HH:mm:ss");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(SpdxConstants.SPDX_DATE_FORMAT);
 		String timeStamp = ZonedDateTime.now( ZoneOffset.UTC ).format( formatter );
 		return timeStamp.toString();
 	}
