@@ -59,24 +59,39 @@ public class CrossRefHelper implements Callable<Collection<CrossRef>> {
 		for (CrossRef crossRef:crossRefs) {
 		    Optional<String> crossRefUrl = crossRef.getUrl();
 		    if (crossRefUrl.isPresent()) {
-    			String url = crossRefUrl.get(); 			
-    			try {
-    				Boolean isValidUrl = Valid.urlValidator(url);
-    		    	Boolean isLiveUrl = isValidUrl ? Live.urlLinkExists(url) : false;
-    		    	Boolean isWaybackUrl = isValidUrl ? Wayback.isWayBackUrl(url) : false;
-    		    	String currentDate = Timestamp.getTimestamp();
-    		    	String matchStatus = isLiveUrl ? Match.checkMatch(url, license) : "N/A";
-    		    	crossRef.setDetails(isValidUrl, isLiveUrl, isWaybackUrl, matchStatus, currentDate);
-    		    } catch (Exception e) {
-    		    	logger.error("Unexpected exception",e.getMessage());
-    		    	crossRef.setUrl(url);
-    		    	crossRef.setDetails(Valid.urlValidator(url), false, Wayback.isWayBackUrl(url), "--", Timestamp.getTimestamp());
-    		    }
+    			String url = crossRefUrl.get();
+    			if (OsiApi.isOsiUrl(url) && OsiApi.getInstance().isApiAvailable()) {
+    				OsiApi.getInstance().setCrossRefDetails(url, license, crossRef);
+    			} else {
+    				setCrossRefDetails(url, license, crossRef);
+    			}
 		    }
 		}
 		return crossRefs;
 	}
 	
+	/**
+	 * Set the cross ref details based on information available from the internet at that URL
+	 * @param url URL of the site
+	 * @param license associated with the crossRef
+	 * @param crossRef details will be added for this crossRef
+	 * @throws InvalidSPDXAnalysisException 
+	 */
+	private static void setCrossRefDetails(String url, SpdxListedLicense license, CrossRef crossRef) throws InvalidSPDXAnalysisException {
+		try {
+			Boolean isValidUrl = Valid.urlValidator(url);
+	    	Boolean isLiveUrl = isValidUrl ? Live.urlLinkExists(url) : false;
+	    	Boolean isWaybackUrl = isValidUrl ? Wayback.isWayBackUrl(url) : false;
+	    	String currentDate = Timestamp.getTimestamp();
+	    	String matchStatus = isLiveUrl ? Match.checkMatch(url, license) : "N/A";
+	    	crossRef.setDetails(isValidUrl, isLiveUrl, isWaybackUrl, matchStatus, currentDate);
+	    } catch (Exception e) {
+	    	logger.error("Unexpected exception",e.getMessage());
+	    	crossRef.setUrl(url);
+	    	crossRef.setDetails(Valid.urlValidator(url), false, Wayback.isWayBackUrl(url), "--", Timestamp.getTimestamp());
+	    }
+	}
+
 	@Override
 	public Collection<CrossRef> call() throws Exception {
 		return buildUrlDetails(license);
