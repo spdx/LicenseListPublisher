@@ -21,10 +21,7 @@ public class Main {
 
 		String spdxTool = args[0];
 		args = ArrayUtils.removeElement(args, args[0]);
-
-		if ("LicenseListPublisher".equals(spdxTool)) {
-			LicenseListPublisher.main(args);
-		} else if ("LicenseRDFAGenerator".equals(spdxTool)) {
+		if ("LicenseRDFAGenerator".equals(spdxTool)) {
 			LicenseRDFAGenerator.main(args);
 		} else if ("TestLicenseXML".equals(spdxTool)) {
 			LicenseXmlTester.main(args);
@@ -37,6 +34,5 @@ public class Main {
 		System.out.println("Usage: java -jar spdx-tools-jar-with-dependencies.jar <function> <parameters>");
 		System.out.println("LicenseRDFAGenerator - Generates license data");
 		System.out.println("TestLicenseXML - Tests a license XML file");
-		System.out.println("LicenseListPublisher - Publishes license list to git data repository");
 	}
 }
