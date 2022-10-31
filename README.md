@@ -10,7 +10,7 @@ This is the source code repository for the tool that generates license data foun
 
 ## Getting Starting
 
-The LicenseListPublisher binaries can be downloaded from the [BinTray LicenseListPublisher](https://bintray.com/spdx/spdx-tools/LicenseListPublisher) repo under the respective release.  The package is also available in [Maven Central](https://search.maven.org/artifact/org.spdx/licenseListPublisher) (organization org.spdx, artifact licenseListPublisher).
+The package is available in [Maven Central](https://search.maven.org/artifact/org.spdx/licenseListPublisher) (organization org.spdx, artifact licenseListPublisher).
 
 ## Contributing
 See the file [CONTRIBUTING.md](CONTRIBUTING.md) for information on making contributions to the LicenseListPublisher.
@@ -30,24 +30,6 @@ LicenseRDFAGenerator licencenseXmlFileOrDir outputDirectory [version] [releaseda
    [releasedate] - Release date of the SPDX license list
    [testfiles] - Directory of original text files to compare the generated licenses against
    [ignoredwarnings] - Either a file name or a comma separated list of warnings to be ignored
-```
-
-```
-LicenseListPublisher
- -d,--directory <arg>        Input XML directory
- -h,--help                   Prints out this message
- -I,--ignoreAllWarnings      Ignore all warnings
- -O,--outputrepo <arg>       Git repository to output the license list
-                             data to.  The git user must have update
-                             access to this repository
- -p,--password <arg>         Github password
- -r,--release <arg>          License list release tag or version
- -t,--testOnly               Only tests the license XML files - does not
-                             update or publish the results
- -u,--user <arg>             Github Username
- -w,--ignoreWarnings <arg>   Ignore specific warning messages
- -x,--xmlrepo <arg>          Input license XML repository
- -z,--debug                  Prints debug information while processing
 ```
 
 ```
