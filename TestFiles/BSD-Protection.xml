@@ -48,7 +48,6 @@
         <item>
             <bullet>0.</bullet>
           Definitions.
-        </item>
         <list>
             <item>
                <bullet>a)</bullet>
@@ -69,6 +68,7 @@
             "You", below, refers to each licensee.
           </item>
         </list>
+        </item>
         <item>
             <bullet>1.</bullet>
           Scope.
@@ -94,7 +94,6 @@
             <br/>You may modify your copy or copies of the Program, and distribute the resulting derivative
                  works, provided that you meet the following conditions:
 
-        </item>
         <list>
             <item>
                <bullet>a)</bullet>
@@ -113,13 +112,14 @@
                distribution of further derivative works.
           </item>
         </list>
+        </item>
         <item>
             <bullet>4.</bullet>
           Modification and redistribution under open license.
             <br/>You may modify your copy or copies of the Program, and distribute the resulting derivative
                  works, provided that you meet the following conditions:
 
-        </item>
+        
         <list>
             <item>
                <bullet>a)</bullet>
@@ -141,6 +141,7 @@
                all third parties under the terms of this License.
           </item>
         </list>
+        </item>
         <item>
             <bullet>5.</bullet>
           Implied acceptance.
