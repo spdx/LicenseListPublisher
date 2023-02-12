@@ -134,7 +134,7 @@
 
     <div id="page" class="page">
 
-      <h1>SPDX License List</h1>
+      <h1 id="preamble">SPDX License List</h1>
 
       <p>The SPDX License List is an integral part of the SPDX Specification. The SPDX License List itself is a list of commonly found licenses and exceptions used in free and open or collaborative software, data, hardware, or documentation. The SPDX License List includes a standardized short identifier, the full name, the license text, and a canonical permanent URL for each license and exception.    
       </p>
@@ -175,7 +175,7 @@ Note: You can sort by each column by clicking on the column header. By default, 
       </table>
 
       <hr />
-      <h2>Deprecated License Identifiers</h2>
+      <h2 id="deprecated">Deprecated License Identifiers</h2>
       <p>SPDX endeavors to never change the SPDX license identifiers. However, sometimes there has been a compelling reason to deprecate a license identifier, such as to accommodate improved SPDX license expressions or when we have found a duplicate license. When a license identifier is "deprecated" on the SPDX License List, it effectively means that there is an updated license identifier and the deprecated license identifier, while remaining valid, should no longer be used. The URL to each deprecated license is retained and those license pages are updated to note the deprecation. Some reasons for deprecation are as follows:
 	<ul style="list-style-type: square; padding: 5px;">
             <li style="margin:5px 0 5px 10px;">Release 2.0 of the SPDX Specification introduced <strong><a href="https://spdx.org/specifications">License Expressions</a></strong> that supports the ability to identify common variations of SPDX-identified licenses without the need to define each potential variation as a distinct license on the SPDX License List. This new syntax supports the ability to declare an SPDX-identified <a href="./exceptions-index.html"><strong>license exception</strong></a> using the "WITH" operator (e.g. GPL-2.0-or-later WITH Autoconf-exception-2.0), as well as the ability to use a simple "+" operator after a license short identifier to indicate "or later version". SPDX has defined a list of license exceptions to use after the "WITH" operator. As a result, a number of licenses formerly included on the SPDX License List have been deprecated, and correct usage employs the License Expression syntax as of v2.0. </li>
