@@ -10,7 +10,7 @@ If you would like to work on a fix for any issue, please assign the issue to you
 
 Patches
 -------
-The source code for `LicenseListPublisher` is hosted on [github.com/spdx/tools](https://github.com/spdx/LicenseListPublisher). Please review [open pull requests](https://github.com/spdx/licenseListPublisher/pulls) and [active branches](https://github.com/spdx/licenseListPublisher/branches) before committing time to a substantial revision. Work along similar lines may already be in progress.
+The source code for `LicenseListPublisher` is hosted on [github.com/spdx/LicenseListPublisher](https://github.com/spdx/LicenseListPublisher). Please review [open pull requests](https://github.com/spdx/licenseListPublisher/pulls) and [active branches](https://github.com/spdx/licenseListPublisher/branches) before committing time to a substantial revision. Work along similar lines may already be in progress.
 
 To submit a patch via GitHub, fork the repository, create a topic branch from `master` for your work, and send a pull request when ready. If you would prefer to send a patch or grant access to pull from your own Git repository, please contact the project's contributors by e-mail.
 
