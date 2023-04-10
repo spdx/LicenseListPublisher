@@ -30,7 +30,7 @@
 		</p>
 	  </text>
 	</license>
-	<license name="Test Deprecated License" licenseId="test-dep" isOsiApproved="false" isDeprecated="true" deprecatedVersion="2.2">
+	<license name="Test Deprecated License" licenseId="test-dep" isOsiApproved="false" deprecatedVersion="2.2">
 		<notes>Test dep note</notes>
 		<crossRefs>
 			<crossRef>http://test/url1d</crossRef>
