@@ -387,7 +387,6 @@ public class LicenseRDFAGenerator {
 						}
 					}
 					// check for a license ID with the same ID as the exception
-
 					addedExceptionsMap.put(nextException.getLicenseExceptionId(), nextException.getLicenseExceptionText());
 				}
 				if (licenseIds.contains(nextException.getLicenseExceptionId())) {
