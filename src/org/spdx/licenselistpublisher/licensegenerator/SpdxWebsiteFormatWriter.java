@@ -275,6 +275,8 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 		String exceptionJSONReference= "./" + exceptionJsonFileName;
 		File exceptionHtmlFile = new File(websiteFolder.getPath()+File.separator+exceptionHtmlFileName + ".html");
 		exceptionHtml.writeToFile(exceptionHtmlFile, exceptionHtmlTocReference);
+		File exceptionBaseFile = new File(websiteFolder.getPath()+File.separator+exceptionHtmlFileName);
+		exceptionHtml.writeToFile(exceptionBaseFile, exceptionHtmlTocReference);
 		if (exception.isDeprecated()) {
 			htmlExceptionToc.addDeprecatedException(exception, exceptionHTMLReference, exception.getDeprecatedVersion());
 		} else {
