@@ -20,8 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collection;
-
-import org.apache.jena.ext.com.google.common.base.Objects;
+import java.util.Objects;
 
 import com.google.common.io.Files;
 
@@ -77,7 +76,7 @@ public class UnitTestHelper {
 		for (Object o1:col1) {
 			boolean found = false;
 			for (Object o2:col2) {
-				if (Objects.equal(o1, o2)) {
+				if (Objects.equals(o1, o2)) {
 					found = true;
 					break;
 				}
