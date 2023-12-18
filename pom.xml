@@ -27,11 +27,12 @@
 		<name>Linux Foundation</name>
 		<url>http://www.linuxfoundation.org</url>
 	</organization>
-	<scm>
-		<url>https://github.com/spdx/LicenseListPublisher</url>
-		<connection>scm:git:ssh://git@github.com:spdx/LicenseListPublisher.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com:spdx/LicenseListPublisher.git</developerConnection>
-	</scm>
+  <scm>
+  	<url>https://github.com/spdx/LicenseListPublisher</url>
+  	<connection>scm:git:ssh://git@github.com:spdx/LicenseListPublisher</connection>
+  	<developerConnection>scm:git:git@github.com:spdx/LicenseListPublisher</developerConnection>
+  	<tag>master</tag>
+  </scm>
 	<distributionManagement>
 	  <repository>
         <id>ossrh</id>
@@ -45,7 +46,7 @@
 		  <sonar.organization>spdx</sonar.organization>
 		  <sonar.projectKey>licenseListPublisher</sonar.projectKey>
 		  <maven.compiler.release>11</maven.compiler.release>
-		  <dependency-check-maven.version>7.2.1</dependency-check-maven.version>
+		  <dependency-check-maven.version>8.0.1</dependency-check-maven.version>
 	  </properties>
 	<dependencies>
 		<dependency>
@@ -111,9 +112,23 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>gpg-signing</id>
+			<id>release</id>
 			<build>
 				<plugins>
+				    <plugin>
+				      <groupId>org.apache.maven.plugins</groupId>
+				      <artifactId>maven-source-plugin</artifactId>
+				      <version>3.2.1</version>
+				      <executions>
+				        <execution>
+				          <id>attach-sources</id>
+				          <phase>verify</phase>
+				          <goals>
+				            <goal>jar-no-fork</goal>
+				          </goals>
+				        </execution>
+				      </executions>
+				    </plugin>
 					<plugin>
 		      			<groupId>org.apache.maven.plugins</groupId>
 		      			<artifactId>maven-gpg-plugin</artifactId>
@@ -132,6 +147,28 @@
 		        			</execution>
 		      			</executions>
 	    			</plugin>
+   					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>2.9</version>
+						<configuration>
+							<quiet>true</quiet>
+							<source>8</source>
+							<javadocExecutable>${env.JAVA_HOME}/bin/javadoc</javadocExecutable>
+							<additionalparam>-Xdoclint:none</additionalparam>
+						</configuration>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<configuration>
+									<additionalparam>${javadoc.opts}</additionalparam>
+								</configuration>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>      			
 				</plugins>
 			</build>
 		</profile>
@@ -183,6 +220,61 @@
 		</testResources>
 
 		<plugins>
+		    <plugin>
+		      <groupId>org.apache.maven.plugins</groupId>
+		      <artifactId>maven-release-plugin</artifactId>
+		      <version>3.0.1</version>
+		      <configuration>
+		        <tagNameFormat>v@{project.version}</tagNameFormat>
+		        <releaseProfiles>release</releaseProfiles>
+		        <goals>deploy</goals>
+		      </configuration>
+		    </plugin>
+			<plugin>
+       			<groupId>org.apache.maven.plugins</groupId>
+       			<artifactId>maven-shade-plugin</artifactId>
+       			<version>3.2.4</version>
+       			<configuration>
+         				<shadedArtifactAttached>true</shadedArtifactAttached>
+         				<shadedClassifierName>jar-with-dependencies</shadedClassifierName>
+         				<transformers>
+           				<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+             					<mainClass>org.spdx.licenselistpublisher.Main</mainClass>
+           				</transformer>
+           				<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+           				<transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer" />
+           				<transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer">
+             					<addHeader>false</addHeader>
+             				</transformer>
+         				</transformers>
+         				<filters>
+         					<filter>
+         						<!--  Conflict with HTMLParser 1.4 -->
+         						<artifact>com.yevster.net.rootdev:java-rdfa</artifact>
+         						<excludes>
+         							<exclude>nu/validator/htmlparser/**</exclude>
+         						</excludes>
+         					</filter>
+           				<filter>
+             					<artifact>*:*</artifact>
+             					<excludes>
+               					<exclude>META-INF/*.SF</exclude>
+               					<exclude>META-INF/*.DSA</exclude>
+               					<exclude>META-INF/*.RSA</exclude>
+             					</excludes>
+           				</filter>
+         				</filters>
+       			</configuration>
+       			<executions>
+         				<execution>
+           				<phase>package</phase>
+           				<!--<phase /><!- - Switch off -->
+           				<goals>
+             					<goal>shade</goal>
+           				</goals>
+         				</execution>
+       			</executions>
+     		</plugin>
 			<plugin>
    				<groupId>org.owasp</groupId>
    				<artifactId>dependency-check-maven</artifactId>
@@ -232,7 +324,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.6.1</version>
+				<version>3.11.0</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
@@ -250,84 +342,6 @@
 					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.2.1</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>		
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9</version>
-				<configuration>
-				    <source>8</source>
-					<quiet>true</quiet>
-				</configuration>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<configuration>
-							<additionalparam>${javadoc.opts}</additionalparam>
-						</configuration>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-				<plugin>
-        			<groupId>org.apache.maven.plugins</groupId>
-        			<artifactId>maven-shade-plugin</artifactId>
-        			<version>3.2.4</version>
-        			<configuration>
-          				<shadedArtifactAttached>true</shadedArtifactAttached>
-          				<shadedClassifierName>jar-with-dependencies</shadedClassifierName>
-          				<transformers>
-            				<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-              					<mainClass>org.spdx.licenselistpublisher.Main</mainClass>
-            				</transformer>
-            				<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-            				<transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer" />
-            				<transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer">
-              					<addHeader>false</addHeader>
-              				</transformer>
-          				</transformers>
-          				<filters>
-          					<filter>
-          						<!--  Conflict with HTMLParser 1.4 -->
-          						<artifact>com.yevster.net.rootdev:java-rdfa</artifact>
-          						<excludes>
-          							<exclude>nu/validator/htmlparser/**</exclude>
-          						</excludes>
-          					</filter>
-            				<filter>
-              					<artifact>*:*</artifact>
-              					<excludes>
-                					<exclude>META-INF/*.SF</exclude>
-                					<exclude>META-INF/*.DSA</exclude>
-                					<exclude>META-INF/*.RSA</exclude>
-              					</excludes>
-            				</filter>
-          				</filters>
-        			</configuration>
-        			<executions>
-          				<execution>
-            				<phase>package</phase>
-            				<!--<phase /><!- - Switch off -->
-            				<goals>
-              					<goal>shade</goal>
-            				</goals>
-          				</execution>
-        			</executions>
-      			</plugin>
 		</plugins>
 	</build>
 	<reporting>
