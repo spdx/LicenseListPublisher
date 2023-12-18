@@ -53,32 +53,32 @@ public class LicenseXmlDocumentTest {
 	private static final String TEST_LICENSE_COMMENT = "Test note";
 	private static final String TEST_LICENSE_ID = "test-id";
 	private static final String TEST_LICENSE_TEXT = "Test Copyright\n\nparagraph 1" +
-			"\n\n   1.\n\n   List item 1\n\n   2.\n\n   List item 2\n\n" +
+			"\n\n   1.\n   List item 1\n\n   2.\n   List item 2\n\n" +
 			"Last Paragraph Alternate Text Non matching line. Optional text\n\n";
 	private static final String TEST_LICENSE_NAME = "Test License";
 	private static final List<String>  TEST_LICENSE_URLS = Arrays.asList(new String[] {"http://test/url1","http://test/url2"});
 	private static final String TEST_LICENSE_HEADER = "Test header optional var";
 	private static final String TEST_LICENSE_HEADER_TEMPLATE = "Test header<<beginOptional>> optional<<endOptional>> <<var;name=\"h1test\";original=\"var\";match=\".+\">>";
-	private static final String TEST_LICENSE_TEMPLATE = "<<var;name=\"copyright\";original=\"Test Copyright  \";match=\".{0,5000}\">>\n\nparagraph 1" +
-			"\n\n   <<var;name=\"bullet\";original=\"1.\";match=\".{0,20}\">>\n\n   List item 1\n\n   <<var;name=\"bullet\";original=\"2.\";match=\".{0,20}\">>\n\n   List item 2\n\n" +
+	private static final String TEST_LICENSE_TEMPLATE = "<<var;name=\"copyright\";original=\"Test Copyright  \";match=\".{0,5000}\">>\nparagraph 1" +
+			"\n\n   <<var;name=\"bullet\";original=\"1.\";match=\".{0,20}\">>\n   List item 1\n\n   <<var;name=\"bullet\";original=\"2.\";match=\".{0,20}\">>\n   List item 2\n\n" +
 			"Last Paragraph <<var;name=\"alttest\";original=\"Alternate Text\";match=\".+\">> Non matching line.<<beginOptional>> Optional text<<endOptional>>\n\n";
 
 	private static final String TEST_DEP_LICENSE_COMMENT = "Test dep note";
 	private static final String TEST_DEP_LICENSE_ID = "test-dep";
 	private static final String TEST_DEP_LICENSE_TEXT = "Test Copyright dep\n\nparagraph 1d" +
-			"\n\n   1.d\n\n   List item 1d\n\n   2.d\n\n   List item 2d\n\n" +
+			"\n\n   1.d\n   List item 1d\n\n   2.d\n   List item 2d\n\n" +
 			"Last Paragraph dep Alternate Text dep Non matching line dep. Optional text dep\n\n";
 	private static final String TEST_DEP_LICENSE_NAME = "Test Deprecated License";
 	private static final List<String> TEST_DEP_LICENSE_URLS = Arrays.asList(new String[] {"http://test/url1d","http://test/url2d"});
 	private static final String TEST_DEP_LICENSE_HEADER = "Test header dep";
-	private static final String TEST_DEP_LICENSE_TEMPLATE = "<<var;name=\"copyright\";original=\"Test Copyright dep  \";match=\".{0,5000}\">>\n\nparagraph 1d" +
-			"\n\n   <<var;name=\"bullet\";original=\"1.d\";match=\".{0,20}\">>\n\n   List item 1d\n\n   <<var;name=\"bullet\";original=\"2.d\";match=\".{0,20}\">>\n\n   List item 2d\n\n" +
+	private static final String TEST_DEP_LICENSE_TEMPLATE = "<<var;name=\"copyright\";original=\"Test Copyright dep  \";match=\".{0,5000}\">>\nparagraph 1d" +
+			"\n\n   <<var;name=\"bullet\";original=\"1.d\";match=\".{0,20}\">>\n   List item 1d\n\n   <<var;name=\"bullet\";original=\"2.d\";match=\".{0,20}\">>\n   List item 2d\n\n" +
 			"Last Paragraph dep <<var;name=\"alttestd\";original=\"Alternate Text dep\";match=\".+\">> Non matching line dep.<<beginOptional>> Optional text dep<<endOptional>>\n\n";
 
 	private static final String TEST_EXCEPTION_COMMENT = "Test note exception";
 	private static final String TEST_EXCEPTION_ID = "test-ex";
 	private static final String TEST_EXCEPTION_TEXT = "Test Copyrighte\n\nparagraph 1e" +
-			"\n\n   1.e\n\n   List item 1e\n\n   2.e\n\n   List item 2e\n\n" +
+			"\n\n   1.e\n   List item 1e\n\n   2.e\n   List item 2e\n\n" +
 			"Last Paragraph exc Alternate Text exc Non matching line. e Optional text exc\n\n";
 	private static final String TEST_EXCEPTION_NAME = "Test Exception";
 	private static final List<String> TEST_EXCEPTION_URLS = Arrays.asList(new String[] {"http://test/url1e","http://test/url2e"});
@@ -124,12 +124,12 @@ public class LicenseXmlDocumentTest {
 		LicenseXmlDocument licenseDoc = new LicenseXmlDocument(licenseFile);
 		SpdxListedLicense license = licenseDoc.getListedLicenses().get(0);
 		String[] lines = license.getLicenseText().split("\\n");
-		assertEquals(9, lines.length);
+		assertEquals(5, lines.length);
 		assertEquals("before optional Default optional text after optional.", lines[0]);
-		assertEquals("before optionalNone optional textafter optional.", lines[2]);
-		assertEquals("before optional Before optional textafter optional.", lines[4]);
-		assertEquals("before optionalAfter optional text after optional.", lines[6]);
-		assertEquals("before optional Both optional text after optional.", lines[8]);
+		assertEquals("before optionalNone optional textafter optional.", lines[1]);
+		assertEquals("before optional Before optional textafter optional.", lines[2]);
+		assertEquals("before optionalAfter optional text after optional.", lines[3]);
+		assertEquals("before optional Both optional text after optional.", lines[4]);
 	}
 
 	/**
