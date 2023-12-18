@@ -172,6 +172,7 @@ public class LicenseXmlHelper {
 					sb.append("</p>\n");
 				} else {
 				    addNewline(sb, indentCount);
+				    addNewline(sb, indentCount);	// extra lines between paragraphs
 				}
 			} else if (SpdxConstants.LICENSEXML_ELEMENT_TITLE_TEXT.equals(tagName)) {
 				if (!inALtBlock(element)) {
@@ -299,7 +300,6 @@ public class LicenseXmlHelper {
 	 * @param indentCount
 	 */
 	private static void addNewline(StringBuilder sb, int indentCount) {
-		sb.append('\n');
 		sb.append('\n');
 		for (int i = 0; i < indentCount; i ++) {
 			sb.append(INDENT_STRING);
