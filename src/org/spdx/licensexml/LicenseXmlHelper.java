@@ -465,6 +465,8 @@ public class LicenseXmlHelper {
 				sb.append("<var class=\"");
 			}
 			sb.append(HtmlTemplateOutputHandler.REPLACEABLE_LICENSE_TEXT_CLASS);
+			sb.append("\"><span title=\"can be replaced with the pattern ");
+			sb.append(match);
 			sb.append("\">");
 			if (sb.length() > 0 && !Character.isWhitespace(sb.charAt(sb.length()-1)) &&
                     !noSpace && (SPACING_BOTH.equals(spacing) || SPACING_BEFORE.equals(spacing) || SPACING_DEFAULT.equals(spacing))) {
@@ -474,6 +476,7 @@ public class LicenseXmlHelper {
 			if (SPACING_BOTH.equals(spacing) || SPACING_AFTER.equals(spacing)) {
                 sb.append(' ');
             }
+			sb.append("</span>");
 			if (includesFlowControl(element)) {
 				sb.append("</div>");
 			} else {
