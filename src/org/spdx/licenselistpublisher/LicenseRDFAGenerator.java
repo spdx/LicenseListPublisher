@@ -25,6 +25,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -56,11 +60,6 @@ import org.spdx.licenselistpublisher.licensegenerator.LicenseTemplateFormatWrite
 import org.spdx.licenselistpublisher.licensegenerator.LicenseTextFormatWriter;
 import org.spdx.licenselistpublisher.licensegenerator.SimpleLicenseTester;
 import org.spdx.licenselistpublisher.licensegenerator.SpdxWebsiteFormatWriter;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.io.Files;
 
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -96,7 +95,7 @@ import au.com.bytecode.opencsv.CSVReader;
  */
 public class LicenseRDFAGenerator {
 
-	static final Set<Character> INVALID_TEXT_CHARS = Sets.newHashSet();
+	static final Set<Character> INVALID_TEXT_CHARS = new HashSet<>();
 
 	static {
 		INVALID_TEXT_CHARS.add('\uFFFD');
@@ -247,8 +246,8 @@ public class LicenseRDFAGenerator {
 	 */
 	public static List<String> generateLicenseData(File licenseXml, File dir,
 			String version, String releaseDate, File testFileDir, boolean useTestText) throws LicenseGeneratorException {
-		List<String> warnings = Lists.newArrayList();
-		List<ILicenseFormatWriter> writers = Lists.newArrayList();
+		List<String> warnings = new ArrayList<>();
+		List<ILicenseFormatWriter> writers = new ArrayList<>();
 		ISpdxListedLicenseProvider licenseProvider = null;
 		try {
 			File licenseXmlOutputFolder = new File(dir.getPath() + File.separator +  LICENSE_XML_FOLDER_NAME);
@@ -260,7 +259,7 @@ public class LicenseRDFAGenerator {
 				FileUtils.copyDirectory(licenseXml, licenseXmlOutputFolder);
 			} else {
 				licenseProvider = new XmlLicenseProviderSingleFile(licenseXml);
-				Files.copy(licenseXml, new File(licenseXmlOutputFolder.getAbsolutePath() + File.separator + licenseXml.getName()));
+				Files.copy(licenseXml.toPath(), licenseXmlOutputFolder.toPath().resolve(licenseXml.getName()));
 			}
 			File textFolder = new File(dir.getPath() + File.separator +  TEXT_FOLDER_NAME);
 			if (!textFolder.isDirectory() && !textFolder.mkdir()) {
@@ -380,7 +379,7 @@ public class LicenseRDFAGenerator {
 			ILicenseTester tester, Set<String> licenseIds, boolean useTestText) throws IOException, LicenseGeneratorException, InvalidLicenseTemplateException, InvalidSPDXAnalysisException {
 		// Collect license ID's to check for any duplicate ID's being used (e.g. license ID == exception ID)
 		Iterator<ListedLicenseException> exceptionIter = licenseProvider.getExceptionIterator();
-		Map<String, String> addedExceptionsMap = Maps.newHashMap();
+		Map<String, String> addedExceptionsMap = new HashMap<>();
 		while (exceptionIter.hasNext()) {
 			System.out.print(".");
 			ListedLicenseException nextException = exceptionIter.next();
@@ -487,7 +486,7 @@ public class LicenseRDFAGenerator {
 			List<ILicenseFormatWriter> writers, ILicenseTester tester, boolean useTestText) throws LicenseGeneratorException, InvalidSPDXAnalysisException, IOException, SpdxListedLicenseException, SpdxCompareException, InvalidLicenseTemplateException {
 		Iterator<SpdxListedLicense> licenseIter = licenseProvider.getLicenseIterator();
 		try {
-			Map<String, String> addedLicIdTextMap = Maps.newHashMap();	// keep track for duplicate checking
+			Map<String, String> addedLicIdTextMap = new HashMap<>();	// keep track for duplicate checking
 			while (licenseIter.hasNext()) {
 				System.out.print(".");
 				SpdxListedLicense license = licenseIter.next();
@@ -576,7 +575,7 @@ public class LicenseRDFAGenerator {
 	private static void copyResourceFile(String resourceFileName, File destination) throws IOException {
 		File resourceFile = new File(resourceFileName);
 		if (resourceFile.exists()) {
-			Files.copy(resourceFile, destination);
+			Files.copy(resourceFile.toPath(), destination.toPath());
 		} else {
 			InputStream is = LicenseRDFAGenerator.class.getClassLoader().getResourceAsStream(resourceFileName);
 			InputStreamReader reader = new InputStreamReader(is);

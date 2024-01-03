@@ -16,13 +16,12 @@
 */
 package org.spdx.licenselistpublisher;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Objects;
-
-import com.google.common.io.Files;
 
 /**
  * Helper class for unit tests
@@ -68,7 +67,7 @@ public class UnitTestHelper {
 	 * @throws IOException
 	 */
 	public static String fileToText(String filePath) throws IOException {
-		return Files.toString(new File(filePath), Charset.forName("UTF-8"));
+		return new String(Files.readAllBytes(Path.of(filePath)), Charset.forName("UTF-8"));
 	}
 
 

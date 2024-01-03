@@ -20,7 +20,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,8 +33,6 @@ import org.spdx.library.model.license.LicenseException;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheException;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * Generates the HTML Table of Contents for License Exceptions
@@ -209,8 +209,8 @@ public class ExceptionHtmlToc {
 		}
 	}
 
-	List<ExceptionRow> exceptions = Lists.newArrayList();
-	List<DeprecatedExceptionRow> deprecatedExceptions = Lists.newArrayList();
+	List<ExceptionRow> exceptions = new ArrayList<>();
+	List<DeprecatedExceptionRow> deprecatedExceptions = new ArrayList<>();
 
 	int currentRefNum = 1;
 
@@ -245,7 +245,7 @@ public class ExceptionHtmlToc {
 	 */
 	public void writeToFile(File exceptionTocFile, String version) throws MustacheException, IOException {
 
-		Map<String, Object> mustacheMap = Maps.newHashMap();
+		Map<String, Object> mustacheMap = new HashMap<>();
 		mustacheMap.put("version", StringEscapeUtils.escapeHtml4(version));
 		exceptions.sort(new Comparator<ExceptionRow>() {
 

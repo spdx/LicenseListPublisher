@@ -18,13 +18,12 @@ package org.spdx.licenselistpublisher.licensegenerator;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 
 import org.spdx.library.InvalidSPDXAnalysisException;
 import org.spdx.library.model.license.ListedLicenseException;
 import org.spdx.library.model.license.SpdxListedLicense;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
-
-import com.google.common.io.Files;
 
 /**
  * Write license template format as described in the SPDX spec
@@ -68,9 +67,9 @@ public class LicenseTemplateFormatWriter implements ILicenseFormatWriter {
 		}
 		File templateFile = new File(templateFolder.getPath() + File.separator + licBaseHtmlFileName + ".template.txt");
 		if (license.getStandardLicenseTemplate() != null && !license.getStandardLicenseTemplate().trim().isEmpty()) {
-			Files.write(license.getStandardLicenseTemplate(), templateFile, utf8);
+			Files.write(templateFile.toPath(), license.getStandardLicenseTemplate().getBytes(utf8));
 		} else {
-			Files.write(license.getLicenseText(), templateFile, utf8);
+			Files.write(templateFile.toPath(), license.getLicenseText().getBytes(utf8));
 		}
 	}
 
@@ -94,6 +93,6 @@ public class LicenseTemplateFormatWriter implements ILicenseFormatWriter {
 			licBaseHtmlFileName = "deprecated_" + licBaseHtmlFileName;
 		}
 		File templateFile = new File(templateFolder.getPath() + File.separator + licBaseHtmlFileName + ".template.txt");
-		Files.write(exception.getLicenseExceptionTemplate(), templateFile, utf8);
+		Files.write(templateFile.toPath(), exception.getLicenseExceptionTemplate().getBytes(utf8));
 	}
 }

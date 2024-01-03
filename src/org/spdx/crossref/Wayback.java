@@ -19,8 +19,6 @@ package org.spdx.crossref;
 
 import java.util.concurrent.Callable;
 
-import org.apache.commons.validator.UrlValidator;
-
 /**
  * Determines whether a url is from the wayback machine or not
  * @author Smith Tanjong

@@ -20,7 +20,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,8 +32,6 @@ import org.spdx.library.model.license.SpdxListedLicense;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheException;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * This class holds a formatted HTML file for a license table of contents
@@ -241,8 +241,8 @@ public class LicenseTOCHTMLFile {
 		}
 	}
 
-	List<ListedSpdxLicense> listedLicenses = Lists.newArrayList();
-	List<DeprecatedLicense> deprecatedLicenses = Lists.newArrayList();
+	List<ListedSpdxLicense> listedLicenses = new ArrayList<>();
+	List<DeprecatedLicense> deprecatedLicenses = new ArrayList<>();
 
       private int currentRefNumber = 1;
 
@@ -304,7 +304,7 @@ public class LicenseTOCHTMLFile {
 	 * @return
 	 */
 	private Map<String, Object> buildMustachMap() {
-		Map<String, Object> retval = Maps.newHashMap();
+		Map<String, Object> retval = new HashMap<>();
 		retval.put("version", generateVersionString(version, releaseDate));
 		this.listedLicenses.sort(new Comparator<ListedSpdxLicense>() {
 
