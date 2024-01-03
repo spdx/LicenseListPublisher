@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
+import org.apache.commons.compress.utils.FileNameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spdx.library.InvalidSPDXAnalysisException;
@@ -31,8 +32,6 @@ import org.spdx.library.model.license.ListedLicenseException;
 import org.spdx.library.model.license.SpdxListedLicense;
 import org.spdx.library.model.license.SpdxListedLicenseException;
 import org.spdx.licenselistpublisher.ISpdxListedLicenseProvider;
-
-import com.google.common.io.Files;
 
 /**
  * Provide license information from XML files
@@ -219,7 +218,7 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 
 			@Override
 			public boolean accept(File pathname) {
-				return pathname.isFile() && "xml".equals(Files.getFileExtension(pathname.getName().toLowerCase()));
+				return pathname.isFile() && "xml".equals(FileNameUtils.getExtension(pathname.toPath()).toLowerCase());
 			}
 
 		});

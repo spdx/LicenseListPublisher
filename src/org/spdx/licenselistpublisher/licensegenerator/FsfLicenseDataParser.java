@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,8 +35,6 @@ import org.apache.jena.util.iterator.ExtendedIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
-
-import com.google.common.collect.Maps;
 
 /**
  * Singleton class which returns information maintained by the Free Software Foundation
@@ -83,7 +82,7 @@ public class FsfLicenseDataParser {
 	private String licenseJsonUrl = DEFAULT_FSF_JSON_URL;
 
 	private FsfLicenseDataParser() throws LicenseGeneratorException {
-		licenseIdToFsfFree = Maps.newHashMap();
+		licenseIdToFsfFree = new HashMap<>();
 		useOnlyLocalFile = Boolean.parseBoolean(System.getProperty(PROP_USE_ONLY_LOCAL_FILE, "false"));
 		licenseJsonUrl = System.getProperty(PROP_FSF_FREE_JSON_URL, DEFAULT_FSF_JSON_URL);
 		InputStream input = null;

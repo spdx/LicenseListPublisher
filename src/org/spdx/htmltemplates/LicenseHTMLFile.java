@@ -23,6 +23,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,8 +41,6 @@ import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheException;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * This class contains a formatted HTML file for a given license.  Specific
@@ -221,7 +220,7 @@ public class LicenseHTMLFile {
 	 * @throws LicenseTemplateRuleException
 	 */
 	private Map<String, Object> buildMustachMap() throws InvalidLicenseTemplateException, InvalidSPDXAnalysisException {
-		Map<String, Object> retval = Maps.newHashMap();
+		Map<String, Object> retval = new HashMap<>();
 		if (license != null) {
 			retval.put("licenseId", license.getLicenseId());
 			String licenseTextHtml = license.getLicenseTextHtml();
@@ -242,7 +241,7 @@ public class LicenseHTMLFile {
 			retval.put("osiApproved", license.isOsiApproved());
 			retval.put("fsfLibre", license.isFsfLibre());
 			retval.put("notFsfLibre", license.isNotFsfLibre());
-			List<FormattedUrl> otherWebPages = Lists.newArrayList();
+			List<FormattedUrl> otherWebPages = new ArrayList<>();
 			try {
 				List<CrossRef> crossRefCopy = new ArrayList<>();
 				for (CrossRef crossRef:license.getCrossRef()) {

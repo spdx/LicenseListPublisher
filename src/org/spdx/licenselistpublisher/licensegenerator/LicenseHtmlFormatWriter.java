@@ -18,6 +18,8 @@ package org.spdx.licenselistpublisher.licensegenerator;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.spdx.library.InvalidSPDXAnalysisException;
@@ -25,9 +27,6 @@ import org.spdx.library.model.license.ListedLicenseException;
 import org.spdx.library.model.license.SpdxListedLicense;
 import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
 import org.spdx.licenseTemplate.SpdxLicenseTemplateHelper;
-
-import com.google.common.collect.Sets;
-import com.google.common.io.Files;
 
 /**
  * Generates HTML fragments with formatted license information
@@ -37,7 +36,7 @@ import com.google.common.io.Files;
  */
 public class LicenseHtmlFormatWriter implements ILicenseFormatWriter {
 
-	static final Set<Character> INVALID_FILENAME_CHARS = Sets.newHashSet();
+	static final Set<Character> INVALID_FILENAME_CHARS = new HashSet<>();
 
 	static {
 
@@ -85,9 +84,9 @@ public class LicenseHtmlFormatWriter implements ILicenseFormatWriter {
 		String licHtmlFileName = licBaseHtmlFileName + ".html";
 		File htmlTextFile = new File(htmlFolder.getPath() + File.separator + licHtmlFileName);
 		try {
-			Files.write(license.getLicenseTextHtml(), htmlTextFile, utf8);
+			Files.write(htmlTextFile.toPath(), license.getLicenseTextHtml().getBytes(utf8));
 		} catch (InvalidLicenseTemplateException e) {
-			Files.write(SpdxLicenseTemplateHelper.formatEscapeHTML(license.getLicenseText()), htmlTextFile, utf8);
+			Files.write(htmlTextFile.toPath(), SpdxLicenseTemplateHelper.formatEscapeHTML(license.getLicenseText()).getBytes(utf8));
 		}
 	}
 
@@ -124,7 +123,7 @@ public class LicenseHtmlFormatWriter implements ILicenseFormatWriter {
 			throws IOException, InvalidSPDXAnalysisException {
 		String exceptionHtmlFileName = formLicenseHTMLFileName(exception.getLicenseExceptionId());
 		File htmlTextFile = new File(htmlFolder.getPath() + File.separator + exceptionHtmlFileName + ".html");
-		Files.write(exception.getExceptionTextHtml(), htmlTextFile, utf8);
+		Files.write(htmlTextFile.toPath(), exception.getExceptionTextHtml().getBytes(utf8));
 	}
 
 }
