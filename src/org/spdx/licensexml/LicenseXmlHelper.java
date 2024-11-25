@@ -24,7 +24,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spdx.library.SpdxConstants;
+import org.spdx.library.model.v2.SpdxConstantsCompatV2;
 import org.spdx.licenseTemplate.HtmlTemplateOutputHandler;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -58,7 +58,7 @@ public class LicenseXmlHelper {
 	private static final String COPYRIGHT_ALT_NAME = "copyright";
 
 	//Spacing attributes
-	//TODO: Move these to SpdxConstants.java
+	//TODO: Move these to SpdxConstantsCompatV2.java
 	private static final String SPACING_ATTRIBUTE = "spacing";
 	private static final String SPACING_BOTH = "both";
 	private static final String SPACING_BEFORE = "before";
@@ -71,10 +71,10 @@ public class LicenseXmlHelper {
 	 */
 	static HashSet<String> LICENSE_AND_EXCEPTION_UNPROCESSED_TAGS = new HashSet<String>();
 	static {
-		LICENSE_AND_EXCEPTION_UNPROCESSED_TAGS.add(SpdxConstants.LICENSEXML_ELEMENT_COPYRIGHT_TEXT);
-		LICENSE_AND_EXCEPTION_UNPROCESSED_TAGS.add(SpdxConstants.LICENSEXML_ELEMENT_ITEM);
-		LICENSE_AND_EXCEPTION_UNPROCESSED_TAGS.add(SpdxConstants.LICENSEXML_ELEMENT_TEXT);
-		LICENSE_AND_EXCEPTION_UNPROCESSED_TAGS.add(SpdxConstants.LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER);
+		LICENSE_AND_EXCEPTION_UNPROCESSED_TAGS.add(SpdxConstantsCompatV2.LICENSEXML_ELEMENT_COPYRIGHT_TEXT);
+		LICENSE_AND_EXCEPTION_UNPROCESSED_TAGS.add(SpdxConstantsCompatV2.LICENSEXML_ELEMENT_ITEM);
+		LICENSE_AND_EXCEPTION_UNPROCESSED_TAGS.add(SpdxConstantsCompatV2.LICENSEXML_ELEMENT_TEXT);
+		LICENSE_AND_EXCEPTION_UNPROCESSED_TAGS.add(SpdxConstantsCompatV2.LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER);
 	}
 
 	/**
@@ -82,22 +82,22 @@ public class LicenseXmlHelper {
 	 */
 	static Set<String> HEADER_UNPROCESSED_TAGS = new HashSet<>();
 	static {
-		HEADER_UNPROCESSED_TAGS.add(SpdxConstants.LICENSEXML_ELEMENT_COPYRIGHT_TEXT);
-		HEADER_UNPROCESSED_TAGS.add(SpdxConstants.LICENSEXML_ELEMENT_TITLE_TEXT);
-		HEADER_UNPROCESSED_TAGS.add(SpdxConstants.LICENSEXML_ELEMENT_ITEM);
-		HEADER_UNPROCESSED_TAGS.add(SpdxConstants.LICENSEXML_ELEMENT_BULLET);
-		HEADER_UNPROCESSED_TAGS.add(SpdxConstants.LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER);
+		HEADER_UNPROCESSED_TAGS.add(SpdxConstantsCompatV2.LICENSEXML_ELEMENT_COPYRIGHT_TEXT);
+		HEADER_UNPROCESSED_TAGS.add(SpdxConstantsCompatV2.LICENSEXML_ELEMENT_TITLE_TEXT);
+		HEADER_UNPROCESSED_TAGS.add(SpdxConstantsCompatV2.LICENSEXML_ELEMENT_ITEM);
+		HEADER_UNPROCESSED_TAGS.add(SpdxConstantsCompatV2.LICENSEXML_ELEMENT_BULLET);
+		HEADER_UNPROCESSED_TAGS.add(SpdxConstantsCompatV2.LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER);
 	}
 
 	static Set<String> NOTES_UNPROCESSED_TAGS = new HashSet<>();
 	static {
-		NOTES_UNPROCESSED_TAGS.add(SpdxConstants.LICENSEXML_ELEMENT_NOTES);
+		NOTES_UNPROCESSED_TAGS.add(SpdxConstantsCompatV2.LICENSEXML_ELEMENT_NOTES);
 	}
 
 	static Set<String> FLOW_CONTROL_ELEMENTS = new HashSet<>();
 	static {
-		FLOW_CONTROL_ELEMENTS.add(SpdxConstants.LICENSEXML_ELEMENT_LIST);
-		FLOW_CONTROL_ELEMENTS.add(SpdxConstants.LICENSEXML_ELEMENT_PARAGRAPH);
+		FLOW_CONTROL_ELEMENTS.add(SpdxConstantsCompatV2.LICENSEXML_ELEMENT_LIST);
+		FLOW_CONTROL_ELEMENTS.add(SpdxConstantsCompatV2.LICENSEXML_ELEMENT_PARAGRAPH);
 	}
 
 	/**
@@ -105,9 +105,9 @@ public class LicenseXmlHelper {
 	 */
 	static Set<String> ALT_ELEMENTS = new HashSet<>();
 	static {
-		ALT_ELEMENTS.add(SpdxConstants.LICENSEXML_ELEMENT_ALT);
-		ALT_ELEMENTS.add(SpdxConstants.LICENSEXML_ELEMENT_COPYRIGHT_TEXT);
-		ALT_ELEMENTS.add(SpdxConstants.LICENSEXML_ELEMENT_BULLET);
+		ALT_ELEMENTS.add(SpdxConstantsCompatV2.LICENSEXML_ELEMENT_ALT);
+		ALT_ELEMENTS.add(SpdxConstantsCompatV2.LICENSEXML_ELEMENT_COPYRIGHT_TEXT);
+		ALT_ELEMENTS.add(SpdxConstantsCompatV2.LICENSEXML_ELEMENT_BULLET);
 	}
 
 	static String DOUBLE_QUOTES_REGEX = "(\\u201C|\\u201D)";
@@ -138,21 +138,21 @@ public class LicenseXmlHelper {
 		} else if (node.getNodeType() == Node.ELEMENT_NODE) {
 			Element element = (Element)node;
 			String tagName = element.getTagName();
-			if (SpdxConstants.LICENSEXML_ELEMENT_LIST.equals(tagName)) {
+			if (SpdxConstantsCompatV2.LICENSEXML_ELEMENT_LIST.equals(tagName)) {
 				appendListElements(element, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags);
-			} else if (SpdxConstants.LICENSEXML_ELEMENT_ALT.equals(tagName)) {
-				if (!element.hasAttribute(SpdxConstants.LICENSEXML_ATTRIBUTE_ALT_NAME)) {
+			} else if (SpdxConstantsCompatV2.LICENSEXML_ELEMENT_ALT.equals(tagName)) {
+				if (!element.hasAttribute(SpdxConstantsCompatV2.LICENSEXML_ATTRIBUTE_ALT_NAME)) {
 					throw(new LicenseXmlException("Missing name attribute for variable text"));
 				}
-				String altName = element.getAttribute(SpdxConstants.LICENSEXML_ATTRIBUTE_ALT_NAME);
-				if (!element.hasAttribute(SpdxConstants.LICENSEXML_ATTRIBUTE_ALT_MATCH)) {
+				String altName = element.getAttribute(SpdxConstantsCompatV2.LICENSEXML_ATTRIBUTE_ALT_NAME);
+				if (!element.hasAttribute(SpdxConstantsCompatV2.LICENSEXML_ATTRIBUTE_ALT_MATCH)) {
 					throw(new LicenseXmlException("Missing match attribute for variable text"));
 				}
-				String match = element.getAttribute(SpdxConstants.LICENSEXML_ATTRIBUTE_ALT_MATCH);
+				String match = element.getAttribute(SpdxConstantsCompatV2.LICENSEXML_ATTRIBUTE_ALT_MATCH);
 				noNextSpace = appendAltText(element, altName, match, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags, noNextSpace);
-			} else if (SpdxConstants.LICENSEXML_ELEMENT_OPTIONAL.equals(tagName)) {
+			} else if (SpdxConstantsCompatV2.LICENSEXML_ELEMENT_OPTIONAL.equals(tagName)) {
 				noNextSpace = appendOptionalText(element, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags, noSpace);
-			} else if (SpdxConstants.LICENSEXML_ELEMENT_BREAK.equals(tagName)) {
+			} else if (SpdxConstantsCompatV2.LICENSEXML_ELEMENT_BREAK.equals(tagName)) {
 				if (includeHtmlTags) {
 					sb.append("<br />");
 				}
@@ -161,7 +161,7 @@ public class LicenseXmlHelper {
 				if (element.getChildNodes().getLength() > 0) {
 					throw new LicenseXmlException("Non-empty <br> tag found");
 				}
-			} else if (SpdxConstants.LICENSEXML_ELEMENT_PARAGRAPH.equals(tagName)) {
+			} else if (SpdxConstantsCompatV2.LICENSEXML_ELEMENT_PARAGRAPH.equals(tagName)) {
 				if (includeHtmlTags) {
 					appendParagraphTag(sb, indentCount);
 				} else if (sb.length() > 1) {
@@ -174,21 +174,21 @@ public class LicenseXmlHelper {
 				    addNewline(sb, indentCount);
 				    addNewline(sb, indentCount);	// extra lines between paragraphs
 				}
-			} else if (SpdxConstants.LICENSEXML_ELEMENT_TITLE_TEXT.equals(tagName)) {
+			} else if (SpdxConstantsCompatV2.LICENSEXML_ELEMENT_TITLE_TEXT.equals(tagName)) {
 				if (!inALtBlock(element)) {
 					appendOptionalText(element, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags, noSpace);
 					noNextSpace = false;
 				} else {
 					appendElementChildrenText(element, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags);
 				}
-			} else if (SpdxConstants.LICENSEXML_ELEMENT_COPYRIGHT_TEXT.equals(tagName)) {
+			} else if (SpdxConstantsCompatV2.LICENSEXML_ELEMENT_COPYRIGHT_TEXT.equals(tagName)) {
 				if (!inALtBlock(element)) {
 					appendAltText(element, COPYRIGHT_ALT_NAME, COPYRIGHT_ALT_MATCH, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags, noNextSpace);
 					noNextSpace = false;
 				} else {
 					appendElementChildrenText(element, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags);
 				}
-			} else if (SpdxConstants.LICENSEXML_ELEMENT_BULLET.equals(tagName)) {
+			} else if (SpdxConstantsCompatV2.LICENSEXML_ELEMENT_BULLET.equals(tagName)) {
 				if (!inALtBlock(element)) {
 					appendAltText(element, BULLET_ALT_NAME, BULLET_ALT_MATCH, useTemplateFormat, sb, indentCount, unprocessedTags, includeHtmlTags, noNextSpace);
 					noNextSpace = false;
@@ -508,7 +508,7 @@ public class LicenseXmlHelper {
 	private static void appendListElements(Element element,
 			boolean useTemplateFormat, StringBuilder sb, int indentCount, Set<String> unprocessedTags,
 			boolean includeHtmlTags) throws LicenseXmlException {
-		if (!SpdxConstants.LICENSEXML_ELEMENT_LIST.equals(element.getTagName())) {
+		if (!SpdxConstantsCompatV2.LICENSEXML_ELEMENT_LIST.equals(element.getTagName())) {
 			throw(new LicenseXmlException("Invalid list element tag - expected 'list', found '"+element.getTagName()+"'"));
 		}
 		if (includeHtmlTags) {
@@ -518,7 +518,7 @@ public class LicenseXmlHelper {
 		for (int i = 0; i < listItemNodes.getLength(); i++) {
 			if (listItemNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
 				Element listItem = (Element)listItemNodes.item(i);
-				if (SpdxConstants.LICENSEXML_ELEMENT_ITEM.equals(listItem.getTagName())) {
+				if (SpdxConstantsCompatV2.LICENSEXML_ELEMENT_ITEM.equals(listItem.getTagName())) {
 					if (includeHtmlTags) {
 						sb.append("\n<li>");
 						appendNodeText(listItem, useTemplateFormat, sb, indentCount + 1, unprocessedTags, includeHtmlTags, false);
@@ -528,7 +528,7 @@ public class LicenseXmlHelper {
 						appendNodeText(listItem, useTemplateFormat, sb, indentCount + 1, unprocessedTags, includeHtmlTags, false);
 					}
 
-				} else if (SpdxConstants.LICENSEXML_ELEMENT_LIST.equals(listItem.getTagName())) {
+				} else if (SpdxConstantsCompatV2.LICENSEXML_ELEMENT_LIST.equals(listItem.getTagName())) {
 					appendListElements(listItem, useTemplateFormat, sb, indentCount+1,
 							unprocessedTags, includeHtmlTags);
 				} else {
@@ -553,8 +553,8 @@ public class LicenseXmlHelper {
 	 * @throws LicenseXmlException
 	 */
 	public static String getLicenseTemplate(Element licenseElement) throws LicenseXmlException {
-		if (!SpdxConstants.LICENSEXML_ELEMENT_TEXT.equals(licenseElement.getTagName())) {
-			throw(new LicenseXmlException("Invalid element tag name - expected '"+SpdxConstants.LICENSEXML_ELEMENT_TEXT+"'"+licenseElement.getTagName()+"'"));
+		if (!SpdxConstantsCompatV2.LICENSEXML_ELEMENT_TEXT.equals(licenseElement.getTagName())) {
+			throw(new LicenseXmlException("Invalid element tag name - expected '"+SpdxConstantsCompatV2.LICENSEXML_ELEMENT_TEXT+"'"+licenseElement.getTagName()+"'"));
 		}
 		StringBuilder sb = new StringBuilder();
 		appendNodeText(licenseElement, true, sb, 0, LICENSE_AND_EXCEPTION_UNPROCESSED_TAGS, false, false);
@@ -568,8 +568,8 @@ public class LicenseXmlHelper {
 	 * @throws LicenseXmlException
 	 */
 	public static String getNoteText(Element licenseElement) throws LicenseXmlException {
-		if (!SpdxConstants.LICENSEXML_ELEMENT_NOTES.equals(licenseElement.getTagName())) {
-			throw(new LicenseXmlException("Invalid element tag name - expected '"+SpdxConstants.LICENSEXML_ELEMENT_NOTES+"'"+licenseElement.getTagName()+"'"));
+		if (!SpdxConstantsCompatV2.LICENSEXML_ELEMENT_NOTES.equals(licenseElement.getTagName())) {
+			throw(new LicenseXmlException("Invalid element tag name - expected '"+SpdxConstantsCompatV2.LICENSEXML_ELEMENT_NOTES+"'"+licenseElement.getTagName()+"'"));
 		}
 		StringBuilder sb = new StringBuilder();
 		appendNodeText(licenseElement, false, sb, 0, NOTES_UNPROCESSED_TAGS, false, false);
@@ -583,8 +583,8 @@ public class LicenseXmlHelper {
 	 * @throws LicenseXmlException
 	 */
 	public static String getLicenseText(Element licenseElement) throws LicenseXmlException {
-		if (!SpdxConstants.LICENSEXML_ELEMENT_TEXT.equals(licenseElement.getTagName())) {
-			throw(new LicenseXmlException("Invalid element tag name - expected '"+SpdxConstants.LICENSEXML_ELEMENT_TEXT+"'"+licenseElement.getTagName()+"'"));
+		if (!SpdxConstantsCompatV2.LICENSEXML_ELEMENT_TEXT.equals(licenseElement.getTagName())) {
+			throw(new LicenseXmlException("Invalid element tag name - expected '"+SpdxConstantsCompatV2.LICENSEXML_ELEMENT_TEXT+"'"+licenseElement.getTagName()+"'"));
 		}
 		StringBuilder sb = new StringBuilder();
 		appendNodeText(licenseElement, false, sb, 0, LICENSE_AND_EXCEPTION_UNPROCESSED_TAGS, false, false);
@@ -630,8 +630,8 @@ public class LicenseXmlHelper {
 	 * @throws LicenseXmlException
 	 */
 	public static Object getHeaderText(Element headerElement) throws LicenseXmlException {
-		if (!SpdxConstants.LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER.equals(headerElement.getTagName())) {
-			throw(new LicenseXmlException("Invalid element tag name - expected '"+SpdxConstants.LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER+"'"+headerElement.getTagName()+"'"));
+		if (!SpdxConstantsCompatV2.LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER.equals(headerElement.getTagName())) {
+			throw(new LicenseXmlException("Invalid element tag name - expected '"+SpdxConstantsCompatV2.LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER+"'"+headerElement.getTagName()+"'"));
 		}
 		StringBuilder sb = new StringBuilder();
 		appendNodeText(headerElement, false, sb, 0, HEADER_UNPROCESSED_TAGS, false, false);
@@ -644,8 +644,8 @@ public class LicenseXmlHelper {
 	 * @throws LicenseXmlException
 	 */
 	public static Object getHeaderTemplate(Element headerElement) throws LicenseXmlException {
-		if (!SpdxConstants.LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER.equals(headerElement.getTagName())) {
-			throw(new LicenseXmlException("Invalid element tag name - expected '"+SpdxConstants.LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER+"'"+headerElement.getTagName()+"'"));
+		if (!SpdxConstantsCompatV2.LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER.equals(headerElement.getTagName())) {
+			throw(new LicenseXmlException("Invalid element tag name - expected '"+SpdxConstantsCompatV2.LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER+"'"+headerElement.getTagName()+"'"));
 		}
 		StringBuilder sb = new StringBuilder();
 		appendNodeText(headerElement, true, sb, 0, HEADER_UNPROCESSED_TAGS, false, false);
@@ -658,8 +658,8 @@ public class LicenseXmlHelper {
 	 * @throws LicenseXmlException
 	 */
 	public static Object getHeaderTextHtml(Element headerElement) throws LicenseXmlException {
-		if (!SpdxConstants.LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER.equals(headerElement.getTagName())) {
-			throw(new LicenseXmlException("Invalid element tag name - expected '"+SpdxConstants.LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER+"'"+headerElement.getTagName()+"'"));
+		if (!SpdxConstantsCompatV2.LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER.equals(headerElement.getTagName())) {
+			throw(new LicenseXmlException("Invalid element tag name - expected '"+SpdxConstantsCompatV2.LICENSEXML_ELEMENT_STANDARD_LICENSE_HEADER+"'"+headerElement.getTagName()+"'"));
 		}
 		StringBuilder sb = new StringBuilder();
 		appendNodeText(headerElement, false, sb, 0, HEADER_UNPROCESSED_TAGS, true, false);
@@ -683,8 +683,8 @@ public class LicenseXmlHelper {
 	 * @throws LicenseXmlException
 	 */
 	public static String getLicenseTextHtml(Element licenseElement) throws LicenseXmlException {
-		if (!SpdxConstants.LICENSEXML_ELEMENT_TEXT.equals(licenseElement.getTagName())) {
-			throw(new LicenseXmlException("Invalid element tag name - expected '"+SpdxConstants.LICENSEXML_ELEMENT_TEXT+"'"+licenseElement.getTagName()+"'"));
+		if (!SpdxConstantsCompatV2.LICENSEXML_ELEMENT_TEXT.equals(licenseElement.getTagName())) {
+			throw(new LicenseXmlException("Invalid element tag name - expected '"+SpdxConstantsCompatV2.LICENSEXML_ELEMENT_TEXT+"'"+licenseElement.getTagName()+"'"));
 		}
 		StringBuilder sb = new StringBuilder();
 		appendNodeText(licenseElement, false, sb, 0, LICENSE_AND_EXCEPTION_UNPROCESSED_TAGS, true, false);

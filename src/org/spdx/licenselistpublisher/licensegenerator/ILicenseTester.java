@@ -20,9 +20,9 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.License;
-import org.spdx.library.model.license.LicenseException;
+import org.spdx.core.InvalidSPDXAnalysisException;
+import org.spdx.licenselistpublisher.ListedExceptionContainer;
+import org.spdx.licenselistpublisher.ListedLicenseContainer;
 import org.spdx.utility.compare.SpdxCompareException;
 
 /**
@@ -34,22 +34,22 @@ public interface ILicenseTester {
 
 	/**
 	 * Test exception against the test files directory
-	 * @param exception
+	 * @param exceptionContainer
 	 * @return
 	 * @throws IOException
 	 * @throws InvalidSPDXAnalysisException 
 	 */
-	public List<String> testException(LicenseException exception) throws IOException, InvalidSPDXAnalysisException;
+	public List<String> testException(ListedExceptionContainer exceptionContainer) throws IOException, InvalidSPDXAnalysisException;
 
 	/**
 	 * Test a license against the license test files
-	 * @param license license to test
+	 * @param licenseContainer license to test
 	 * @return list of test failure descriptions.  List is empty if all tests pass.
 	 * @throws IOException
 	 * @throws SpdxCompareException
 	 * @throws InvalidSPDXAnalysisException 
 	 */
-	public List<String> testLicense(License license) throws IOException, SpdxCompareException, InvalidSPDXAnalysisException;
+	public List<String> testLicense(ListedLicenseContainer licenseContainer) throws IOException, SpdxCompareException, InvalidSPDXAnalysisException;
 
 	/**
 	 * @param licenseId

@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.LicenseException;
+import org.spdx.core.InvalidSPDXAnalysisException;
+import org.spdx.library.model.v2.license.LicenseException;
 
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;

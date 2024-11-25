@@ -20,10 +20,12 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.ListedLicenseException;
-import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.core.InvalidSPDXAnalysisException;
+import org.spdx.library.model.v2.license.ListedLicenseException;
+import org.spdx.library.model.v2.license.SpdxListedLicense;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
+import org.spdx.licenselistpublisher.ListedExceptionContainer;
+import org.spdx.licenselistpublisher.ListedLicenseContainer;
 
 /**
  * Write license template format as described in the SPDX spec
@@ -60,7 +62,9 @@ public class LicenseTemplateFormatWriter implements ILicenseFormatWriter {
 	 * @see org.spdx.licenselistpublisher.licensegenerator.ILicenseFormatWriter#writeLicense(org.spdx.rdfparser.license.SpdxListedLicense, boolean)
 	 */
 	@Override
-	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, InvalidSPDXAnalysisException {
+	public void writeLicense(ListedLicenseContainer licenseContainer, boolean deprecated, 
+			String deprecatedVersion) throws IOException, InvalidSPDXAnalysisException {
+		SpdxListedLicense license = licenseContainer.getV2ListedLicense();
 		String licBaseHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(license.getLicenseId());
 		if (deprecated) {
 			licBaseHtmlFileName = "deprecated_" + licBaseHtmlFileName;
@@ -86,8 +90,9 @@ public class LicenseTemplateFormatWriter implements ILicenseFormatWriter {
 	 * @see org.spdx.licenselistpublisher.licensegenerator.ILicenseFormatWriter#writeException(org.spdx.rdfparser.license.LicenseException, boolean, java.lang.String)
 	 */
 	@Override
-	public void writeException(ListedLicenseException exception)
+	public void writeException(ListedExceptionContainer exceptionContainer)
 			throws IOException, LicenseGeneratorException, InvalidSPDXAnalysisException {
+		ListedLicenseException exception = exceptionContainer.getV2Exception();
 		String licBaseHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(exception.getLicenseExceptionId());
 		if (exception.isDeprecated()) {
 			licBaseHtmlFileName = "deprecated_" + licBaseHtmlFileName;

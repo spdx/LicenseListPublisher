@@ -23,9 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.License;
-import org.spdx.library.model.license.LicenseException;
+import org.spdx.core.InvalidSPDXAnalysisException;
+import org.spdx.library.model.v2.license.License;
+import org.spdx.library.model.v2.license.LicenseException;
+import org.spdx.licenselistpublisher.ListedExceptionContainer;
+import org.spdx.licenselistpublisher.ListedLicenseContainer;
 import org.spdx.utility.compare.CompareTemplateOutputHandler.DifferenceDescription;
 import org.spdx.utility.compare.LicenseCompareHelper;
 import org.spdx.utility.compare.SpdxCompareException;
@@ -53,7 +55,8 @@ public class SimpleLicenseTester implements ILicenseTester {
 	 * @see org.spdx.licenselistpublisher.licensegenerator.ILicenseTester#testException(org.spdx.rdfparser.license.LicenseException)
 	 */
 	@Override
-	public List<String> testException(LicenseException exception) throws IOException, InvalidSPDXAnalysisException {
+	public List<String> testException(ListedExceptionContainer exceptionContainer) throws IOException, InvalidSPDXAnalysisException {
+		LicenseException exception = exceptionContainer.getV2Exception();
 		File exceptionFile = new File(testFileDir.getPath() + File.separator + exception.getLicenseExceptionId() + ".txt");
 		List<String> retval = new ArrayList<String>();
 		if (!exceptionFile.exists()) {
@@ -87,7 +90,8 @@ public class SimpleLicenseTester implements ILicenseTester {
 	 * @see org.spdx.licenselistpublisher.licensegenerator.ILicenseTester#testLicense(org.spdx.rdfparser.license.License)
 	 */
 	@Override
-	public List<String> testLicense(License license) throws IOException, InvalidSPDXAnalysisException {
+	public List<String> testLicense(ListedLicenseContainer licenseContainer) throws IOException, InvalidSPDXAnalysisException {
+		License license = licenseContainer.getV2ListedLicense();
 		List<String> retval = new ArrayList<String>();
 		File licenseTextFile = new File(testFileDir.getPath() + File.separator + license.getLicenseId() + ".txt");
 		if (!licenseTextFile.exists()) {

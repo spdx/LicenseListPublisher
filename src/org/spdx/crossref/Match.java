@@ -24,7 +24,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.library.model.v2.license.SpdxListedLicense;
 import org.spdx.utility.compare.LicenseCompareHelper;
 
 public class Match implements Callable<String> {

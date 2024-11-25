@@ -18,6 +18,7 @@ package org.spdx.crossref;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
@@ -54,8 +55,9 @@ public class Live implements Callable<Boolean>  {
 	      int responseCode = con.getResponseCode();
 	      return (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_NOT_MODIFIED
 	    		  || responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP);
-	    }
-	    catch (Exception e) {
+	    } catch (UnknownHostException e) {
+	    	return false;
+	    } catch (Exception e) {
 	    	logger.warn("Failed checking live status.",e.getMessage());
 	        return false;
 	    }

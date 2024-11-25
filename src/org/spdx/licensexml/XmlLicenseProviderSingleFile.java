@@ -25,11 +25,15 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.ListedLicenseException;
-import org.spdx.library.model.license.SpdxListedLicense;
-import org.spdx.library.model.license.SpdxListedLicenseException;
+import org.spdx.core.IModelCopyManager;
+import org.spdx.core.InvalidSPDXAnalysisException;
+import org.spdx.library.ModelCopyManager;
+import org.spdx.library.model.v2.license.SpdxListedLicenseException;
 import org.spdx.licenselistpublisher.ISpdxListedLicenseProvider;
+import org.spdx.licenselistpublisher.ListedExceptionContainer;
+import org.spdx.licenselistpublisher.ListedLicenseContainer;
+import org.spdx.storage.IModelStore;
+import org.spdx.storage.simple.InMemSpdxStore;
 /**
  *
  * @author Gary O'Neall
@@ -40,16 +44,19 @@ public class XmlLicenseProviderSingleFile implements ISpdxListedLicenseProvider 
 	Logger logger = LoggerFactory.getLogger(XmlLicenseProviderSingleFile.class.getName());
 	private List<String> warnings = new ArrayList<String>();
 	LicenseXmlDocument licDoc = null;
+	protected IModelStore v2ModelStore = new InMemSpdxStore();
+	protected IModelStore v3ModelStore = new InMemSpdxStore();
+	protected IModelCopyManager copyManager = new ModelCopyManager();
 
 	public XmlLicenseProviderSingleFile(File licenseXmlFile) throws LicenseXmlException {
-		licDoc = new LicenseXmlDocument(licenseXmlFile);
+		licDoc = new LicenseXmlDocument(licenseXmlFile, v2ModelStore, v3ModelStore, copyManager);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.spdx.rdfparser.license.ISpdxListedLicenseProvider#getLicenseIterator()
 	 */
 	@Override
-	public Iterator<SpdxListedLicense> getLicenseIterator() throws SpdxListedLicenseException {
+	public Iterator<ListedLicenseContainer> getLicenseIterator() throws SpdxListedLicenseException {
 		try {
 			return licDoc.getListedLicenses().iterator();
 		} catch (InvalidSPDXAnalysisException e) {
@@ -65,7 +72,7 @@ public class XmlLicenseProviderSingleFile implements ISpdxListedLicenseProvider 
 	 * @see org.spdx.rdfparser.license.ISpdxListedLicenseProvider#getExceptionIterator()
 	 */
 	@Override
-	public Iterator<ListedLicenseException> getExceptionIterator() throws InvalidSPDXAnalysisException {
+	public Iterator<ListedExceptionContainer> getExceptionIterator() throws InvalidSPDXAnalysisException {
 		try {
 			return licDoc.getLicenseExceptions().iterator();
 		} catch (LicenseXmlException e) {

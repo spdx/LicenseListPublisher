@@ -29,13 +29,13 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.spdx.core.InvalidSPDXAnalysisException;
 import org.spdx.crossref.Live;
 import org.spdx.crossref.Timestamp;
 import org.spdx.crossref.Valid;
 import org.spdx.crossref.Wayback;
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.CrossRef;
-import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.library.model.v2.license.CrossRef;
+import org.spdx.library.model.v2.license.SpdxListedLicense;
 import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
 
 import com.github.mustachejava.DefaultMustacheFactory;

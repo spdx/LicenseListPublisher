@@ -17,11 +17,11 @@ package org.spdx.licenselistpublisher.licensegenerator;
 
 import java.io.IOException;
 
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.ListedLicenseException;
-import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.core.InvalidSPDXAnalysisException;
 import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
+import org.spdx.licenselistpublisher.ListedExceptionContainer;
+import org.spdx.licenselistpublisher.ListedLicenseContainer;
 
 /**
  * Writes licenses in a specific format
@@ -32,7 +32,7 @@ public interface ILicenseFormatWriter {
 
 	/**
 	 * Formats and writes a specific license
-	 * @param license License to be added
+	 * @param licenseContainer License to be added
 	 * @param deprecated True if deprecated
 	 * @param deprecatedVersion License list version when the license was deprecated, null otherwise
 	 * @throws IOException
@@ -40,7 +40,7 @@ public interface ILicenseFormatWriter {
 	 * @throws InvalidSPDXAnalysisException 
 	 * @throws InvalidLicenseTemplateException 
 	 */
-	void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, LicenseGeneratorException, InvalidSPDXAnalysisException, InvalidLicenseTemplateException;
+	void writeLicense(ListedLicenseContainer licenseContainer, boolean deprecated, String deprecatedVersion) throws IOException, LicenseGeneratorException, InvalidSPDXAnalysisException, InvalidLicenseTemplateException;
 
 	/**
 	 * Write the Table of Contents file for the format if applicable
@@ -50,12 +50,12 @@ public interface ILicenseFormatWriter {
 	void writeToC() throws IOException, LicenseGeneratorException;
 
 	/**
-	 * @param exception Exception to be formatted and written
+	 * @param exceptionContainer Exception to be formatted and written
 	 * @throws IOException
 	 * @throws LicenseGeneratorException
 	 * @throws InvalidLicenseTemplateException
 	 * @throws InvalidSPDXAnalysisException 
 	 */
-	void writeException(ListedLicenseException exception) throws IOException, LicenseGeneratorException, InvalidLicenseTemplateException, InvalidSPDXAnalysisException;
+	void writeException(ListedExceptionContainer exceptionContainer) throws IOException, LicenseGeneratorException, InvalidLicenseTemplateException, InvalidSPDXAnalysisException;
 
 }

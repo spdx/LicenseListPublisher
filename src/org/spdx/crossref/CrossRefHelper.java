@@ -22,9 +22,9 @@ import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.CrossRef;
-import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.core.InvalidSPDXAnalysisException;
+import org.spdx.library.model.v2.license.CrossRef;
+import org.spdx.library.model.v2.license.SpdxListedLicense;
 
 /**
  * Helper class that provides details for each url in the array it receives

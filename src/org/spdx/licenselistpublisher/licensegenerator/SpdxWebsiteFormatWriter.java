@@ -20,16 +20,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+import org.spdx.core.InvalidSPDXAnalysisException;
 import org.spdx.htmltemplates.ExceptionHtml;
 import org.spdx.htmltemplates.ExceptionHtmlToc;
 import org.spdx.htmltemplates.LicenseHTMLFile;
 import org.spdx.htmltemplates.LicenseTOCHTMLFile;
-import org.spdx.library.InvalidSPDXAnalysisException;
 import org.spdx.library.ModelCopyManager;
-import org.spdx.library.model.license.ListedLicenseException;
-import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.library.model.v2.license.ListedLicenseException;
+import org.spdx.library.model.v2.license.SpdxListedLicense;
 import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
+import org.spdx.licenselistpublisher.ListedExceptionContainer;
+import org.spdx.licenselistpublisher.ListedLicenseContainer;
 import org.spdx.spdxRdfStore.OutputFormat;
 import org.spdx.spdxRdfStore.RdfStore;
 import org.spdx.storage.listedlicense.ExceptionJson;
@@ -200,7 +202,9 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 	 * @see org.spdx.licenselistpublisher.licensegenerator.ILicenseFormatWriter#addLicense(org.spdx.rdfparser.license.SpdxListedLicense, boolean)
 	 */
 	@Override
-	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, LicenseGeneratorException, InvalidSPDXAnalysisException, InvalidLicenseTemplateException {
+	public void writeLicense(ListedLicenseContainer licenseContainer, boolean deprecated, 
+			String deprecatedVersion) throws IOException, LicenseGeneratorException, InvalidSPDXAnalysisException, InvalidLicenseTemplateException {
+		SpdxListedLicense license = licenseContainer.getV2ListedLicense();
 		this.licHtml.setLicense(license);
 		String licBaseHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(license.getLicenseId());
 		String licHtmlFileName = licBaseHtmlFileName + ".html";
@@ -230,9 +234,10 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 		}
 		// JSON-LD format
 		RdfStore onlyThisLicense = new RdfStore();
+		onlyThisLicense.setDocumentUri(license.getDocumentUri(), true);
 		ModelCopyManager copyManager = new ModelCopyManager();
-		copyManager.copy(onlyThisLicense, license.getDocumentUri(), license.getModelStore(), license.getDocumentUri(), 
-				license.getId(), license.getType());
+		copyManager.copy(onlyThisLicense, license.getDocumentUri() + license.getId(), license.getModelStore(), 
+				license.getDocumentUri() + license.getId(), license.getSpecVersion(), license.getDocumentUri());
 		LicenseRdfFormatWriter.writeRdf(onlyThisLicense, license.getDocumentUri(), websiteFolder.getPath() + File.separator + licBaseHtmlFileName + ".jsonld", OutputFormat.JSON_LD);
 		// Turtle format
 		LicenseRdfFormatWriter.writeRdf(onlyThisLicense, license.getDocumentUri(), websiteFolder.getPath() + File.separator + licBaseHtmlFileName + ".ttl", OutputFormat.TURTLE);
@@ -266,8 +271,9 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 	}
 
 	@Override
-	public void writeException(ListedLicenseException exception)
+	public void writeException(ListedExceptionContainer exceptionContainer)
 			throws IOException, InvalidLicenseTemplateException, LicenseGeneratorException, InvalidSPDXAnalysisException {
+		ListedLicenseException exception = exceptionContainer.getV2Exception();
 		ExceptionHtml exceptionHtml = new ExceptionHtml(exception);
 		String exceptionHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(exception.getLicenseExceptionId());
 		String exceptionHTMLReference = "./"+exceptionHtmlFileName + ".html";
@@ -288,10 +294,11 @@ public class SpdxWebsiteFormatWriter implements ILicenseFormatWriter {
 		File exceptionJsonFile = new File(websiteFolder.getPath() + File.separator + exceptionJsonFileName);
 		writeToFile(exceptionJsonFile, exceptionJson);
 		// JSON-LD format
-		RdfStore onlyThisException = new RdfStore();	
+		RdfStore onlyThisException = new RdfStore();
+		onlyThisException.setDocumentUri(exception.getDocumentUri(), true);
 		ModelCopyManager copyManager = new ModelCopyManager();
-		copyManager.copy(onlyThisException, exception.getDocumentUri(), exception.getModelStore(), exception.getDocumentUri(), 
-				exception.getId(), exception.getType());
+		copyManager.copy(onlyThisException, exception.getDocumentUri() + exception.getId(), exception.getModelStore(),
+				exception.getDocumentUri() + exception.getId(), exception.getSpecVersion(), exception.getDocumentUri());
 		LicenseRdfFormatWriter.writeRdf(onlyThisException, exception.getDocumentUri(), 
 				websiteFolder.getPath() + File.separator + exceptionHtmlFileName + ".jsonld", OutputFormat.JSON_LD);
 		// RDF Turtle format

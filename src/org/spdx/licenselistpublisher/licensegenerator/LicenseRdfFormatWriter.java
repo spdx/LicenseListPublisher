@@ -20,12 +20,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.spdx.library.InvalidSPDXAnalysisException;
+import org.spdx.core.InvalidSPDXAnalysisException;
 import org.spdx.library.ModelCopyManager;
-import org.spdx.library.SpdxConstants;
-import org.spdx.library.model.license.ListedLicenseException;
-import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.library.model.v2.SpdxConstantsCompatV2;
+import org.spdx.library.model.v2.license.ListedLicenseException;
+import org.spdx.library.model.v2.license.SpdxListedLicense;
 import org.spdx.licenselistpublisher.LicenseGeneratorException;
+import org.spdx.licenselistpublisher.ListedExceptionContainer;
+import org.spdx.licenselistpublisher.ListedLicenseContainer;
 import org.spdx.spdxRdfStore.OutputFormat;
 import org.spdx.spdxRdfStore.RdfStore;
 
@@ -48,13 +50,15 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 	 * @param rdfTurtle File to store RDF Turtle formatted license list
 	 * @param rdfNt File to store RDF Nt formatted license list
 	 * @param rdfJsonLd File to store JSON-LD formatted license list
+	 * @throws InvalidSPDXAnalysisException 
 	 */
-	public LicenseRdfFormatWriter(File rdfXml, File rdfTurtle, File rdfNt, File rdfJsonLd) {
+	public LicenseRdfFormatWriter(File rdfXml, File rdfTurtle, File rdfNt, File rdfJsonLd) throws InvalidSPDXAnalysisException {
 		this.rdfXml = rdfXml;
 		this.rdfTurtle = rdfTurtle;
 		this.rdfNt = rdfNt;
 		this.rdfJsonLd = rdfJsonLd;
 		rdfStore = new RdfStore();// Create store to hold licenses and exceptions
+		rdfStore.setDocumentUri(SpdxConstantsCompatV2.LISTED_LICENSE_NAMESPACE_PREFIX, true);
 	}
 
 	/**
@@ -100,16 +104,19 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 	}
 
 	@Override
-	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, LicenseGeneratorException, InvalidSPDXAnalysisException {
+	public void writeLicense(ListedLicenseContainer licenseContainer, boolean deprecated, String deprecatedVersion) throws IOException, LicenseGeneratorException, InvalidSPDXAnalysisException {
+		SpdxListedLicense license = licenseContainer.getV2ListedLicense();
 		RdfStore onlyThisLicense = new RdfStore();
+		onlyThisLicense.setDocumentUri(license.getDocumentUri(), true);
 		ModelCopyManager copyManager = new ModelCopyManager();
-		copyManager.copy(onlyThisLicense, SpdxConstants.LISTED_LICENSE_URL, license.getModelStore(), license.getDocumentUri(), 
-				license.getId(), license.getType());
+		copyManager.copy(onlyThisLicense, SpdxConstantsCompatV2.LISTED_LICENSE_NAMESPACE_PREFIX + license.getId(),
+				license.getModelStore(), license.getDocumentUri() + license.getId(), 
+				license.getSpecVersion(), license.getDocumentUri());
 		String licBaseFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(license.getLicenseId());
-		writeRdf(onlyThisLicense, SpdxConstants.LISTED_LICENSE_URL, rdfXml, rdfTurtle, rdfNt, rdfJsonLd, licBaseFileName);
+		writeRdf(onlyThisLicense, SpdxConstantsCompatV2.LISTED_LICENSE_NAMESPACE_PREFIX, rdfXml, rdfTurtle, rdfNt, rdfJsonLd, licBaseFileName);
 		// Copy to the table of contents
-		copyManager.copy(rdfStore, SpdxConstants.LISTED_LICENSE_URL, license.getModelStore(), license.getDocumentUri(), 
-				license.getId(), license.getType());
+		copyManager.copy(rdfStore, SpdxConstantsCompatV2.LISTED_LICENSE_NAMESPACE_PREFIX + license.getId(), license.getModelStore(),
+				license.getDocumentUri() + license.getId(), license.getSpecVersion(), license.getDocumentUri());
 	}
 
 	/**
@@ -163,7 +170,8 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(outFile);
-			rdfStore.serialize(documentUri, out);
+			rdfStore.setDocumentUri(documentUri, false);
+			rdfStore.serialize(out);
 		} catch (FileNotFoundException e1) {
 			throw new LicenseGeneratorException("Can not create RDF output file "+fileName);
 		} catch (InvalidSPDXAnalysisException e) {
@@ -183,20 +191,24 @@ public class LicenseRdfFormatWriter implements ILicenseFormatWriter {
 
 	@Override
 	public void writeToC() throws IOException, LicenseGeneratorException {
-		writeRdf(rdfStore, SpdxConstants.LISTED_LICENSE_URL, rdfXml, rdfTurtle, rdfNt, rdfJsonLd, "licenses");
+		writeRdf(rdfStore, SpdxConstantsCompatV2.LISTED_LICENSE_NAMESPACE_PREFIX, rdfXml, rdfTurtle, rdfNt, rdfJsonLd, "licenses");
 	}
 
 	@Override
-	public void writeException(ListedLicenseException exception)
+	public void writeException(ListedExceptionContainer exceptionContainer)
 			throws IOException, LicenseGeneratorException, InvalidSPDXAnalysisException {
+		ListedLicenseException exception = exceptionContainer.getV2Exception();
 		String exceptionHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(exception.getLicenseExceptionId());
-		RdfStore onlyThisException = new RdfStore();	
+		RdfStore onlyThisException = new RdfStore();
+		onlyThisException.setDocumentUri(exception.getDocumentUri(), true);
 		ModelCopyManager copyManager = new ModelCopyManager();
-		copyManager.copy(onlyThisException, SpdxConstants.LISTED_LICENSE_URL, exception.getModelStore(), exception.getDocumentUri(), 
-				exception.getId(), exception.getType());
-		writeRdf(onlyThisException, SpdxConstants.LISTED_LICENSE_URL, rdfXml, rdfTurtle, rdfNt, rdfJsonLd, exceptionHtmlFileName);
+		copyManager.copy(onlyThisException, SpdxConstantsCompatV2.LISTED_LICENSE_NAMESPACE_PREFIX + exception.getId(), 
+				exception.getModelStore(), exception.getDocumentUri() + exception.getId(), 
+				exception.getSpecVersion(), exception.getDocumentUri());
+		writeRdf(onlyThisException, SpdxConstantsCompatV2.LISTED_LICENSE_NAMESPACE_PREFIX, rdfXml, rdfTurtle, rdfNt, rdfJsonLd, exceptionHtmlFileName);
 		// Copy to the table of contents
-		copyManager.copy(rdfStore, SpdxConstants.LISTED_LICENSE_URL, exception.getModelStore(), exception.getDocumentUri(), 
-				exception.getId(), exception.getType());
+		copyManager.copy(rdfStore, SpdxConstantsCompatV2.LISTED_LICENSE_NAMESPACE_PREFIX + exception.getId(), 
+				exception.getModelStore(), exception.getDocumentUri() + exception.getId(), 
+				exception.getSpecVersion(), exception.getDocumentUri());
 	}
 }

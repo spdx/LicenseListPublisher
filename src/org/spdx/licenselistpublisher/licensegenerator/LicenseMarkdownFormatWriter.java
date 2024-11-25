@@ -18,9 +18,9 @@ package org.spdx.licenselistpublisher.licensegenerator;
 import java.io.File;
 import java.io.IOException;
 
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.ListedLicenseException;
-import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.core.InvalidSPDXAnalysisException;
+import org.spdx.licenselistpublisher.ListedExceptionContainer;
+import org.spdx.licenselistpublisher.ListedLicenseContainer;
 import org.spdx.licenselistpublisher.MarkdownTable;
 
 /**
@@ -58,8 +58,8 @@ public class LicenseMarkdownFormatWriter implements ILicenseFormatWriter {
 	}
 
 	@Override
-	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, InvalidSPDXAnalysisException {
-		markdownTable.addLicense(license, deprecated);
+	public void writeLicense(ListedLicenseContainer licenseContainer, boolean deprecated, String deprecatedVersion) throws IOException, InvalidSPDXAnalysisException {
+		markdownTable.addLicense(licenseContainer.getV2ListedLicense(), deprecated);
 	}
 
 	@Override
@@ -68,8 +68,8 @@ public class LicenseMarkdownFormatWriter implements ILicenseFormatWriter {
 	}
 
 	@Override
-	public void writeException(ListedLicenseException exception)
+	public void writeException(ListedExceptionContainer exceptionContianer)
 			throws IOException, InvalidSPDXAnalysisException {
-		markdownTable.addException(exception, exception.isDeprecated());
+		markdownTable.addException(exceptionContianer.getV2Exception(), exceptionContianer.getV2Exception().isDeprecated());
 	}
 }

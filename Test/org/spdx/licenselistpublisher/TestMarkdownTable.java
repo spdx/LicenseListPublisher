@@ -8,15 +8,22 @@ import java.util.Arrays;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.spdx.library.DefaultModelStore;
-import org.spdx.library.model.license.LicenseException;
-import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.core.DefaultModelStore;
+import org.spdx.library.ModelCopyManager;
+import org.spdx.library.SpdxModelFactory;
+import org.spdx.library.model.v2.license.LicenseException;
+import org.spdx.library.model.v2.license.ListedLicenseException;
+import org.spdx.library.model.v2.license.SpdxListedLicense;
+import org.spdx.storage.simple.InMemSpdxStore;
 
 public class TestMarkdownTable {
 
+	private static final String DOC_URI = "https://mydoc.uri";
+
 	@Before
 	public void setUp() throws Exception {
-		DefaultModelStore.reset();
+		SpdxModelFactory.init();
+		DefaultModelStore.initialize(new InMemSpdxStore(), DOC_URI, new ModelCopyManager());
 	}
 
 	@After
@@ -48,12 +55,12 @@ public class TestMarkdownTable {
 		String name4 = "name4";
 		String id4 = "id4";
 		String text4 = "text4";
-		LicenseException ex1 = new LicenseException(id4, name4, text4);
+		LicenseException ex1 = new ListedLicenseException(id4, name4, text4);
 		md.addException(ex1, false);
 		String name5 = "name5";
 		String id5 = "id5";
 		String text5 = "text5";
-		LicenseException ex2 = new LicenseException(id5, name5, text5);
+		LicenseException ex2 = new ListedLicenseException(id5, name5, text5);
 		md.addException(ex2, false);
 		StringWriter result = new StringWriter();
 		md.writeTOC(result);

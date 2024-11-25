@@ -36,9 +36,9 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.CrossRef;
-import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.core.InvalidSPDXAnalysisException;
+import org.spdx.library.model.v2.license.CrossRef;
+import org.spdx.library.model.v2.license.SpdxListedLicense;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
