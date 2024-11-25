@@ -19,10 +19,7 @@ package org.spdx.licenselistpublisher;
 import java.util.Iterator;
 import java.util.List;
 
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.ListedLicenseException;
-import org.spdx.library.model.license.SpdxListedLicense;
-import org.spdx.library.model.license.SpdxListedLicenseException;
+import org.spdx.core.InvalidSPDXAnalysisException;
 
 /**
  * Interface to provide SPDX standard licenses
@@ -31,8 +28,8 @@ import org.spdx.library.model.license.SpdxListedLicenseException;
  */
 public interface ISpdxListedLicenseProvider {
 
-	public Iterator<SpdxListedLicense> getLicenseIterator() throws SpdxListedLicenseException;
-	public Iterator<ListedLicenseException> getExceptionIterator() throws InvalidSPDXAnalysisException;
+	public Iterator<ListedLicenseContainer> getLicenseIterator() throws InvalidSPDXAnalysisException;
+	public Iterator<ListedExceptionContainer> getExceptionIterator() throws InvalidSPDXAnalysisException;
 	public List<String> getWarnings();
 
 }

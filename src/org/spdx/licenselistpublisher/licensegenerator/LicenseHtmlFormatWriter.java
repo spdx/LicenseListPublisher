@@ -22,11 +22,13 @@ import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.ListedLicenseException;
-import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.core.InvalidSPDXAnalysisException;
+import org.spdx.library.model.v2.license.ListedLicenseException;
+import org.spdx.library.model.v2.license.SpdxListedLicense;
 import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
 import org.spdx.licenseTemplate.SpdxLicenseTemplateHelper;
+import org.spdx.licenselistpublisher.ListedExceptionContainer;
+import org.spdx.licenselistpublisher.ListedLicenseContainer;
 
 /**
  * Generates HTML fragments with formatted license information
@@ -79,7 +81,8 @@ public class LicenseHtmlFormatWriter implements ILicenseFormatWriter {
 	 * @see org.spdx.licenselistpublisher.licensegenerator.ILicenseFormatWriter#addLicense(org.spdx.rdfparser.license.SpdxListedLicense, boolean)
 	 */
 	@Override
-	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, InvalidSPDXAnalysisException {
+	public void writeLicense(ListedLicenseContainer licenseContainer, boolean deprecated, String deprecatedVersion) throws IOException, InvalidSPDXAnalysisException {
+		SpdxListedLicense license = licenseContainer.getV2ListedLicense();
 		String licBaseHtmlFileName = formLicenseHTMLFileName(license.getLicenseId());
 		String licHtmlFileName = licBaseHtmlFileName + ".html";
 		File htmlTextFile = new File(htmlFolder.getPath() + File.separator + licHtmlFileName);
@@ -119,8 +122,9 @@ public class LicenseHtmlFormatWriter implements ILicenseFormatWriter {
 	 * @see org.spdx.licenselistpublisher.licensegenerator.ILicenseFormatWriter#writeException(org.spdx.rdfparser.license.LicenseException, boolean, java.lang.String)
 	 */
 	@Override
-	public void writeException(ListedLicenseException exception)
+	public void writeException(ListedExceptionContainer exceptionContainer)
 			throws IOException, InvalidSPDXAnalysisException {
+		ListedLicenseException exception = exceptionContainer.getV2Exception();
 		String exceptionHtmlFileName = formLicenseHTMLFileName(exception.getLicenseExceptionId());
 		File htmlTextFile = new File(htmlFolder.getPath() + File.separator + exceptionHtmlFileName + ".html");
 		Files.write(htmlTextFile.toPath(), exception.getExceptionTextHtml().getBytes(utf8));

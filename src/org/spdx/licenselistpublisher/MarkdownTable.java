@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.LicenseException;
-import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.core.InvalidSPDXAnalysisException;
+import org.spdx.library.model.v2.license.LicenseException;
+import org.spdx.library.model.v2.license.SpdxListedLicense;
 
 /**
  * Holds license information and generates a file in markdown format which links to the HTML version of the license files

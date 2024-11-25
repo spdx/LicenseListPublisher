@@ -22,10 +22,12 @@ import java.io.OutputStreamWriter;
 import java.util.Collections;
 import java.util.Comparator;
 
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.ListedLicenseException;
-import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.core.InvalidSPDXAnalysisException;
+import org.spdx.library.model.v2.license.ListedLicenseException;
+import org.spdx.library.model.v2.license.SpdxListedLicense;
 import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
+import org.spdx.licenselistpublisher.ListedExceptionContainer;
+import org.spdx.licenselistpublisher.ListedLicenseContainer;
 import org.spdx.storage.listedlicense.ExceptionJson;
 import org.spdx.storage.listedlicense.LicenseJson;
 import org.spdx.storage.listedlicense.LicenseJsonTOC;
@@ -113,7 +115,9 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 
 
 	@Override
-	public void writeLicense(SpdxListedLicense license, boolean deprecated, String deprecatedVersion) throws IOException, InvalidSPDXAnalysisException, InvalidLicenseTemplateException {
+	public void writeLicense(ListedLicenseContainer licenseContainer, boolean deprecated, String deprecatedVersion) 
+			throws IOException, InvalidSPDXAnalysisException, InvalidLicenseTemplateException {
+		SpdxListedLicense license = licenseContainer.getV2ListedLicense();
 		licJson.copyFrom(license);
 		String licBaseHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(license.getLicenseId());
 		String licHtmlFileName = licBaseHtmlFileName + ".html";
@@ -160,8 +164,9 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 	}
 
 	@Override
-	public void writeException(ListedLicenseException exception)
+	public void writeException(ListedExceptionContainer exceptionContainer)
 			throws IOException, InvalidSPDXAnalysisException {
+		ListedLicenseException exception = exceptionContainer.getV2Exception();
 		String exceptionHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(exception.getLicenseExceptionId());
 		String exceptionJsonFileName = exceptionHtmlFileName + ".json";
 		String exceptionJSONReference= "./" + exceptionJsonFileName;

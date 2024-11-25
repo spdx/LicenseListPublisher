@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.ListedLicenseException;
+import org.spdx.core.InvalidSPDXAnalysisException;
+import org.spdx.library.model.v2.license.ListedLicenseException;
 import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
 
 import com.github.mustachejava.DefaultMustacheFactory;

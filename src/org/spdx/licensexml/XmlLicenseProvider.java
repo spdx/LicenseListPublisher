@@ -27,11 +27,15 @@ import java.util.Objects;
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.ListedLicenseException;
-import org.spdx.library.model.license.SpdxListedLicense;
-import org.spdx.library.model.license.SpdxListedLicenseException;
+import org.spdx.core.IModelCopyManager;
+import org.spdx.core.InvalidSPDXAnalysisException;
+import org.spdx.library.ModelCopyManager;
+import org.spdx.library.model.v2.license.SpdxListedLicenseException;
 import org.spdx.licenselistpublisher.ISpdxListedLicenseProvider;
+import org.spdx.licenselistpublisher.ListedExceptionContainer;
+import org.spdx.licenselistpublisher.ListedLicenseContainer;
+import org.spdx.storage.IModelStore;
+import org.spdx.storage.simple.InMemSpdxStore;
 
 /**
  * Provide license information from XML files
@@ -42,13 +46,22 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 
 	Logger logger = LoggerFactory.getLogger(XmlLicenseProvider.class.getName());
 	protected List<String> warnings = new ArrayList<String>();
+	protected IModelStore v2ModelStore = new InMemSpdxStore();
+	protected IModelStore v3ModelStore = new InMemSpdxStore();
+	protected IModelCopyManager copyManager = new ModelCopyManager();
 
-	class XmlLicenseIterator implements Iterator<SpdxListedLicense> {
+	class XmlLicenseIterator implements Iterator<ListedLicenseContainer> {
 		private int xmlFileIndex = 0;
-		protected SpdxListedLicense nextListedLicense = null;
-		private Iterator<SpdxListedLicense> fileListedLicenseIter = null;
+		protected ListedLicenseContainer nextListedLicense = null;
+		private Iterator<ListedLicenseContainer> fileListedLicenseIter = null;
+		private IModelCopyManager copyManager;
+		private IModelStore v2ModelStore;
+		private IModelStore v3ModelStore;
 
-		public XmlLicenseIterator() {
+		public XmlLicenseIterator(IModelStore v2ModelStore, IModelStore v3ModelStore, IModelCopyManager copyManager) {
+			this.v2ModelStore = v2ModelStore;
+			this.v3ModelStore = v3ModelStore;
+			this.copyManager = copyManager;
 			findNextItem();
 		}
 
@@ -58,9 +71,10 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 				fileListedLicenseIter = null;
 				while (xmlFileIndex < xmlFiles.size() && fileListedLicenseIter == null) {
 					try {
-						LicenseXmlDocument licDoc = new LicenseXmlDocument(xmlFiles.get(xmlFileIndex));
+						LicenseXmlDocument licDoc = new LicenseXmlDocument(xmlFiles.get(xmlFileIndex),
+								v2ModelStore, v3ModelStore, copyManager);
 						try {
-							List<SpdxListedLicense> licList = licDoc.getListedLicenses();
+							List<ListedLicenseContainer> licList = licDoc.getListedLicenses();
 							if (licList != null && !licList.isEmpty()) {
 								fileListedLicenseIter = licList.iterator();
 							}
@@ -92,8 +106,8 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 		 * @see java.util.Iterator#next()
 		 */
 		@Override
-		public SpdxListedLicense next() {
-			SpdxListedLicense retval = this.nextListedLicense;
+		public ListedLicenseContainer next() {
+			ListedLicenseContainer retval = this.nextListedLicense;
 			this.findNextItem();
 			if (Objects.isNull(retval)) {
 			    throw new NoSuchElementException();
@@ -111,12 +125,18 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 		}
 	}
 
-	class XmlExceptionIterator implements Iterator<ListedLicenseException> {
+	class XmlExceptionIterator implements Iterator<ListedExceptionContainer> {
 		private int xmlFileIndex = 0;
-		private ListedLicenseException nextLicenseException = null;
-		private Iterator<ListedLicenseException> fileExceptionIterator = null;
+		private ListedExceptionContainer nextLicenseException = null;
+		private Iterator<ListedExceptionContainer> fileExceptionIterator = null;
+		private IModelStore v2ModelStore;
+		private IModelStore v3ModelStore;
+		private IModelCopyManager copyManager;
 
-		public XmlExceptionIterator() throws InvalidSPDXAnalysisException {
+		public XmlExceptionIterator(IModelStore v2ModelStore, IModelStore v3ModelStore, IModelCopyManager copyManager) throws InvalidSPDXAnalysisException {
+			this.v2ModelStore = v2ModelStore;
+			this.v3ModelStore = v3ModelStore;
+			this.copyManager = copyManager;
 			findNextItem();
 		}
 
@@ -126,8 +146,8 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 				fileExceptionIterator = null;
 				while (xmlFileIndex < xmlFiles.size() && fileExceptionIterator == null) {
 					try {
-						LicenseXmlDocument licDoc = new LicenseXmlDocument(xmlFiles.get(xmlFileIndex));
-						List<ListedLicenseException> exceptionList = licDoc.getLicenseExceptions();
+						LicenseXmlDocument licDoc = new LicenseXmlDocument(xmlFiles.get(xmlFileIndex), v2ModelStore, v3ModelStore, copyManager);
+						List<ListedExceptionContainer> exceptionList = licDoc.getLicenseExceptions();
 						if (exceptionList != null && !exceptionList.isEmpty()) {
 							fileExceptionIterator = exceptionList.iterator();
 						}
@@ -155,8 +175,8 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 		 * @see java.util.Iterator#next()
 		 */
 		@Override
-		public ListedLicenseException next() {
-			ListedLicenseException retval = this.nextLicenseException;
+		public ListedExceptionContainer next() {
+			ListedExceptionContainer retval = this.nextLicenseException;
 			try {
 				this.findNextItem();
 			} catch (InvalidSPDXAnalysisException e) {
@@ -234,17 +254,17 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 	 * @see org.spdx.rdfparser.license.ISpdxListedLicenseProvider#getLicenseIterator()
 	 */
 	@Override
-	public Iterator<SpdxListedLicense> getLicenseIterator()
+	public Iterator<ListedLicenseContainer> getLicenseIterator()
 			throws SpdxListedLicenseException {
-		return new XmlLicenseIterator();
+		return new XmlLicenseIterator(v2ModelStore, v3ModelStore, copyManager);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.spdx.rdfparser.license.ISpdxListedLicenseProvider#getExceptionIterator()
 	 */
 	@Override
-	public Iterator<ListedLicenseException> getExceptionIterator() throws InvalidSPDXAnalysisException {
-		return new XmlExceptionIterator();
+	public Iterator<ListedExceptionContainer> getExceptionIterator() throws InvalidSPDXAnalysisException {
+		return new XmlExceptionIterator(v2ModelStore, v3ModelStore, copyManager);
 	}
 
 	public List<String> getWarnings() {

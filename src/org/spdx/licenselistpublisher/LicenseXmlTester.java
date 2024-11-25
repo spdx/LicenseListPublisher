@@ -25,10 +25,13 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.core.IModelCopyManager;
+import org.spdx.core.InvalidSPDXAnalysisException;
+import org.spdx.library.ModelCopyManager;
 import org.spdx.licensexml.LicenseXmlDocument;
 import org.spdx.licensexml.LicenseXmlException;
+import org.spdx.storage.IModelStore;
+import org.spdx.storage.simple.InMemSpdxStore;
 import org.spdx.utility.compare.CompareTemplateOutputHandler.DifferenceDescription;
 import org.spdx.utility.compare.LicenseCompareHelper;
 import org.spdx.utility.compare.SpdxCompareException;
@@ -81,8 +84,11 @@ public class LicenseXmlTester {
 			System.exit(ERROR_STATUS);
 		}
 		try {
-			LicenseXmlDocument licDoc = new LicenseXmlDocument(licenseXmlFile);
-			List<SpdxListedLicense> licenses = licDoc.getListedLicenses();
+			IModelStore spdxV2ModelStore = new InMemSpdxStore();
+			IModelStore spdxV3ModelStore = new InMemSpdxStore();
+			IModelCopyManager copyManager = new ModelCopyManager();
+			LicenseXmlDocument licDoc = new LicenseXmlDocument(licenseXmlFile, spdxV2ModelStore, spdxV3ModelStore, copyManager);
+			List<ListedLicenseContainer> licenses = licDoc.getListedLicenses();
 			if (licenses.size() == 0) {
 				System.out.println("Empty license XML file - no licenses found");
 				System.exit(ERROR_STATUS);
@@ -92,12 +98,12 @@ public class LicenseXmlTester {
 				System.exit(ERROR_STATUS);
 			}
 			String compareText = readText(testFile);
-			DifferenceDescription diff = LicenseCompareHelper.isTextStandardLicense(licenses.get(0), compareText);
+			DifferenceDescription diff = LicenseCompareHelper.isTextStandardLicense(licenses.get(0).getV3ListedLicense(), compareText);
 			if (diff.isDifferenceFound()) {
 				System.out.println("Difference found comparing to test file: "+diff.getDifferenceMessage());
 				System.exit(ERROR_STATUS);
 			}
-			System.out.println("License "+licenses.get(0).getName()+" passed");
+			System.out.println("License "+licenses.get(0).getV3ListedLicense().getName()+" passed");
 		} catch (LicenseXmlException e) {
 			System.out.println("Invalid license XML document: "+e.getMessage());
 			System.exit(ERROR_STATUS);

@@ -25,9 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.License;
-import org.spdx.library.model.license.LicenseException;
+import org.spdx.core.InvalidSPDXAnalysisException;
+import org.spdx.library.model.v2.license.License;
+import org.spdx.library.model.v2.license.LicenseException;
+import org.spdx.licenseTemplate.LicenseTextHelper;
+import org.spdx.licenselistpublisher.ListedExceptionContainer;
+import org.spdx.licenselistpublisher.ListedLicenseContainer;
 import org.spdx.utility.compare.CompareTemplateOutputHandler.DifferenceDescription;
 import org.spdx.utility.compare.LicenseCompareHelper;
 import org.spdx.utility.compare.SpdxCompareException;
@@ -78,7 +81,8 @@ public class LicenseTester implements ILicenseTester {
 	 * @throws InvalidSPDXAnalysisException 
 	 */
 	@Override
-	public List<String> testLicense(License license) throws IOException, SpdxCompareException, InvalidSPDXAnalysisException {
+	public List<String> testLicense(ListedLicenseContainer licenseContainer) throws IOException, SpdxCompareException, InvalidSPDXAnalysisException {
+		License license = licenseContainer.getV2ListedLicense();
 		List<String> retval = new ArrayList<String>();
 		File licenseDir = this.licenseIdToTestMap.get(license.getLicenseId());
 		if (licenseDir == null || !licenseDir.exists()) {
@@ -132,7 +136,8 @@ public class LicenseTester implements ILicenseTester {
 	 * @throws InvalidSPDXAnalysisException 
 	 */
 	@Override
-	public List<String> testException(LicenseException exception) throws IOException, InvalidSPDXAnalysisException {
+	public List<String> testException(ListedExceptionContainer exceptionContainer) throws IOException, InvalidSPDXAnalysisException {
+		LicenseException exception = exceptionContainer.getV2Exception();
 		List<String> retval = new ArrayList<String>();
 		File exceptionDir = this.licenseIdToTestMap.get(exception.getLicenseExceptionId());
 		if (exceptionDir == null || !exceptionDir.exists()) {
@@ -144,7 +149,7 @@ public class LicenseTester implements ILicenseTester {
 			if (positiveTests != null) {
 				for (File test:positiveTests) {
 					String text = readText(test);
-					if (!LicenseCompareHelper.isLicenseTextEquivalent(text, exception.getLicenseExceptionText())) {
+					if (!LicenseTextHelper.isLicenseTextEquivalent(text, exception.getLicenseExceptionText())) {
 						retval.add("Test 'positive-"+test.toPath().getFileName()+"' failed due to difference found");
 					}
 				}
@@ -156,7 +161,7 @@ public class LicenseTester implements ILicenseTester {
 			if (negativeTests != null) {
 				for (File test:negativeTests) {
 					String text = readText(test);
-						if (LicenseCompareHelper.isLicenseTextEquivalent(text, exception.getLicenseExceptionText())) {
+						if (LicenseTextHelper.isLicenseTextEquivalent(text, exception.getLicenseExceptionText())) {
 						retval.add("Test 'negative-"+test.toPath().getFileName()+"' failed - no difference found");
 					}
 				}

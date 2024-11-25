@@ -37,13 +37,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.spdx.core.InvalidSPDXAnalysisException;
 import org.spdx.crossref.CrossRefHelper;
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.LicenseException;
-import org.spdx.library.model.license.ListedLicenseException;
-import org.spdx.library.model.license.SpdxListedLicense;
-import org.spdx.library.model.license.SpdxListedLicenseException;
+import org.spdx.library.SpdxModelFactory;
+import org.spdx.library.model.v2.license.SpdxListedLicenseException;
 import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
+import org.spdx.licenseTemplate.LicenseTextHelper;
 import org.spdx.licensexml.XmlLicenseProviderSingleFile;
 import org.spdx.licensexml.XmlLicenseProviderWithCrossRefDetails;
 import org.spdx.utility.compare.LicenseCompareHelper;
@@ -73,11 +72,12 @@ import au.com.bytecode.opencsv.CSVReader;
  * Supported output formats:
  *  - Text - license text
  *  - Templates - license templates as defined by the SPDX legal team matching guidelines
+ *  - Json-LD - SPDX Spec version 3 JSON-LD format
  *  - JSON - Json format as defined in https://github.com/spdx/license-list-data
  *  - RDFa - HTML with RDFa tags as defined in https://github.com/spdx/license-list-data
- *  - RDF NT - RDF NT format defined by the SPDX Spec
- *  - RDF XML - RDF XML format defined by the SPDX Spec
- *  - RDF Turtle - RDF Turtle format defined by the SPDX Spec
+ *  - RDF NT - RDF NT format defined by the SPDX Spec version 2.3
+ *  - RDF XML - RDF XML format defined by the SPDX Spec version 2.3
+ *  - RDF Turtle - RDF Turtle format defined by the SPDX Spec version 2.3
  *  - Website - the content for the website available at https://spdx.org/licenses
  *  - license-list-XML - A copy of the input license XML file(s)
  *
@@ -127,6 +127,7 @@ public class LicenseRDFAGenerator {
 	 * @param args Arg 0 is either a license XML file or a directory of licenses in XML format, arg 1 is the directory for the output html files
 	 */
 	public static void main(String[] args) {
+		SpdxModelFactory.init();
 		if (args == null || args.length < MIN_ARGS || args.length > MAX_ARGS) {
 			System.out.println("Invalid arguments");
 			usage();
@@ -378,45 +379,48 @@ public class LicenseRDFAGenerator {
 			ISpdxListedLicenseProvider licenseProvider, List<String> warnings, List<ILicenseFormatWriter> writers,
 			ILicenseTester tester, Set<String> licenseIds, boolean useTestText) throws IOException, LicenseGeneratorException, InvalidLicenseTemplateException, InvalidSPDXAnalysisException {
 		// Collect license ID's to check for any duplicate ID's being used (e.g. license ID == exception ID)
-		Iterator<ListedLicenseException> exceptionIter = licenseProvider.getExceptionIterator();
+		Iterator<ListedExceptionContainer> exceptionIter = licenseProvider.getExceptionIterator();
 		Map<String, String> addedExceptionsMap = new HashMap<>();
 		while (exceptionIter.hasNext()) {
 			System.out.print(".");
-			ListedLicenseException nextException = exceptionIter.next();
-			addExternalMetaData(nextException);
-			if (nextException.getLicenseExceptionId() != null && !nextException.getLicenseExceptionId().isEmpty()) {
+			ListedExceptionContainer nextExceptionContainer = exceptionIter.next();
+			addExternalMetaData(nextExceptionContainer);
+			if (nextExceptionContainer.getV2Exception().getLicenseExceptionId() != null && 
+					!nextExceptionContainer.getV2Exception().getLicenseExceptionId().isEmpty()) {
 				// check for duplicate exceptions
-				if (!nextException.isDeprecated()) {
+				if (!nextExceptionContainer.getV2Exception().isDeprecated()) {
 					Iterator<Entry<String, String>> addedExceptionIter = addedExceptionsMap.entrySet().iterator();
 					while (addedExceptionIter.hasNext()) {
 						Entry<String, String> entry = addedExceptionIter.next();
-						if (entry.getValue().trim().equals(nextException.getLicenseExceptionText().trim())) {
-							warnings.add("Duplicates exceptions: "+nextException.getLicenseExceptionId()+", "+entry.getKey());
+						if (entry.getValue().trim().equals(nextExceptionContainer.getV2Exception().getLicenseExceptionText().trim())) {
+							warnings.add("Duplicates exceptions: "+nextExceptionContainer.getV2Exception().getLicenseExceptionId()+", "+entry.getKey());
 						}
 					}
 					// check for a license ID with the same ID as the exception
-					addedExceptionsMap.put(nextException.getLicenseExceptionId(), nextException.getLicenseExceptionText());
+					addedExceptionsMap.put(nextExceptionContainer.getV2Exception().getLicenseExceptionId(), 
+							nextExceptionContainer.getV2Exception().getLicenseExceptionText());
 				}
-				if (licenseIds.contains(nextException.getLicenseExceptionId())) {
-					warnings.add("A license ID exists with the same ID as an exception ID: "+nextException.getLicenseExceptionId());
+				if (licenseIds.contains(nextExceptionContainer.getV2Exception().getLicenseExceptionId())) {
+					warnings.add("A license ID exists with the same ID as an exception ID: "+nextExceptionContainer.getV2Exception().getLicenseExceptionId());
 				}
-				checkText(nextException.getLicenseExceptionText(),
-						"License Exception Text for "+nextException.getLicenseExceptionId(), warnings);
+				checkText(nextExceptionContainer.getV2Exception().getLicenseExceptionText(),
+						"License Exception Text for "+nextExceptionContainer.getV2Exception().getLicenseExceptionId(), warnings);
 				if (tester != null) {
-					List<String> testResults = tester.testException(nextException);
+					List<String> testResults = tester.testException(nextExceptionContainer);
 					if (testResults != null && testResults.size() > 0) {
 						for (String testResult:testResults) {
-							warnings.add("Test for exception "+nextException.getLicenseExceptionId() + " failed: "+testResult);
+							warnings.add("Test for exception "+nextExceptionContainer.getV2Exception().getLicenseExceptionId() + " failed: "+testResult);
 						}
 					} else if (useTestText) {
-						String testText = tester.getExceptionTestText(nextException.getLicenseExceptionId());
+						String testText = tester.getExceptionTestText(nextExceptionContainer.getV2Exception().getLicenseExceptionId());
 						if (Objects.nonNull(testText)) {
-							nextException.setLicenseExceptionText(testText);
+							nextExceptionContainer.getV2Exception().setLicenseExceptionText(testText);
+							nextExceptionContainer.getV3Exception().setAdditionText(testText);
 						}
 					}
 				}
 				for (ILicenseFormatWriter writer:writers) {
-					writer.writeException(nextException);
+					writer.writeException(nextExceptionContainer);
 				}
 			}
 		}
@@ -424,9 +428,9 @@ public class LicenseRDFAGenerator {
 
 	/**
 	 * Add any additional data to a license exception from external sources
-	 * @param exception Exception with fields updated from external sources
+	 * @param exceptionContainer Exception with fields updated from external sources
 	 */
-	private static void addExternalMetaData(LicenseException exception) {
+	private static void addExternalMetaData(ListedExceptionContainer exceptionContainer) {
 		// Currently, there is no data to add
 	}
 
@@ -483,48 +487,55 @@ public class LicenseRDFAGenerator {
 	 */
 	private static Set<String> writeLicenseList(String version, String releaseDate,
 			ISpdxListedLicenseProvider licenseProvider, List<String> warnings,
-			List<ILicenseFormatWriter> writers, ILicenseTester tester, boolean useTestText) throws LicenseGeneratorException, InvalidSPDXAnalysisException, IOException, SpdxListedLicenseException, SpdxCompareException, InvalidLicenseTemplateException {
-		Iterator<SpdxListedLicense> licenseIter = licenseProvider.getLicenseIterator();
+			List<ILicenseFormatWriter> writers, ILicenseTester tester, boolean useTestText) 
+					throws LicenseGeneratorException, InvalidSPDXAnalysisException, IOException, SpdxListedLicenseException, SpdxCompareException, InvalidLicenseTemplateException {
+		Iterator<ListedLicenseContainer> licenseIter = licenseProvider.getLicenseIterator();
 		try {
 			Map<String, String> addedLicIdTextMap = new HashMap<>();	// keep track for duplicate checking
 			while (licenseIter.hasNext()) {
 				System.out.print(".");
-				SpdxListedLicense license = licenseIter.next();
+				ListedLicenseContainer licenseContainer = licenseIter.next();
 				if (licenseProvider instanceof XmlLicenseProviderSingleFile) {
-					license.getCrossRef().addAll(CrossRefHelper.buildUrlDetails(license));
+					licenseContainer.getV2ListedLicense().getCrossRef().addAll(
+							CrossRefHelper.buildUrlDetails(licenseContainer.getV2ListedLicense()));
 				}
-				addExternalMetaData(license);
-				if (license.getLicenseId() != null && !license.getLicenseId().isEmpty()) {
+				addExternalMetaData(licenseContainer);
+				String licenseId = licenseContainer.getV2ListedLicense().getLicenseId();
+				if (licenseId != null && !licenseId.isEmpty()) {
 					// Check for duplicate licenses
-					if (!license.isDeprecated()) {
+					if (!licenseContainer.getV2ListedLicense().isDeprecated()) {
 						Iterator<Entry<String, String>> addedLicenseTextIter = addedLicIdTextMap.entrySet().iterator();
 						while (addedLicenseTextIter.hasNext()) {
 							Entry<String, String> entry = addedLicenseTextIter.next();
-							if (LicenseCompareHelper.isLicenseTextEquivalent(entry.getValue(), license.getLicenseText())) {
-								warnings.add("Duplicates licenses: "+license.getLicenseId()+", "+entry.getKey());
+							if (LicenseTextHelper.isLicenseTextEquivalent(entry.getValue(), licenseContainer.getV2ListedLicense().getLicenseText())) {
+								warnings.add("Duplicates licenses: "+licenseContainer.getV2ListedLicense().getLicenseId()+", "+entry.getKey());
 							}
 						}
-						addedLicIdTextMap.put(license.getLicenseId(), license.getLicenseText());
+						addedLicIdTextMap.put(licenseId, licenseContainer.getV2ListedLicense().getLicenseText());
 					}
-					checkText(license.getLicenseText(), "License text for "+license.getLicenseId(), warnings);
+					checkText(licenseContainer.getV2ListedLicense().getLicenseText(), "License text for "+licenseId, warnings);
 					if (tester != null) {
-						List<String> testResults = tester.testLicense(license);
+						List<String> testResults = tester.testLicense(licenseContainer);
 						if (testResults != null && testResults.size() > 0) {
 							for (String testResult:testResults) {
-								warnings.add("Test for license "+license.getLicenseId() + " failed: "+testResult);
+								warnings.add("Test for license "+licenseId + " failed: "+testResult);
 							}
 						} else if (useTestText) {
-							String testText = tester.getLicenseTestText(license.getLicenseId());
+							String testText = tester.getLicenseTestText(licenseId);
 							if (Objects.nonNull(testText)) {
-								license.setLicenseText(testText);
+								licenseContainer.getV2ListedLicense().setLicenseText(testText);
+								licenseContainer.getV3ListedLicense().setLicenseText(testText);
 							}
 						}
 					}
 					for (ILicenseFormatWriter writer : writers) {
 						if (writer instanceof LicenseTextFormatWriter) {
-							((LicenseTextFormatWriter)(writer)).writeLicense(license, license.isDeprecated(), license.getDeprecatedVersion(), !useTestText);
+							((LicenseTextFormatWriter)(writer)).writeLicense(licenseContainer, 
+									licenseContainer.getV2ListedLicense().isDeprecated(), 
+									licenseContainer.getV2ListedLicense().getDeprecatedVersion(), !useTestText);
 						} else {
-							writer.writeLicense(license, license.isDeprecated(), license.getDeprecatedVersion());
+							writer.writeLicense(licenseContainer, licenseContainer.getV2ListedLicense().isDeprecated(), 
+									licenseContainer.getV2ListedLicense().getDeprecatedVersion());
 						}
 					}
 				}
@@ -558,12 +569,14 @@ public class LicenseRDFAGenerator {
 
 	/**
 	 * Update license fields based on information from external metadata
-	 * @param license
+	 * @param licenseContainer
 	 * @throws LicenseGeneratorException
 	 * @throws InvalidSPDXAnalysisException 
 	 */
-	private static void addExternalMetaData(SpdxListedLicense license) throws LicenseGeneratorException, InvalidSPDXAnalysisException {
-		license.setFsfLibre(FsfLicenseDataParser.getFsfLicenseDataParser().isSpdxLicenseFsfLibre(license.getLicenseId()));
+	private static void addExternalMetaData(ListedLicenseContainer licenseContainer) throws LicenseGeneratorException, InvalidSPDXAnalysisException {
+		Boolean fsfLibre = FsfLicenseDataParser.getFsfLicenseDataParser().isSpdxLicenseFsfLibre(licenseContainer.getV2ListedLicense().getLicenseId());
+		licenseContainer.getV2ListedLicense().setFsfLibre(fsfLibre);
+		licenseContainer.getV3ListedLicense().setIsFsfLibre(fsfLibre);
 	}
 
 	/**

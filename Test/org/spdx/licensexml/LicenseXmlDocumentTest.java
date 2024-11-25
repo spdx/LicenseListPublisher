@@ -31,12 +31,21 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.LicenseException;
-import org.spdx.library.model.license.ListedLicenseException;
-import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.core.IModelCopyManager;
+import org.spdx.core.InvalidSPDXAnalysisException;
+import org.spdx.library.ModelCopyManager;
+import org.spdx.library.SpdxModelFactory;
+import org.spdx.library.model.v2.license.LicenseException;
+import org.spdx.library.model.v2.license.SpdxListedLicense;
+import org.spdx.library.model.v3_0_1.SpdxConstantsV3;
+import org.spdx.library.model.v3_0_1.expandedlicensing.ListedLicense;
+import org.spdx.library.model.v3_0_1.expandedlicensing.ListedLicenseException;
 import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
+import org.spdx.licenselistpublisher.ListedExceptionContainer;
+import org.spdx.licenselistpublisher.ListedLicenseContainer;
 import org.spdx.licenselistpublisher.UnitTestHelper;
+import org.spdx.storage.IModelStore;
+import org.spdx.storage.simple.InMemSpdxStore;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -90,12 +99,19 @@ public class LicenseXmlDocumentTest {
 	private static final String AGPL3ONLY_FILE_PATH = "TestFiles" + File.separator + "AGPL-3.0-only.xml";
 	private static final String BSD_PROTECTION_FILE_PATH = "TestFiles" + File.separator + "BSD-Protection.xml";
 
+	private IModelStore v2ModelStore;
+	private IModelStore v3ModelStore;
+	private IModelCopyManager copyManager;
 
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
+		SpdxModelFactory.init();
+		v2ModelStore = new InMemSpdxStore();
+		v3ModelStore = new InMemSpdxStore();
+		copyManager = new ModelCopyManager();
 	}
 
 	/**
@@ -112,7 +128,7 @@ public class LicenseXmlDocumentTest {
 	public void testLicenseXmlDocumentFile() throws Exception {
 		File licenseFile = new File(TEST_FILE_PATH);
 		try {
-		    new LicenseXmlDocument(licenseFile);
+		    new LicenseXmlDocument(licenseFile, v2ModelStore, v3ModelStore, copyManager);
 		} catch(Exception ex) {
 		    fail("Error creating XML document: "+ex.getMessage());
 		}
@@ -121,9 +137,17 @@ public class LicenseXmlDocumentTest {
 	@Test
 	public void testOptionalAnnotations() throws Exception {
 		File licenseFile = new File(TEST_OPTIONAL_FILE_PATH);
-		LicenseXmlDocument licenseDoc = new LicenseXmlDocument(licenseFile);
-		SpdxListedLicense license = licenseDoc.getListedLicenses().get(0);
+		LicenseXmlDocument licenseDoc = new LicenseXmlDocument(licenseFile, v2ModelStore, v3ModelStore, copyManager);
+		SpdxListedLicense license = licenseDoc.getListedLicenses().get(0).getV2ListedLicense();
 		String[] lines = license.getLicenseText().split("\\n");
+		assertEquals(5, lines.length);
+		assertEquals("before optional Default optional text after optional.", lines[0]);
+		assertEquals("before optionalNone optional textafter optional.", lines[1]);
+		assertEquals("before optional Before optional textafter optional.", lines[2]);
+		assertEquals("before optionalAfter optional text after optional.", lines[3]);
+		assertEquals("before optional Both optional text after optional.", lines[4]);
+		ListedLicense v3License = licenseDoc.getListedLicenses().get(0).getV3ListedLicense();
+		lines = v3License.getLicenseText().split("\\n");
 		assertEquals(5, lines.length);
 		assertEquals("before optional Default optional text after optional.", lines[0]);
 		assertEquals("before optionalNone optional textafter optional.", lines[1]);
@@ -140,11 +164,14 @@ public class LicenseXmlDocumentTest {
 	@Test
 	public void testGetListedLicense() throws LicenseXmlException, InvalidSPDXAnalysisException {
 		File licenseFile = new File(TEST_FILE_PATH);
-		LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile);
-		List<SpdxListedLicense> licenses = doc.getListedLicenses();
+		LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile, v2ModelStore, v3ModelStore, copyManager);
+		List<ListedLicenseContainer> licenses = doc.getListedLicenses();
 		assertEquals(2, licenses.size());
-		for (SpdxListedLicense license : licenses) {
+		for (ListedLicenseContainer licenseContainer : licenses) {
+			SpdxListedLicense license = licenseContainer.getV2ListedLicense();
+			ListedLicense v3License = licenseContainer.getV3ListedLicense();
 			if (license.isDeprecated()) {
+				assertTrue(v3License.getIsDeprecatedLicenseId().get());
 				assertEquals(TEST_DEP_LICENSE_VERSION,license.getDeprecatedVersion());
 				assertFalse(license.isOsiApproved());
 				assertEquals(TEST_DEP_LICENSE_COMMENT, license.getComment());
@@ -154,7 +181,18 @@ public class LicenseXmlDocumentTest {
 				assertTrue(UnitTestHelper.isCollectionsEqual(TEST_DEP_LICENSE_URLS, license.getSeeAlso()));
 				assertEquals(TEST_DEP_LICENSE_HEADER, license.getStandardLicenseHeader());
 				assertEquals(TEST_DEP_LICENSE_TEMPLATE, license.getStandardLicenseTemplate());
+				
+				assertEquals(TEST_DEP_LICENSE_VERSION,v3License.getDeprecatedVersion().get());
+				assertFalse(v3License.getIsOsiApproved().get());
+				assertEquals(TEST_DEP_LICENSE_COMMENT, v3License.getComment().get());
+				assertEquals(SpdxConstantsV3.SPDX_LISTED_LICENSE_NAMESPACE + TEST_DEP_LICENSE_ID, v3License.getObjectUri());
+				assertEquals(TEST_DEP_LICENSE_TEXT, v3License.getLicenseText());
+				assertEquals(TEST_DEP_LICENSE_NAME, v3License.getName().get());
+				assertTrue(UnitTestHelper.isCollectionsEqual(TEST_DEP_LICENSE_URLS, v3License.getSeeAlsos()));
+				assertEquals(TEST_DEP_LICENSE_HEADER, v3License.getStandardLicenseHeader().get());
+				assertEquals(TEST_DEP_LICENSE_TEMPLATE, v3License.getStandardLicenseTemplate().get());
 			} else {
+				assertFalse(v3License.getIsDeprecatedLicenseId().get());
 				assertTrue(license.isOsiApproved());
 				assertEquals(TEST_LICENSE_COMMENT, license.getComment());
 				assertEquals(TEST_LICENSE_ID, license.getLicenseId());
@@ -164,6 +202,15 @@ public class LicenseXmlDocumentTest {
 				assertEquals(TEST_LICENSE_HEADER, license.getStandardLicenseHeader());
 				assertEquals(TEST_LICENSE_HEADER_TEMPLATE, license.getStandardLicenseHeaderTemplate());
 				assertEquals(TEST_LICENSE_TEMPLATE, license.getStandardLicenseTemplate());
+				
+				assertTrue(v3License.getIsOsiApproved().get());
+				assertEquals(TEST_LICENSE_COMMENT, v3License.getComment().get());
+				assertEquals(SpdxConstantsV3.SPDX_LISTED_LICENSE_NAMESPACE + TEST_LICENSE_ID, v3License.getObjectUri());
+				assertEquals(TEST_LICENSE_TEXT, v3License.getLicenseText());
+				assertEquals(TEST_LICENSE_NAME, v3License.getName().get());
+				assertTrue(UnitTestHelper.isCollectionsEqual(TEST_LICENSE_URLS, v3License.getSeeAlsos()));
+				assertEquals(TEST_LICENSE_HEADER, v3License.getStandardLicenseHeader().get());
+				assertEquals(TEST_LICENSE_TEMPLATE, v3License.getStandardLicenseTemplate().get());
 			}
 		}
 	}
@@ -176,15 +223,22 @@ public class LicenseXmlDocumentTest {
 	@Test
 	public void testGetLicenseException() throws LicenseXmlException, InvalidSPDXAnalysisException {
 		File licenseFile = new File(TEST_FILE_PATH);
-		LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile);
-		List<ListedLicenseException> exceptions = doc.getLicenseExceptions();
+		LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile, v2ModelStore, v3ModelStore, copyManager);
+		List<ListedExceptionContainer> exceptions = doc.getLicenseExceptions();
 		assertEquals(1, exceptions.size());
-		LicenseException exception = exceptions.get(0);
+		LicenseException exception = exceptions.get(0).getV2Exception();
+		ListedLicenseException v3Exception = exceptions.get(0).getV3Exception();
 		assertEquals(TEST_EXCEPTION_COMMENT, exception.getComment());
 		assertEquals(TEST_EXCEPTION_ID, exception.getLicenseExceptionId());
 		assertEquals(TEST_EXCEPTION_TEXT, exception.getLicenseExceptionText());
 		assertEquals(TEST_EXCEPTION_NAME, exception.getName());
 		assertTrue(UnitTestHelper.isCollectionsEqual(TEST_EXCEPTION_URLS, exception.getSeeAlso()));
+		
+		assertEquals(TEST_EXCEPTION_COMMENT, v3Exception.getComment().get());
+		assertEquals(SpdxConstantsV3.SPDX_LISTED_LICENSE_NAMESPACE + TEST_EXCEPTION_ID, v3Exception.getObjectUri());
+		assertEquals(TEST_EXCEPTION_TEXT, v3Exception.getAdditionText());
+		assertEquals(TEST_EXCEPTION_NAME, v3Exception.getName().get());
+		assertTrue(UnitTestHelper.isCollectionsEqual(TEST_EXCEPTION_URLS, v3Exception.getSeeAlsos()));
 	}
 
 	@Test
@@ -200,18 +254,18 @@ public class LicenseXmlDocumentTest {
 	@Test
 	public void testRegressionAgpl3Only() throws LicenseXmlException, InvalidSPDXAnalysisException, InvalidLicenseTemplateException {
 		File licenseFile = new File(AGPL3ONLY_FILE_PATH);
-		LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile);
-		List<SpdxListedLicense> licenses = doc.getListedLicenses();
+		LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile, v2ModelStore, v3ModelStore, copyManager);
+		List<ListedLicenseContainer> licenses = doc.getListedLicenses();
 		assertEquals(1, licenses.size());
 	}
 	
 	@Test
 	public void testRegressionBsdProtection() throws LicenseXmlException, InvalidSPDXAnalysisException, InvalidLicenseTemplateException {
         File licenseFile = new File(BSD_PROTECTION_FILE_PATH);
-        LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile);
-        List<SpdxListedLicense> licenses = doc.getListedLicenses();
+        LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile, v2ModelStore, v3ModelStore, copyManager);
+        List<ListedLicenseContainer> licenses = doc.getListedLicenses();
         assertEquals(1, licenses.size());
-        SpdxListedLicense result = licenses.get(0);
+        SpdxListedLicense result = licenses.get(0).getV2ListedLicense();
         String template = result.getStandardLicenseTemplate();
         Pattern matchingModificationLine = Pattern.compile("<<beginOptional>>\\s?----------------------------------------------------------------<<endOptional>>",Pattern.MULTILINE);
         assertTrue(matchingModificationLine.matcher(template).find());       

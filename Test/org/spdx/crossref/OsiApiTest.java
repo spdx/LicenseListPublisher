@@ -23,21 +23,30 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.spdx.library.InvalidSPDXAnalysisException;
-import org.spdx.library.model.license.CrossRef;
-import org.spdx.library.model.license.SpdxListedLicense;
+import org.spdx.core.DefaultModelStore;
+import org.spdx.core.InvalidSPDXAnalysisException;
+import org.spdx.library.ModelCopyManager;
+import org.spdx.library.SpdxModelFactory;
+import org.spdx.library.model.v2.license.CrossRef;
+import org.spdx.library.model.v2.license.SpdxListedLicense;
+import org.spdx.storage.simple.InMemSpdxStore;
 
 /**
  * @author Gary O'Neall
  *
  */
 public class OsiApiTest {
+	
+	private static final String DOC_URI = "https://mydoc.uri";
 
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
+		SpdxModelFactory.init();
+		DefaultModelStore.initialize(new InMemSpdxStore(), DOC_URI, new ModelCopyManager());
+		
 	}
 
 	/**
