@@ -48,8 +48,9 @@ public class XmlLicenseProviderSingleFile implements ISpdxListedLicenseProvider 
 	protected IModelStore v3ModelStore = new InMemSpdxStore();
 	protected IModelCopyManager copyManager = new ModelCopyManager();
 
-	public XmlLicenseProviderSingleFile(File licenseXmlFile) throws LicenseXmlException {
-		licDoc = new LicenseXmlDocument(licenseXmlFile, v2ModelStore, v3ModelStore, copyManager);
+	public XmlLicenseProviderSingleFile(File licenseXmlFile, String currentListVersion, String releaseDate) throws LicenseXmlException, InvalidSPDXAnalysisException {
+		licDoc = new LicenseXmlDocument(licenseXmlFile, v2ModelStore, v3ModelStore, copyManager, 
+				XmlLicenseProvider.createCreationInfo(v3ModelStore, copyManager, releaseDate, currentListVersion));
 	}
 
 	/* (non-Javadoc)

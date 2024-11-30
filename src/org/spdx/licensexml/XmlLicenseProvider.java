@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +33,13 @@ import org.spdx.core.IModelCopyManager;
 import org.spdx.core.InvalidSPDXAnalysisException;
 import org.spdx.library.ModelCopyManager;
 import org.spdx.library.model.v2.license.SpdxListedLicenseException;
+import org.spdx.library.model.v3_0_1.SpdxConstantsV3;
+import org.spdx.library.model.v3_0_1.core.CreationInfo;
 import org.spdx.licenselistpublisher.ISpdxListedLicenseProvider;
 import org.spdx.licenselistpublisher.ListedExceptionContainer;
 import org.spdx.licenselistpublisher.ListedLicenseContainer;
 import org.spdx.storage.IModelStore;
+import org.spdx.storage.IModelStore.IdType;
 import org.spdx.storage.simple.InMemSpdxStore;
 
 /**
@@ -54,14 +59,8 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 		private int xmlFileIndex = 0;
 		protected ListedLicenseContainer nextListedLicense = null;
 		private Iterator<ListedLicenseContainer> fileListedLicenseIter = null;
-		private IModelCopyManager copyManager;
-		private IModelStore v2ModelStore;
-		private IModelStore v3ModelStore;
 
-		public XmlLicenseIterator(IModelStore v2ModelStore, IModelStore v3ModelStore, IModelCopyManager copyManager) {
-			this.v2ModelStore = v2ModelStore;
-			this.v3ModelStore = v3ModelStore;
-			this.copyManager = copyManager;
+		public XmlLicenseIterator() {
 			findNextItem();
 		}
 
@@ -72,7 +71,7 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 				while (xmlFileIndex < xmlFiles.size() && fileListedLicenseIter == null) {
 					try {
 						LicenseXmlDocument licDoc = new LicenseXmlDocument(xmlFiles.get(xmlFileIndex),
-								v2ModelStore, v3ModelStore, copyManager);
+								v2ModelStore, v3ModelStore, copyManager, creationInfo);
 						try {
 							List<ListedLicenseContainer> licList = licDoc.getListedLicenses();
 							if (licList != null && !licList.isEmpty()) {
@@ -129,14 +128,8 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 		private int xmlFileIndex = 0;
 		private ListedExceptionContainer nextLicenseException = null;
 		private Iterator<ListedExceptionContainer> fileExceptionIterator = null;
-		private IModelStore v2ModelStore;
-		private IModelStore v3ModelStore;
-		private IModelCopyManager copyManager;
 
-		public XmlExceptionIterator(IModelStore v2ModelStore, IModelStore v3ModelStore, IModelCopyManager copyManager) throws InvalidSPDXAnalysisException {
-			this.v2ModelStore = v2ModelStore;
-			this.v3ModelStore = v3ModelStore;
-			this.copyManager = copyManager;
+		public XmlExceptionIterator() throws InvalidSPDXAnalysisException {
 			findNextItem();
 		}
 
@@ -146,7 +139,8 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 				fileExceptionIterator = null;
 				while (xmlFileIndex < xmlFiles.size() && fileExceptionIterator == null) {
 					try {
-						LicenseXmlDocument licDoc = new LicenseXmlDocument(xmlFiles.get(xmlFileIndex), v2ModelStore, v3ModelStore, copyManager);
+						LicenseXmlDocument licDoc = new LicenseXmlDocument(xmlFiles.get(xmlFileIndex), 
+								v2ModelStore, v3ModelStore, copyManager, creationInfo);
 						List<ListedExceptionContainer> exceptionList = licDoc.getLicenseExceptions();
 						if (exceptionList != null && !exceptionList.isEmpty()) {
 							fileExceptionIterator = exceptionList.iterator();
@@ -199,17 +193,51 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 	}
 
 	private List<File> xmlFiles = new ArrayList<File>();
+	protected String releaseDate;
+	protected String currentListVersion;
+	protected CreationInfo creationInfo;
 
 	/**
 	 * @param xmlFileDirectory directory of XML files
-	 * @throws SpdxListedLicenseException
+	 * @param currentListVersion version of the license list to include the license data
+	 * @param releaseDate Date the license list is released
+	 * @throws InvalidSPDXAnalysisException on error creating licenses or creationInfo
 	 */
-	public XmlLicenseProvider(File xmlFileDirectory) throws SpdxListedLicenseException {
+	public XmlLicenseProvider(File xmlFileDirectory, String currentListVersion, String releaseDate) throws InvalidSPDXAnalysisException {
 		if (!xmlFileDirectory.isDirectory()) {
 			throw(new SpdxListedLicenseException("XML File Directory is not a directory"));
 		}
+		this.releaseDate = releaseDate;
+		this.currentListVersion = currentListVersion;
+		this.creationInfo = createCreationInfo(v3ModelStore, copyManager, releaseDate, currentListVersion);
 		this.xmlFiles = new ArrayList<File>();
 		addXmlFiles(xmlFileDirectory, this.xmlFiles);
+	}
+	
+	/**
+	 * @param modelStore Store to store the CreationInfo
+	 * @param copyManager Optional copyManager
+	 * @param listCreationDate Date the license list was created
+	 * @param licenseListVersion Version of the license list
+	 * @return the creationInfo intended for use in licensing data
+	 * @throws InvalidSPDXAnalysisException on error creating the creation info
+	 */
+	public static CreationInfo createCreationInfo(IModelStore modelStore, 
+			@Nullable IModelCopyManager copyManager, String listCreationDate, 
+			String licenseListVersion) throws InvalidSPDXAnalysisException {
+		CreationInfo retval = new CreationInfo.CreationInfoBuilder(modelStore, modelStore.getNextId(IdType.Anonymous), copyManager)
+				.setCreated(listCreationDate)
+				.setSpecVersion(SpdxConstantsV3.MODEL_SPEC_VERSION)
+				.build();
+		retval.getCreatedBys().add(retval.createOrganization("https://spdx.org/licenses/creatoragent/" + licenseListVersion.replace('.','_'))
+											.setName("SPDX Legal Team")
+											.build());
+		retval.getCreatedUsings().add(retval.createTool("https://spdx.org/tools/licenselistpublisher")
+											.setName("SPDX License List Publisher")
+											.build());
+		retval.setComment("This object is created and maintained by the SPDX legal team (https://spdx.dev/engage/participate/legal-team/) "
+				+ "using the LicenseListPublisher (https://github.com/spdx/licenselistpublisher)");
+		return retval;
 	}
 
 	/**
@@ -256,7 +284,7 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 	@Override
 	public Iterator<ListedLicenseContainer> getLicenseIterator()
 			throws SpdxListedLicenseException {
-		return new XmlLicenseIterator(v2ModelStore, v3ModelStore, copyManager);
+		return new XmlLicenseIterator();
 	}
 
 	/* (non-Javadoc)
@@ -264,7 +292,7 @@ public class XmlLicenseProvider implements ISpdxListedLicenseProvider {
 	 */
 	@Override
 	public Iterator<ListedExceptionContainer> getExceptionIterator() throws InvalidSPDXAnalysisException {
-		return new XmlExceptionIterator(v2ModelStore, v3ModelStore, copyManager);
+		return new XmlExceptionIterator();
 	}
 
 	public List<String> getWarnings() {

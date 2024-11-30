@@ -26,6 +26,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,6 +43,7 @@ import org.apache.commons.io.FileUtils;
 import org.spdx.core.InvalidSPDXAnalysisException;
 import org.spdx.crossref.CrossRefHelper;
 import org.spdx.library.SpdxModelFactory;
+import org.spdx.library.model.v2.SpdxConstantsCompatV2;
 import org.spdx.library.model.v2.license.SpdxListedLicenseException;
 import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
 import org.spdx.licenseTemplate.LicenseTextHelper;
@@ -57,6 +61,7 @@ import org.spdx.licenselistpublisher.licensegenerator.LicenseRdfFormatWriter;
 import org.spdx.licenselistpublisher.licensegenerator.LicenseRdfaFormatWriter;
 import org.spdx.licenselistpublisher.licensegenerator.LicenseTemplateFormatWriter;
 import org.spdx.licenselistpublisher.licensegenerator.LicenseTextFormatWriter;
+import org.spdx.licenselistpublisher.licensegenerator.LicenseV3JsonLdFormatWriter;
 import org.spdx.licenselistpublisher.licensegenerator.SimpleLicenseTester;
 import org.spdx.licenselistpublisher.licensegenerator.SpdxWebsiteFormatWriter;
 
@@ -239,14 +244,15 @@ public class LicenseRDFAGenerator {
 	 * @param licenseXml License XML file or directory containing license XML files
 	 * @param dir Output directory for the generated results
 	 * @param version Version for the license list
-	 * @param releaseDate Release data string for the license
+	 * @param releaseDateUnformated Release data string for the license
 	 * @param testFileDir Directory of license text to test the generated licenses against
 	 * @param useTestText use the text file from the testFileDir for the verbatim text rather than the text from the XML document
 	 * @return warnings
 	 * @throws LicenseGeneratorException
 	 */
 	public static List<String> generateLicenseData(File licenseXml, File dir,
-			String version, String releaseDate, File testFileDir, boolean useTestText) throws LicenseGeneratorException {
+			String version, String releaseDateUnformated, File testFileDir, boolean useTestText) throws LicenseGeneratorException {
+		String releaseDate = convertDateFormat(releaseDateUnformated);
 		List<String> warnings = new ArrayList<>();
 		List<ILicenseFormatWriter> writers = new ArrayList<>();
 		ISpdxListedLicenseProvider licenseProvider = null;
@@ -256,10 +262,10 @@ public class LicenseRDFAGenerator {
 				throw new LicenseGeneratorException("Error: license-xml folder is not a directory");
 			}
 			if (licenseXml.isDirectory()) {
-				licenseProvider = new XmlLicenseProviderWithCrossRefDetails(licenseXml);
+				licenseProvider = new XmlLicenseProviderWithCrossRefDetails(licenseXml, version, releaseDate);
 				FileUtils.copyDirectory(licenseXml, licenseXmlOutputFolder);
 			} else {
-				licenseProvider = new XmlLicenseProviderSingleFile(licenseXml);
+				licenseProvider = new XmlLicenseProviderSingleFile(licenseXml, version, releaseDate);
 				Files.copy(licenseXml.toPath(), licenseXmlOutputFolder.toPath().resolve(licenseXml.getName()));
 			}
 			File textFolder = new File(dir.getPath() + File.separator +  TEXT_FOLDER_NAME);
@@ -322,6 +328,12 @@ public class LicenseRDFAGenerator {
 				throw new LicenseGeneratorException("Error: Unable to create markdown file");
 			}
 			writers.add(new LicenseMarkdownFormatWriter(version, releaseDate, markdownFile));
+			File v3JsonLd = new File(dir.getPath() + File.separator + LicenseV3JsonLdFormatWriter.SPDX_V3_FOLDER_NAME + 
+					File.separator + LicenseV3JsonLdFormatWriter.SPDX_V3_JSON_LD_FOLDER_NAME);
+			if (!v3JsonLd.isDirectory() && !v3JsonLd.mkdirs()) {
+				throw new LicenseGeneratorException("Error: SPDX V3 Json-LD folder is not a directory");
+			}
+			writers.add(new LicenseV3JsonLdFormatWriter(version, releaseDate, v3JsonLd));
 			ILicenseTester tester = null;
 			if (testFileDir != null) {
 				tester = new SimpleLicenseTester(testFileDir);
@@ -359,6 +371,23 @@ public class LicenseRDFAGenerator {
 		}
 	}
 
+	/**
+	 * @param unformattedDate unformatted date
+	 * @return date in the SPDX specified format
+	 * @throws LicenseGeneratorException when the date could not be parsed
+	 */
+	private static String convertDateFormat(String unformattedDate) throws LicenseGeneratorException {
+		DateTimeFormatterBuilder fromFormatterBuilder = new DateTimeFormatterBuilder()
+		        .append(DateTimeFormatter.ofPattern("[MM/dd/yyyy]" + "[dd-MM-yyyy]" + "[yyyy-MM-dd]" + 
+		        		"[" + SpdxConstantsCompatV2.SPDX_DATE_FORMAT + "]"));
+		DateTimeFormatter fromFormatter = fromFormatterBuilder.toFormatter();
+		LocalDate date = LocalDate.parse(unformattedDate, fromFormatter);
+		if (Objects.isNull(date)) {
+			throw new LicenseGeneratorException("Could not parse the release date: "+unformattedDate);
+		}
+		DateTimeFormatter toFormatter = DateTimeFormatter.ofPattern(SpdxConstantsCompatV2.SPDX_DATE_FORMAT);
+		return date.atStartOfDay().format(toFormatter);
+	}
 	/**
 	 * @param version License list version
 	 * @param releaseDate release date for the license list

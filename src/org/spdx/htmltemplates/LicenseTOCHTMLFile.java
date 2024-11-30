@@ -261,7 +261,7 @@ public class LicenseTOCHTMLFile {
       }
       public LicenseTOCHTMLFile(String version, String releaseDate) {
     	  this.version = version;
-    	  this.releaseDate = releaseDate;
+    	  this.releaseDate = releaseDate.substring(0, 10);
       }
 
 	public void addLicense(SpdxListedLicense license, String licHTMLReference) throws InvalidSPDXAnalysisException {

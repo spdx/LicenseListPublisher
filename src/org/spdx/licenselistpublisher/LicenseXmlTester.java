@@ -22,14 +22,19 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
 import org.spdx.core.IModelCopyManager;
 import org.spdx.core.InvalidSPDXAnalysisException;
 import org.spdx.library.ModelCopyManager;
+import org.spdx.library.model.v3_0_1.SpdxConstantsV3;
 import org.spdx.licensexml.LicenseXmlDocument;
 import org.spdx.licensexml.LicenseXmlException;
+import org.spdx.licensexml.XmlLicenseProvider;
 import org.spdx.storage.IModelStore;
 import org.spdx.storage.simple.InMemSpdxStore;
 import org.spdx.utility.compare.CompareTemplateOutputHandler.DifferenceDescription;
@@ -87,7 +92,10 @@ public class LicenseXmlTester {
 			IModelStore spdxV2ModelStore = new InMemSpdxStore();
 			IModelStore spdxV3ModelStore = new InMemSpdxStore();
 			IModelCopyManager copyManager = new ModelCopyManager();
-			LicenseXmlDocument licDoc = new LicenseXmlDocument(licenseXmlFile, spdxV2ModelStore, spdxV3ModelStore, copyManager);
+			DateFormat format = new SimpleDateFormat(SpdxConstantsV3.SPDX_DATE_FORMAT);
+			String now = format.format(new Date());
+			LicenseXmlDocument licDoc = new LicenseXmlDocument(licenseXmlFile, spdxV2ModelStore, spdxV3ModelStore,
+					copyManager, XmlLicenseProvider.createCreationInfo(spdxV3ModelStore, copyManager, "3.25.0", now));
 			List<ListedLicenseContainer> licenses = licDoc.getListedLicenses();
 			if (licenses.size() == 0) {
 				System.out.println("Empty license XML file - no licenses found");

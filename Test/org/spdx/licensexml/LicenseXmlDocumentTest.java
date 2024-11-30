@@ -20,7 +20,9 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -38,6 +40,7 @@ import org.spdx.library.SpdxModelFactory;
 import org.spdx.library.model.v2.license.LicenseException;
 import org.spdx.library.model.v2.license.SpdxListedLicense;
 import org.spdx.library.model.v3_0_1.SpdxConstantsV3;
+import org.spdx.library.model.v3_0_1.core.CreationInfo;
 import org.spdx.library.model.v3_0_1.expandedlicensing.ListedLicense;
 import org.spdx.library.model.v3_0_1.expandedlicensing.ListedLicenseException;
 import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
@@ -98,10 +101,13 @@ public class LicenseXmlDocumentTest {
 	private static final String TEST_DEP_LICENSE_VERSION = "2.2";
 	private static final String AGPL3ONLY_FILE_PATH = "TestFiles" + File.separator + "AGPL-3.0-only.xml";
 	private static final String BSD_PROTECTION_FILE_PATH = "TestFiles" + File.separator + "BSD-Protection.xml";
+	private static final String LIST_VERSION = "3.2.2";
+	private static final String RELEASE_DATE = new SimpleDateFormat(SpdxConstantsV3.SPDX_DATE_FORMAT).format(new Date());
 
 	private IModelStore v2ModelStore;
 	private IModelStore v3ModelStore;
 	private IModelCopyManager copyManager;
+	private CreationInfo creationInfo;
 
 	/**
 	 * @throws java.lang.Exception
@@ -112,6 +118,7 @@ public class LicenseXmlDocumentTest {
 		v2ModelStore = new InMemSpdxStore();
 		v3ModelStore = new InMemSpdxStore();
 		copyManager = new ModelCopyManager();
+		creationInfo = XmlLicenseProvider.createCreationInfo(v3ModelStore, copyManager, RELEASE_DATE, LIST_VERSION);
 	}
 
 	/**
@@ -128,7 +135,7 @@ public class LicenseXmlDocumentTest {
 	public void testLicenseXmlDocumentFile() throws Exception {
 		File licenseFile = new File(TEST_FILE_PATH);
 		try {
-		    new LicenseXmlDocument(licenseFile, v2ModelStore, v3ModelStore, copyManager);
+		    new LicenseXmlDocument(licenseFile, v2ModelStore, v3ModelStore, copyManager, creationInfo);
 		} catch(Exception ex) {
 		    fail("Error creating XML document: "+ex.getMessage());
 		}
@@ -137,7 +144,7 @@ public class LicenseXmlDocumentTest {
 	@Test
 	public void testOptionalAnnotations() throws Exception {
 		File licenseFile = new File(TEST_OPTIONAL_FILE_PATH);
-		LicenseXmlDocument licenseDoc = new LicenseXmlDocument(licenseFile, v2ModelStore, v3ModelStore, copyManager);
+		LicenseXmlDocument licenseDoc = new LicenseXmlDocument(licenseFile, v2ModelStore, v3ModelStore, copyManager, creationInfo);
 		SpdxListedLicense license = licenseDoc.getListedLicenses().get(0).getV2ListedLicense();
 		String[] lines = license.getLicenseText().split("\\n");
 		assertEquals(5, lines.length);
@@ -164,12 +171,13 @@ public class LicenseXmlDocumentTest {
 	@Test
 	public void testGetListedLicense() throws LicenseXmlException, InvalidSPDXAnalysisException {
 		File licenseFile = new File(TEST_FILE_PATH);
-		LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile, v2ModelStore, v3ModelStore, copyManager);
+		LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile, v2ModelStore, v3ModelStore, copyManager, creationInfo);
 		List<ListedLicenseContainer> licenses = doc.getListedLicenses();
 		assertEquals(2, licenses.size());
 		for (ListedLicenseContainer licenseContainer : licenses) {
 			SpdxListedLicense license = licenseContainer.getV2ListedLicense();
 			ListedLicense v3License = licenseContainer.getV3ListedLicense();
+			assertEquals(RELEASE_DATE, v3License.getCreationInfo().getCreated());
 			if (license.isDeprecated()) {
 				assertTrue(v3License.getIsDeprecatedLicenseId().get());
 				assertEquals(TEST_DEP_LICENSE_VERSION,license.getDeprecatedVersion());
@@ -223,11 +231,12 @@ public class LicenseXmlDocumentTest {
 	@Test
 	public void testGetLicenseException() throws LicenseXmlException, InvalidSPDXAnalysisException {
 		File licenseFile = new File(TEST_FILE_PATH);
-		LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile, v2ModelStore, v3ModelStore, copyManager);
+		LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile, v2ModelStore, v3ModelStore, copyManager, creationInfo);
 		List<ListedExceptionContainer> exceptions = doc.getLicenseExceptions();
 		assertEquals(1, exceptions.size());
 		LicenseException exception = exceptions.get(0).getV2Exception();
 		ListedLicenseException v3Exception = exceptions.get(0).getV3Exception();
+		assertEquals(RELEASE_DATE, v3Exception.getCreationInfo().getCreated());
 		assertEquals(TEST_EXCEPTION_COMMENT, exception.getComment());
 		assertEquals(TEST_EXCEPTION_ID, exception.getLicenseExceptionId());
 		assertEquals(TEST_EXCEPTION_TEXT, exception.getLicenseExceptionText());
@@ -254,7 +263,7 @@ public class LicenseXmlDocumentTest {
 	@Test
 	public void testRegressionAgpl3Only() throws LicenseXmlException, InvalidSPDXAnalysisException, InvalidLicenseTemplateException {
 		File licenseFile = new File(AGPL3ONLY_FILE_PATH);
-		LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile, v2ModelStore, v3ModelStore, copyManager);
+		LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile, v2ModelStore, v3ModelStore, copyManager, creationInfo);
 		List<ListedLicenseContainer> licenses = doc.getListedLicenses();
 		assertEquals(1, licenses.size());
 	}
@@ -262,7 +271,7 @@ public class LicenseXmlDocumentTest {
 	@Test
 	public void testRegressionBsdProtection() throws LicenseXmlException, InvalidSPDXAnalysisException, InvalidLicenseTemplateException {
         File licenseFile = new File(BSD_PROTECTION_FILE_PATH);
-        LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile, v2ModelStore, v3ModelStore, copyManager);
+        LicenseXmlDocument doc = new LicenseXmlDocument(licenseFile, v2ModelStore, v3ModelStore, copyManager, creationInfo);
         List<ListedLicenseContainer> licenses = doc.getListedLicenses();
         assertEquals(1, licenses.size());
         SpdxListedLicense result = licenses.get(0).getV2ListedLicense();
