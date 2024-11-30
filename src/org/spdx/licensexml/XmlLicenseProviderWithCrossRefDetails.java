@@ -62,8 +62,9 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 			}
 		}
 
-		public XmlLicenseIterator(IModelStore v2Store, IModelStore v3Store, IModelCopyManager copyManager) {
-			super(v2Store, v3Store, copyManager);
+		public XmlLicenseIterator(IModelStore v2Store, IModelStore v3Store, 
+				IModelCopyManager copyManager, String currentListVersion, String releaseDate) {
+			super();
 			fillCrossRefPool();
 		}
 		
@@ -120,17 +121,20 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 
 	class XmlExceptionIterator extends XmlLicenseProvider.XmlExceptionIterator {
 		
-		public XmlExceptionIterator(IModelStore v2Store, IModelStore v3Store, IModelCopyManager copyManager) throws InvalidSPDXAnalysisException {
-			super(v2Store, v3Store, copyManager);
+		public XmlExceptionIterator(IModelStore v2Store, IModelStore v3Store, IModelCopyManager copyManager, 
+				String currentListVersion, String releaseDate) throws InvalidSPDXAnalysisException {
+			super();
 		}
 	}
 
 	/**
 	 * @param xmlFileDirectory directory of XML files
-	 * @throws SpdxListedLicenseException
+	 * @param currentListVersion version of the license list to include the license data
+	 * @param releaseDate Date the license list is released
+	 * @throws InvalidSPDXAnalysisException on errors creating creationInfo or finding the file directory
 	 */
-	public XmlLicenseProviderWithCrossRefDetails(File xmlFileDirectory) throws SpdxListedLicenseException {
-		super(xmlFileDirectory);
+	public XmlLicenseProviderWithCrossRefDetails(File xmlFileDirectory, String currentListVersion, String releaseDate) throws InvalidSPDXAnalysisException {
+		super(xmlFileDirectory, currentListVersion, releaseDate);
 	}
 
 	/* (non-Javadoc)
@@ -139,7 +143,7 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 	@Override
 	public Iterator<ListedLicenseContainer> getLicenseIterator()
 			throws SpdxListedLicenseException {
-		return new XmlLicenseIterator(v2ModelStore, v3ModelStore, copyManager);
+		return new XmlLicenseIterator(v2ModelStore, v3ModelStore, copyManager, currentListVersion, releaseDate);
 	}
 
 	/* (non-Javadoc)
@@ -147,6 +151,6 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 	 */
 	@Override
 	public Iterator<ListedExceptionContainer> getExceptionIterator() throws InvalidSPDXAnalysisException {
-		return new XmlExceptionIterator(v2ModelStore, v3ModelStore, copyManager);
+		return new XmlExceptionIterator(v2ModelStore, v3ModelStore, copyManager, currentListVersion, releaseDate);
 	}
 }

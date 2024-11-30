@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import org.spdx.core.IModelCopyManager;
 import org.spdx.core.InvalidSPDXAnalysisException;
 import org.spdx.library.model.v2.SpdxConstantsCompatV2;
+import org.spdx.library.model.v3_0_1.core.CreationInfo;
 import org.spdx.library.model.v3_0_1.expandedlicensing.ListedLicense;
 import org.spdx.library.model.v3_0_1.expandedlicensing.ListedLicenseException;
 import org.spdx.licenselistpublisher.ListedExceptionContainer;
@@ -70,16 +71,24 @@ public class LicenseXmlDocument {
 	private IModelStore v3ModelStore;
 	private IModelCopyManager copyManager;
 
+	private CreationInfo creationInfo;
+
 	/**
 	 * @param file XML file for the License
 	 * @param copyManager Copy manager for both model store
-	 * @param v3ModelStore model store for SPDX Spec version 3 liccense and exceptions
-	 * @param v2ModelStore model store for SPDX Spec version 2 liccense and exceptions
+	 * @param v3ModelStore model store for SPDX Spec version 3 license and exceptions
+	 * @param v2ModelStore model store for SPDX Spec version 2 license and exceptions
+	 * @param creationInfo Creation information to use for SPDX V3 licenses and exceptions
+	 * @param copyManager copyManager to use for copying data between model stores
+	 * @param currentListVersion version of the license list to include the license data
+	 * @param releaseDate Date the license list is released
 	 */
-	public LicenseXmlDocument(File file, IModelStore v2ModelStore, IModelStore v3ModelStore, IModelCopyManager copyManager) throws LicenseXmlException {
+	public LicenseXmlDocument(File file, IModelStore v2ModelStore, IModelStore v3ModelStore, 
+			IModelCopyManager copyManager, CreationInfo creationInfo) throws LicenseXmlException {
 		this.v2ModelStore = v2ModelStore;
 		this.v3ModelStore = v3ModelStore;
 		this.copyManager = copyManager;
+		this.creationInfo = creationInfo;
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, ""); // Disable external access to prevent confidential file disclosures or SSRFs.
 		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, ""); // Disable external access to prevent confidential file disclosures or SSRFs.
@@ -267,6 +276,7 @@ public class LicenseXmlDocument {
 				SpdxConstantsCompatV2.LISTED_LICENSE_NAMESPACE_PREFIX, id, copyManager, true);
 		ListedLicense licv3 = new ListedLicense(v3ModelStore, SpdxConstantsCompatV2.LISTED_LICENSE_NAMESPACE_PREFIX + id,
 				copyManager, true, null);
+		licv3.setCreationInfo(creationInfo);
 		licv2.setName(name);
 		licv3.setName(name);
 		licv2.setLicenseText(text);
@@ -351,6 +361,7 @@ public class LicenseXmlDocument {
 				SpdxConstantsCompatV2.LISTED_LICENSE_NAMESPACE_PREFIX, id, copyManager, true);
 		ListedLicenseException exceptionV3 = new ListedLicenseException(v3ModelStore, SpdxConstantsCompatV2.LISTED_LICENSE_NAMESPACE_PREFIX + id,
 				copyManager, true, null);
+		exceptionV3.setCreationInfo(creationInfo);
 		exceptionV2.setName(name);
 		exceptionV3.setName(name);
 		exceptionV2.setLicenseExceptionText(text);
