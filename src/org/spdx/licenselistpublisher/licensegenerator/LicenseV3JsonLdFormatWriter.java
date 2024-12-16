@@ -78,7 +78,7 @@ public class LicenseV3JsonLdFormatWriter implements ILicenseFormatWriter {
 	/**
 	 * @param version License list version
 	 * @param releaseDate release date for the license list
-	 * @param jsonLDFolder Folder to output the license TOC file, the exception TOC file, all license and exception details
+	 * @param jsonLdFolder Folder to output the license TOC file, the exception TOC file, all license and exception details
 	 * @throws InvalidSPDXAnalysisException on error creating TOC stores and/or objects
 	 */
 	public LicenseV3JsonLdFormatWriter(String version, String releaseDate, File jsonLdFolder) throws InvalidSPDXAnalysisException {

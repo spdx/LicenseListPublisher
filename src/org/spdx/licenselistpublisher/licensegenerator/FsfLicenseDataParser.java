@@ -130,18 +130,18 @@ public class FsfLicenseDataParser {
 			while (tripleIter.hasNext()) {
 				Triple t = tripleIter.next();
 				if (t.getObject().isLiteral()) {
-					String objectVal = t.getObject().toString(false);
-					if ("libre".equals(objectVal)) {
+					String objectVal = t.getObject().toString(model);
+					if ("\"libre\"".equals(objectVal)) {
 						Node subject = t.getSubject();
 						List<String> spdxIds = findSpdxIds(subject, model);
 						for (String spdxId:spdxIds) {
-							this.licenseIdToFsfFree.put(spdxId,true);
+							this.licenseIdToFsfFree.put(spdxId.replaceAll("\"", ""),true);
 						}
-					} else if ("non-free".equals(objectVal)) {
+					} else if ("\"non-free\"".equals(objectVal)) {
                         Node subject = t.getSubject();
                         List<String> spdxIds = findSpdxIds(subject, model);
                         for (String spdxId:spdxIds) {
-                            this.licenseIdToFsfFree.put(spdxId,false);
+                            this.licenseIdToFsfFree.put(spdxId.replaceAll("\"", ""),false);
                         }
 					}
 				}
@@ -189,7 +189,7 @@ public class FsfLicenseDataParser {
 				continue;
 			}
 			// Hack - adding all identifiers since we are not able to get the SPDX specific ID's - see https://github.com/spdx/fsf-api/pull/12#issuecomment-376282369
-			retval.add(identifiersObject.toString(false));
+			retval.add(identifiersObject.toString(model));
 //			Node spdxIdProp = model.getProperty(FSF_JSON_NAMESPACE, PROPERTY_SPDXID).asNode();
 //			Triple spdxIdMatch = Triple.createMatch(identifiersObject, spdxIdProp, null);
 //			ExtendedIterator<Triple> spdxIdIterator = model.getGraph().find(spdxIdMatch);
