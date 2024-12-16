@@ -10,3 +10,6 @@
 maven-eclipse.xml
 dependency-reduced-pom.xml
 LICENSE.spdx
+
+# IntelliJ IDE
+.idea
