@@ -95,7 +95,7 @@ public class LicenseXmlTester {
 			DateFormat format = new SimpleDateFormat(SpdxConstantsV3.SPDX_DATE_FORMAT);
 			String now = format.format(new Date());
 			LicenseXmlDocument licDoc = new LicenseXmlDocument(licenseXmlFile, spdxV2ModelStore, spdxV3ModelStore,
-					copyManager, XmlLicenseProvider.createCreationInfo(spdxV3ModelStore, copyManager, "3.25.0", now));
+					copyManager, XmlLicenseProvider.createCreationInfo(spdxV3ModelStore, copyManager, now, "3.25.0" ));
 			List<ListedLicenseContainer> licenses = licDoc.getListedLicenses();
 			if (licenses.size() == 0) {
 				System.out.println("Empty license XML file - no licenses found");
