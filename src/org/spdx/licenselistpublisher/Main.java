@@ -6,6 +6,7 @@
 package org.spdx.licenselistpublisher;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.spdx.library.SpdxModelFactory;
 
 /**
  * Dispatch to the individual tools
@@ -13,7 +14,7 @@ import org.apache.commons.lang3.ArrayUtils;
 public class Main {
 
 	public static void main(String[] args) {
-
+		SpdxModelFactory.init();
 		if (args.length < 1) {
 			usage();
 			return;
