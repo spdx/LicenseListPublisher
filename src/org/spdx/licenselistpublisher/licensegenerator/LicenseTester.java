@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2017 Source Auditor Inc.
- *
+ * <p>
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
  *   You may obtain a copy of the License at
- *
+ * <p>
  *       http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  *   Unless required by applicable law or agreed to in writing, software
  *   distributed under the License is distributed on an "AS IS" BASIS,
  *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,9 +37,9 @@ import org.spdx.utility.compare.SpdxCompareException;
 
 /**
  * Test SPDX licenses against a directory of test licenses.
- *
+ * <p>
  * The directory of test licenses contains license text with the following file naming convention:
- *
+ * <p>
  * {license-id}/(license|header|exception)/(good|bad)/{test-id}.txt
  *
  * @author Gary O'Neall
@@ -47,21 +47,14 @@ import org.spdx.utility.compare.SpdxCompareException;
  */
 public class LicenseTester implements ILicenseTester {
 
-	private Map<String,File> licenseIdToTestMap;
-	private static FileFilter testFileFilter = new FileFilter() {
-
-		@Override
-		public boolean accept(File arg0) {
-			return (arg0.isFile() && arg0.getName().toLowerCase().endsWith(".txt"));
-		}
-
-	};
+	private final Map<String,File> licenseIdToTestMap;
+	private static final FileFilter testFileFilter = arg0 -> (arg0.isFile() && arg0.getName().toLowerCase().endsWith(".txt"));
 
 	/**
 	 * @param licenseTestDirectory Directory of license text files for comparison in the form {license-id}/(license|header|exception)/(good|bad)/{test-id}.txt
 	 */
 	public LicenseTester(File licenseTestDirectory) {
-		licenseIdToTestMap = new HashMap<String,File>();
+		licenseIdToTestMap = new HashMap<>();
 		File[] licenseIdDirs = licenseTestDirectory.listFiles();
 		if (licenseIdDirs != null) {
 			for (File dir:licenseIdDirs) {
@@ -74,16 +67,16 @@ public class LicenseTester implements ILicenseTester {
 
 	/**
 	 * Test a license against the license test files
-	 * @param license license to test
+	 * @param licenseContainer license to test
 	 * @return list of test failure descriptions.  List is empty if all tests pass.
-	 * @throws IOException
-	 * @throws SpdxCompareException
-	 * @throws InvalidSPDXAnalysisException 
+	 * @throws IOException on I/O error reading test file(s)
+	 * @throws SpdxCompareException on error comparing exceptions
+	 * @throws InvalidSPDXAnalysisException on SPDX parsing errors
 	 */
 	@Override
 	public List<String> testLicense(ListedLicenseContainer licenseContainer) throws IOException, SpdxCompareException, InvalidSPDXAnalysisException {
 		License license = licenseContainer.getV2ListedLicense();
-		List<String> retval = new ArrayList<String>();
+		List<String> retval = new ArrayList<>();
 		File licenseDir = this.licenseIdToTestMap.get(license.getLicenseId());
 		if (licenseDir == null || !licenseDir.exists()) {
 			return retval;
@@ -130,15 +123,15 @@ public class LicenseTester implements ILicenseTester {
 
 	/**
 	 * Test exception against the test files directory
-	 * @param exception
-	 * @return
-	 * @throws IOException
-	 * @throws InvalidSPDXAnalysisException 
+	 * @param exceptionContainer exception to test
+	 * @return list of test failure descriptions.  List is empty if all tests pass.
+	 * @throws IOException on I/O error reading test file(s)
+	 * @throws InvalidSPDXAnalysisException on SPDX parsing errors
 	 */
 	@Override
 	public List<String> testException(ListedExceptionContainer exceptionContainer) throws IOException, InvalidSPDXAnalysisException {
 		LicenseException exception = exceptionContainer.getV2Exception();
-		List<String> retval = new ArrayList<String>();
+		List<String> retval = new ArrayList<>();
 		File exceptionDir = this.licenseIdToTestMap.get(exception.getLicenseExceptionId());
 		if (exceptionDir == null || !exceptionDir.exists()) {
 			return retval;
@@ -171,12 +164,12 @@ public class LicenseTester implements ILicenseTester {
 	}
 
 	@Override
-	public String getLicenseTestText(String licenseId) throws IOException {
+	public String getLicenseTestText(String licenseId) {
 		throw new RuntimeException("Unimplemented getLicenseTestText");
 	}
 
 	@Override
-	public String getExceptionTestText(String licenseExceptionId) throws IOException {
+	public String getExceptionTestText(String licenseExceptionId) {
 		throw new RuntimeException("Unimplemented getExceptionTestText");
 	}
 }

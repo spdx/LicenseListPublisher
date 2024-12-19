@@ -47,23 +47,11 @@ import org.spdx.library.model.v2.SpdxConstantsCompatV2;
 import org.spdx.library.model.v2.license.SpdxListedLicenseException;
 import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
 import org.spdx.licenseTemplate.LicenseTextHelper;
+import org.spdx.licenselistpublisher.licensegenerator.*;
 import org.spdx.licensexml.XmlLicenseProviderSingleFile;
 import org.spdx.licensexml.XmlLicenseProviderWithCrossRefDetails;
 import org.spdx.utility.compare.LicenseCompareHelper;
 import org.spdx.utility.compare.SpdxCompareException;
-import org.spdx.licenselistpublisher.licensegenerator.FsfLicenseDataParser;
-import org.spdx.licenselistpublisher.licensegenerator.ILicenseFormatWriter;
-import org.spdx.licenselistpublisher.licensegenerator.ILicenseTester;
-import org.spdx.licenselistpublisher.licensegenerator.LicenseHtmlFormatWriter;
-import org.spdx.licenselistpublisher.licensegenerator.LicenseJsonFormatWriter;
-import org.spdx.licenselistpublisher.licensegenerator.LicenseMarkdownFormatWriter;
-import org.spdx.licenselistpublisher.licensegenerator.LicenseRdfFormatWriter;
-import org.spdx.licenselistpublisher.licensegenerator.LicenseRdfaFormatWriter;
-import org.spdx.licenselistpublisher.licensegenerator.LicenseTemplateFormatWriter;
-import org.spdx.licenselistpublisher.licensegenerator.LicenseTextFormatWriter;
-import org.spdx.licenselistpublisher.licensegenerator.LicenseV3JsonLdFormatWriter;
-import org.spdx.licenselistpublisher.licensegenerator.SimpleLicenseTester;
-import org.spdx.licenselistpublisher.licensegenerator.SpdxWebsiteFormatWriter;
 
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -106,7 +94,7 @@ public class LicenseRDFAGenerator {
 		INVALID_TEXT_CHARS.add('\uFFFD');
 	}
 	static int MIN_ARGS = 2;
-	static int MAX_ARGS = 6;
+	static int MAX_ARGS = 7;
 
 	static final int ERROR_STATUS = 1;
 	static final int WARNING_STATUS = 64;
@@ -129,7 +117,13 @@ public class LicenseRDFAGenerator {
 	private static final String ENV_USE_SYSTEM_TEST = "USE_TEST_FOR_TEXT";
 
 	/**
-	 * @param args Arg 0 is either a license XML file or a directory of licenses in XML format, arg 1 is the directory for the output html files
+	 * @param args Arg 0 is either a license XML file or a directory of licenses in XML format,
+	 *             arg 1 is the directory for the output html files
+	 *             arg 2 is the optional license list version
+	 *             arg 3 is the optional release date
+	 *             arg 4 is the optional directory of original license texts with file names {license-or-excpetion-id}.txt
+	 *             arg 5 is the optional file containing a list of warnings to ignore
+	 *             arg 6 is the optional directory of positive and negative tests for the licenses with the pattern {license-id}/(license|header|exception)/(good|bad)/{test-id}.txt
 	 */
 	public static void main(String[] args) {
 		SpdxModelFactory.init();
@@ -202,6 +196,21 @@ public class LicenseRDFAGenerator {
 				}
 			}
 		}
+
+		File fullTestDir = null;
+		if (args.length > 6) {
+			fullTestDir = new File(args[6]);
+			if (!fullTestDir.exists()) {
+				System.out.println("Full license test directory "+testFileDir.getName()+" does not exist");
+				usage();
+				System.exit(ERROR_STATUS);
+			}
+			if (!fullTestDir.isDirectory()) {
+				System.out.println("Full license test directory "+testFileDir.getName()+" is not a directory");
+				usage();
+				System.exit(ERROR_STATUS);
+			}
+		}
 		
 		boolean useTestText = true;	// default to true
 		try {
@@ -214,7 +223,7 @@ public class LicenseRDFAGenerator {
 		}
 		
 		try {
-			List<String> warnings = generateLicenseData(licenseXmlFileOrDir, dir, version, releaseDate, testFileDir, useTestText);
+			List<String> warnings = generateLicenseData(licenseXmlFileOrDir, dir, version, releaseDate, testFileDir, useTestText, fullTestDir);
 			if (warnings != null && warnings.size() > 0) {
 				int numUnexpectedWarnings = warnings.size();
 				for (String warning:warnings) {
@@ -247,11 +256,14 @@ public class LicenseRDFAGenerator {
 	 * @param releaseDateUnformated Release data string for the license
 	 * @param testFileDir Directory of license text to test the generated licenses against
 	 * @param useTestText use the text file from the testFileDir for the verbatim text rather than the text from the XML document
-	 * @return warnings
-	 * @throws LicenseGeneratorException
+	 * @param fullTestDir Directory for testing license texts with the pattern {license-id}/(license|header|exception)/(good|bad)/{test-id}.txt
+	 * @return warnings list of warnings
+	 * @throws LicenseGeneratorException on errors
 	 */
 	public static List<String> generateLicenseData(File licenseXml, File dir,
-			String version, String releaseDateUnformated, File testFileDir, boolean useTestText) throws LicenseGeneratorException {
+			                                       String version, String releaseDateUnformated,
+												   File testFileDir, boolean useTestText,
+												   File fullTestDir) throws LicenseGeneratorException {
 		String releaseDate = convertDateFormat(releaseDateUnformated);
 		List<String> warnings = new ArrayList<>();
 		List<ILicenseFormatWriter> writers = new ArrayList<>();
@@ -336,7 +348,11 @@ public class LicenseRDFAGenerator {
 			writers.add(new LicenseV3JsonLdFormatWriter(version, releaseDate, v3JsonLd));
 			ILicenseTester tester = null;
 			if (testFileDir != null) {
-				tester = new SimpleLicenseTester(testFileDir);
+				if (fullTestDir != null) {
+					tester = new CombinedLicenseTester(testFileDir, fullTestDir);
+				} else {
+					tester = new SimpleLicenseTester(testFileDir);
+				}
 			}
 			System.out.print("Processing License List");
 			Set<String> licenseIds = writeLicenseList(version, releaseDate, licenseProvider, warnings, 
@@ -398,8 +414,6 @@ public class LicenseRDFAGenerator {
 	 * @param licenseIds license IDs
 	 * @param useTestText use the text file from the testFileDir for the verbatim text rather than the text from the XML document
 	 * @throws IOException
-	 * @throws SpreadsheetException
-	 * @throws LicenseRestrictionException
 	 * @throws LicenseGeneratorException
 	 * @throws InvalidLicenseTemplateException
 	 * @throws InvalidSPDXAnalysisException 
