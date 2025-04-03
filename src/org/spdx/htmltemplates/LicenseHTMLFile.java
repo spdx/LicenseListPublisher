@@ -122,35 +122,32 @@ public class LicenseHTMLFile {
 		}
 		
 		public boolean getIsValid() {
-			if(this.isValid != null) {
+			if(this.isValid) {
 				return this.isValid;
 			}
 			return Valid.urlValidator(url);
 		}
 
 		public boolean getIsLive() {
-			if(this.isLive != null) {
+			if(this.isLive) {
 				return this.isLive;
 			}
 			return Live.urlLinkExists(url);
 		}
 
 		public String getMatch() {
-			if(this.match != null) {
-				return this.match;
-			}
-			return "--";
+			return this.match;
 		}
 
 		public boolean getIsWayBackLink() {
-			if(this.isWayBackLink != null) {
+			if(this.isWayBackLink) {
 				return this.isWayBackLink;
 			}
 			return Wayback.isWayBackUrl(url);
 		}
 
 		public String getTimestamp() {
-				return this.timestamp;
+			return this.timestamp;
 		}
 
 	}
