@@ -253,7 +253,7 @@ public class LicenseRDFAGenerator {
 	 * @param licenseXml License XML file or directory containing license XML files
 	 * @param dir Output directory for the generated results
 	 * @param version Version for the license list
-	 * @param releaseDateUnformated Release data string for the license
+	 * @param releaseDateUnformatted Release data string for the license
 	 * @param testFileDir Directory of license text to test the generated licenses against
 	 * @param useTestText use the text file from the testFileDir for the verbatim text rather than the text from the XML document
 	 * @param fullTestDir Directory for testing license texts with the pattern {license-id}/(license|header|exception)/(good|bad)/{test-id}.txt
@@ -261,10 +261,10 @@ public class LicenseRDFAGenerator {
 	 * @throws LicenseGeneratorException on errors
 	 */
 	public static List<String> generateLicenseData(File licenseXml, File dir,
-			                                       String version, String releaseDateUnformated,
+			                                       String version, String releaseDateUnformatted,
 												   File testFileDir, boolean useTestText,
 												   File fullTestDir) throws LicenseGeneratorException {
-		String releaseDate = convertDateFormat(releaseDateUnformated);
+		String releaseDate = convertDateFormat(releaseDateUnformatted);
 		List<String> warnings = new ArrayList<>();
 		List<ILicenseFormatWriter> writers = new ArrayList<>();
 		ISpdxListedLicenseProvider licenseProvider = null;
