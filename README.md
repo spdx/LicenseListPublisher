@@ -37,8 +37,8 @@ Where the following functions are supported:
 Usage:
 
 ```text
-LicenseRDFAGenerator licencenseXmlFileOrDir outputDirectory [version] [releasedate] [testfiles] [ignoredwarnings]
-   licencenseXmlFileOrDir - a license XML file or a directory of license XML files
+LicenseRDFAGenerator licenseXmlFileOrDir outputDirectory [version] [releasedate] [testfiles] [ignoredwarnings]
+   licenseXmlFileOrDir - a license XML file or a directory of license XML files
    outputDirectory - Directory to store the output from the license generator
    [version] - Version of the SPDX license list
    [releasedate] - Release date of the SPDX license list
