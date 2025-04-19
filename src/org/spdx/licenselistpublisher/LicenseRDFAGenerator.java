@@ -672,8 +672,8 @@ public class LicenseRDFAGenerator {
 
 	private static void usage() {
 		System.out.println("Usage:");
-		System.out.println("LicenseRDFAGenerator licencenseXmlFileOrDir outputDirectory [version] [releasedate] [testfiles] [ignoredwarnings]");
-		System.out.println("   licencenseXmlFileOrDir - a license XML file or a directory of license XML files");
+		System.out.println("LicenseRDFAGenerator licenseXmlFileOrDir outputDirectory [version] [releasedate] [testfiles] [ignoredwarnings]");
+		System.out.println("   licenseXmlFileOrDir - a license XML file or a directory of license XML files");
 		System.out.println("   outputDirectory - Directory to store the output from the license generator");
 		System.out.println("   [version] - Version of the SPDX license list");
 		System.out.println("   [releasedate] - Release date of the SPDX license list");
