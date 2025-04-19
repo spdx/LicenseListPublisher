@@ -1,5 +1,5 @@
 /**
- * Classes that manage the HTML templates used to output HTML formated license information
+ * Classes that manage the HTML templates used to output HTML formatted license information
  *
  * @author Gary O'Neall
  *

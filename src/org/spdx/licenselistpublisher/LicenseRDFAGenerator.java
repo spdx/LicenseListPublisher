@@ -121,7 +121,7 @@ public class LicenseRDFAGenerator {
 	 *             arg 1 is the directory for the output html files
 	 *             arg 2 is the optional license list version
 	 *             arg 3 is the optional release date
-	 *             arg 4 is the optional directory of original license texts with file names {license-or-excpetion-id}.txt
+	 *             arg 4 is the optional directory of original license texts with file names {license-or-exception-id}.txt
 	 *             arg 5 is the optional file containing a list of warnings to ignore
 	 *             arg 6 is the optional directory of positive and negative tests for the licenses with the pattern {license-id}/(license|header|exception)/(good|bad)/{test-id}.txt
 	 */
