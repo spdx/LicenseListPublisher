@@ -199,7 +199,7 @@ public class MarkdownTable {
 		writer.write("The following licenses have been generated from the license list version ");
 		writer.write(licenseListVersion);
 		writer.write("\n\n");
-		writer.write("## Licenses with Short Idenifiers\n\n");
+		writer.write("## Licenses with Short Identifiers\n\n");
 		String licenseTableHeaderFormat = "| %-"+maxLicenseName+"s | %-"+maxShortIdLength+"s | %-4s | %-9s |\n";
 		writer.write(String.format(licenseTableHeaderFormat, "Full Name of License", "Short Identifier","OSI?", "FSFLibre?" ));
 		writer.write("|-");

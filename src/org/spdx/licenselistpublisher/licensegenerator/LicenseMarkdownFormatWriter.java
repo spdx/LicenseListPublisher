@@ -36,7 +36,7 @@ public class LicenseMarkdownFormatWriter implements ILicenseFormatWriter {
 	/**
 	 * @param version License list version
 	 * @param releaseDate release date for the license list
-	 * @param markdownFile Markdown formated file written by this class
+	 * @param markdownFile Markdown formatted file written by this class
 	 */
 	public LicenseMarkdownFormatWriter(String version, String releaseDate, File markdownFile) {
 		this.markdownFile = markdownFile;
