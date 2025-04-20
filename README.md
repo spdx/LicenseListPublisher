@@ -32,7 +32,7 @@ Where the following functions are supported:
 - `LicenseRDFAGenerator` - Generates license data
 - `TestLicenseXML` - Tests a license XML file
 
-### LicenseRDFAGenerator parameters
+### LicenseRDFAGenerator
 
 Usage:
 
@@ -46,7 +46,10 @@ LicenseRDFAGenerator licenseXmlFileOrDir outputDirectory [version] [releasedate]
    [ignoredwarnings] - Either a file name or a comma separated list of warnings to be ignored
 ```
 
-### TestLicenseXML parameters
+**WARNING:** Running the LicenseRDFAGenerator for a single file
+will overwrite any index.html, licenses.json etc. with the single file results.
+
+### TestLicenseXML
 
 Usage:
 
@@ -57,16 +60,12 @@ TestLicenseXML licenseXmlFile textFile
    testDirectory - Optional directory of test files in the form {license-id}/(license|header|exception)/(good|bad)/{test-id}.txt
 ```
 
-## WARNING
-
-Running the LicenseRDFaGenerator for a single file will overwrite any index.html, licenses.json etc. with the single file results.
-
 ## License
 
 See the [NOTICE](NOTICE) file for licensing information
-including info from 3rd Party Software
+including info from 3rd Party Software.
 
-See [LICENSE](LICENSE) file for full license text
+See [LICENSE](LICENSE) file for full license text.
 
 ```text
 SPDX-License-Identifier: Apache-2.0
@@ -75,7 +74,7 @@ PackageLicenseDeclared:  Apache-2.0
 
 ## Development
 
-## Build
+### Build
 
 You need [Apache Maven](http://maven.apache.org/) to build the project:
 
