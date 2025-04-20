@@ -1,6 +1,6 @@
 # LicenseListPublisher
 
-This is the source code repository for the tool that generates license data found in the [license-list-data](https://github.com/spdx/license-list-data) repository.  The source for the the data is located in the [license-list-XML](https://github.com/spdx/license-list-XML) repository.
+This is the source code repository for the tool that generates license data found in the [license-list-data](https://github.com/spdx/license-list-data) repository.  The source for the data is located in the [license-list-XML](https://github.com/spdx/license-list-XML) repository.
 
 ## Code quality badges
 
@@ -46,8 +46,8 @@ LicenseRDFAGenerator licenseXmlFileOrDir outputDirectory [version] [releasedate]
    [ignoredwarnings] - Either a file name or a comma separated list of warnings to be ignored
 ```
 
-**WARNING:** Running the LicenseRDFAGenerator for a single file
-will overwrite any index.html, licenses.json etc. with the single file results.
+***WARNING:** Running the LicenseRDFAGenerator for a single file
+will overwrite any index.html, licenses.json etc. with the single file results.*
 
 ### TestLicenseXML
 
