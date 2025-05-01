@@ -238,6 +238,7 @@
        			<groupId>org.apache.maven.plugins</groupId>
        			<artifactId>maven-shade-plugin</artifactId>
        			<version>3.2.4</version>
+				<!-- DO NOT USE LATER VERSIONS OF THE SHADE PLUGIN - LATER VERSIONS REMOVE DEPENDENCY INFORMATION FROM THE POM FILE -->
        			<configuration>
          				<shadedArtifactAttached>true</shadedArtifactAttached>
          				<shadedClassifierName>jar-with-dependencies</shadedClassifierName>
