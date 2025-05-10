@@ -26,27 +26,20 @@
 		<name>Linux Foundation</name>
 		<url>http://www.linuxfoundation.org</url>
 	</organization>
-  <scm>
-  	<url>https://github.com/spdx/LicenseListPublisher</url>
-  	<connection>scm:git:ssh://git@github.com:spdx/LicenseListPublisher</connection>
-  	<developerConnection>scm:git:git@github.com:spdx/LicenseListPublisher</developerConnection>
-  	<tag>master</tag>
-  </scm>
-	<distributionManagement>
-	  <repository>
-        <id>ossrh</id>
-        <name>spdx-spdx-tools</name>
-        <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-      </repository>
-	</distributionManagement>
-	  <properties>
-		  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		  <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-		  <sonar.organization>spdx</sonar.organization>
-		  <sonar.projectKey>licenseListPublisher</sonar.projectKey>
-		  <maven.compiler.release>11</maven.compiler.release>
-		  <dependency-check-maven.version>8.0.1</dependency-check-maven.version>
-	  </properties>
+    <scm>
+  	  <url>https://github.com/spdx/LicenseListPublisher</url>
+  	  <connection>scm:git:ssh://git@github.com:spdx/LicenseListPublisher</connection>
+  	  <developerConnection>scm:git:git@github.com:spdx/LicenseListPublisher</developerConnection>
+  	  <tag>master</tag>
+    </scm>
+	<properties>
+	  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	  <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+	  <sonar.organization>spdx</sonar.organization>
+	  <sonar.projectKey>licenseListPublisher</sonar.projectKey>
+	  <maven.compiler.release>11</maven.compiler.release>
+	  <dependency-check-maven.version>8.0.1</dependency-check-maven.version>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
