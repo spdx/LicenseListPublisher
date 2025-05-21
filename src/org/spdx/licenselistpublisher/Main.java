@@ -24,6 +24,8 @@ public class Main {
 		args = ArrayUtils.removeElement(args, args[0]);
 		if ("LicenseRDFAGenerator".equals(spdxTool)) {
 			LicenseRDFAGenerator.main(args);
+		} else if ("LicenseSingleHTMLGenerator".equals(spdxTool)) {
+			LicenseSingleHTMLGenerator.main(args);
 		} else if ("TestLicenseXML".equals(spdxTool)) {
 			LicenseXmlTester.main(args);
 		} else {
@@ -34,6 +36,7 @@ public class Main {
 	private static void usage() {
 		System.out.println("Usage: java -jar spdx-tools-jar-with-dependencies.jar <function> <parameters>");
 		System.out.println("LicenseRDFAGenerator - Generates license data");
+		System.out.println("LicenseSingleHTMLGenerator - Generates license data as single HTML file");
 		System.out.println("TestLicenseXML - Tests a license XML file");
 	}
 }
