@@ -50,8 +50,6 @@ import com.github.mustachejava.MustacheException;
  */
 public class LicenseHTMLFile {
 
-	static final String TEMPLATE_CLASS_PATH = "resources" + "/" + "htmlTemplate";
-	static final String TEMPLATE_ROOT_PATH = "resources" + File.separator + "htmlTemplate";
 	static final String TEMPLATE_FILE_NAME = "LicenseHTMLTemplate.html";
 
 	static Comparator<CrossRef> licenseComparator =	new Comparator<CrossRef>() {
@@ -176,15 +174,10 @@ public class LicenseHTMLFile {
 				throw(new IOException("Can not create new file "+htmlFile.getName()));
 			}
 		}
-		String templateDirName = TEMPLATE_ROOT_PATH;
-		File templateDirectoryRoot = new File(templateDirName);
-		if (!(templateDirectoryRoot.exists() && templateDirectoryRoot.isDirectory())) {
-			templateDirName = TEMPLATE_CLASS_PATH;
-		}
 		try {
 			stream = new FileOutputStream(htmlFile);
 			writer = new OutputStreamWriter(stream, "UTF-8");
-			DefaultMustacheFactory builder = new DefaultMustacheFactory(templateDirName);
+			DefaultMustacheFactory builder = new DefaultMustacheFactory(Utility.getMustacheResolver());
 	        Map<String, Object> mustacheMap = buildMustachMap();
 	        Mustache mustache = builder.compile(TEMPLATE_FILE_NAME);
 	        mustache.execute(writer, mustacheMap);
