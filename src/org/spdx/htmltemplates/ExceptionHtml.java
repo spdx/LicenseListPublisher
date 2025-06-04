@@ -41,8 +41,6 @@ import com.github.mustachejava.MustacheException;
  */
 public class ExceptionHtml {
 
-	static final String TEMPLATE_CLASS_PATH = "resources" + "/" + "htmlTemplate";
-	static final String TEMPLATE_ROOT_PATH = "resources" + File.separator + "htmlTemplate";
 	static final String HTML_TEMPLATE = "ExceptionHTMLTemplate.html";
 
 	Map<String, Object> mustacheMap = new HashMap<>();
@@ -75,31 +73,16 @@ public class ExceptionHtml {
 	public void writeToFile(File exceptionHtmlFile,
 			String exceptionHtmlTocReference) throws IOException, MustacheException {
 		mustacheMap.put("exceptionTocReference", exceptionHtmlTocReference);
-		FileOutputStream stream = null;
-		OutputStreamWriter writer = null;
-		if (!exceptionHtmlFile.exists()) {
+        if (!exceptionHtmlFile.exists()) {
 			if (!exceptionHtmlFile.createNewFile()) {
 				throw(new IOException("Can not create new file "+exceptionHtmlFile.getName()));
 			}
 		}
-		String templateDirName = TEMPLATE_ROOT_PATH;
-		File templateDirectoryRoot = new File(templateDirName);
-		if (!(templateDirectoryRoot.exists() && templateDirectoryRoot.isDirectory())) {
-			templateDirName = TEMPLATE_CLASS_PATH;
-		}
-		try {
-			stream = new FileOutputStream(exceptionHtmlFile);
-			writer = new OutputStreamWriter(stream, "UTF-8");
-			DefaultMustacheFactory builder = new DefaultMustacheFactory(templateDirName);
-			Mustache mustache = builder.compile(HTML_TEMPLATE);
-	        mustache.execute(writer, mustacheMap);
-		} finally {
-			if (writer != null) {
-				writer.close();
-			}
-			if (stream != null) {
-				stream.close();
-			}
-		}
+
+        try (FileOutputStream stream = new FileOutputStream(exceptionHtmlFile); OutputStreamWriter writer = new OutputStreamWriter(stream, "UTF-8")) {
+            DefaultMustacheFactory builder = new DefaultMustacheFactory(Utility.getMustacheResolver());
+            Mustache mustache = builder.compile(HTML_TEMPLATE);
+            mustache.execute(writer, mustacheMap);
+        }
 	}
 }
