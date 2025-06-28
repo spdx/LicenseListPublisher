@@ -24,6 +24,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.time.LocalDate;
@@ -53,7 +54,7 @@ import org.spdx.licensexml.XmlLicenseProviderWithCrossRefDetails;
 import org.spdx.utility.compare.LicenseCompareHelper;
 import org.spdx.utility.compare.SpdxCompareException;
 
-import au.com.bytecode.opencsv.CSVReader;
+import com.google.gson.Gson;
 
 /**
  * Converts input license text and metadata into various output formats.
@@ -173,15 +174,34 @@ public class LicenseRDFAGenerator {
 		}
 		String[] ignoredWarnings = new String[0];
 		if (args.length > 5) {
-			CSVReader reader = null;
+			Reader reader = null;
+			Gson gson = new Gson();
+			List<List<String>> jsonWarnings = new ArrayList<>();
 			try {
+				// read JSON array of array of paired strings
 				File warningsFile = new File(args[5]);
 				if (warningsFile.exists()) {
-					reader = new CSVReader(new FileReader(warningsFile));
+					reader = new FileReader(warningsFile);
 				} else {
-					reader = new CSVReader(new StringReader(args[5]));
+					reader = new StringReader(args[5]);
 				}
-				ignoredWarnings = reader.readNext();
+				jsonWarnings = gson.fromJson(reader, ArrayList.class);
+
+				// convert JSON-parsed paired IDs into "Duplicates licenses" warnings
+				List<String> convertedWarnings = new ArrayList<String>();
+				for (List<String> expectedSame : jsonWarnings) {
+					for (int i = 0; i < expectedSame.size(); i++) {
+						for (int j = i + 1; j < expectedSame.size(); j++) {
+							String id1 = expectedSame.get(i);
+							String id2 = expectedSame.get(j);
+							String pair1 = "Duplicates licenses: " + id1 + ", " + id2;
+							String pair2 = "Duplicates licenses: " + id2 + ", " + id1;
+							convertedWarnings.add(pair1);
+							convertedWarnings.add(pair2);
+						}
+					}
+				}
+				ignoredWarnings = convertedWarnings.toArray(new String[convertedWarnings.size()]);
 			} catch (IOException e) {
 				System.out.println("IO Error reading ignored errors: "+e.getMessage());
 				System.exit(ERROR_STATUS);
