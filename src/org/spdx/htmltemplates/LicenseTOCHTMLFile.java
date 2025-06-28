@@ -40,8 +40,6 @@ import com.github.mustachejava.MustacheException;
  */
 public class LicenseTOCHTMLFile {
 
-	static final String TEMPLATE_CLASS_PATH = "resources" + "/" + "htmlTemplate";
-	static final String TEMPLATE_ROOT_PATH = "resources" + File.separator + "htmlTemplate";
 	static final String HTML_TEMPLATE = "TocHTMLTemplate.html";
 
 	public static class DeprecatedLicense {
@@ -136,7 +134,7 @@ public class LicenseTOCHTMLFile {
 		private String refNumber;
 		private String licenseId;
 		private String osiApproved;
-		private String fsfLibre;
+		private final String fsfLibre;
 		private String licenseName;
 
 		public ListedSpdxLicense() {
@@ -271,37 +269,22 @@ public class LicenseTOCHTMLFile {
 	}
 
 	public void writeToFile(File htmlFile) throws IOException, MustacheException {
-		FileOutputStream stream = null;
-		OutputStreamWriter writer = null;
-		if (!htmlFile.exists()) {
+        if (!htmlFile.exists()) {
 			if (!htmlFile.createNewFile()) {
 				throw(new IOException("Can not create new file "+htmlFile.getName()));
 			}
 		}
-		String templateDirName = TEMPLATE_ROOT_PATH;
-		File templateDirectoryRoot = new File(templateDirName);
-		if (!(templateDirectoryRoot.exists() && templateDirectoryRoot.isDirectory())) {
-			templateDirName = TEMPLATE_CLASS_PATH;
-		}
-		try {
-			stream = new FileOutputStream(htmlFile);
-			writer = new OutputStreamWriter(stream, "UTF-8");
-			DefaultMustacheFactory builder = new DefaultMustacheFactory(templateDirName);
-	        Map<String, Object> mustacheMap = buildMustachMap();
-	        Mustache mustache = builder.compile(HTML_TEMPLATE);
-	        mustache.execute(writer, mustacheMap);
-		} finally {
-			if (writer != null) {
-				writer.close();
-			}
-			if (stream != null) {
-				stream.close();
-			}
-		}
+
+        try (FileOutputStream stream = new FileOutputStream(htmlFile); OutputStreamWriter writer = new OutputStreamWriter(stream, "UTF-8")) {
+            DefaultMustacheFactory builder = new DefaultMustacheFactory(Utility.getMustacheResolver());
+            Map<String, Object> mustacheMap = buildMustachMap();
+            Mustache mustache = builder.compile(HTML_TEMPLATE);
+            mustache.execute(writer, mustacheMap);
+        }
 	}
 	/**
 	 * Build the a hash map to map the variables in the template to the values
-	 * @return
+	 * @return the map build from the license
 	 */
 	private Map<String, Object> buildMustachMap() {
 		Map<String, Object> retval = new HashMap<>();

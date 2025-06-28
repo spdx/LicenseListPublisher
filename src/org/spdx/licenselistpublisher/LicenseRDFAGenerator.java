@@ -224,8 +224,8 @@ public class LicenseRDFAGenerator {
 		
 		try {
 			List<String> warnings = generateLicenseData(licenseXmlFileOrDir, dir, version, releaseDate, testFileDir, useTestText, fullTestDir);
-			if (warnings != null && warnings.size() > 0) {
-				int numUnexpectedWarnings = warnings.size();
+			if (!warnings.isEmpty()) {
+				List<String> nonIgnoredWarnings = new ArrayList<>();
 				for (String warning:warnings) {
 					boolean ignore = false;
 					for (String ignoreStr:ignoredWarnings) {
@@ -235,11 +235,15 @@ public class LicenseRDFAGenerator {
 							break;
 						}
 					}
-					if (ignore) {
-						numUnexpectedWarnings--;
+					if (!ignore) {
+						nonIgnoredWarnings.add(warning);
 					}
 				}
-				if (numUnexpectedWarnings > 0) {
+				if (!nonIgnoredWarnings.isEmpty()) {
+					for (String msg:nonIgnoredWarnings) {
+						System.out.print("WARNING: ");
+						System.out.println(msg);
+					}
 					System.exit(WARNING_STATUS);
 				}
 			}
@@ -370,12 +374,6 @@ public class LicenseRDFAGenerator {
 			writeSortTableFile(website);
 			System.out.println();
 			warnings.addAll(licenseProvider.getWarnings());
-			if (warnings.size() > 0) {
-				System.out.println("The following warning(s) were identified:");
-				for (String warning : warnings) {
-					System.out.println("\t"+warning);
-				}
-			}
 			System.out.println("Completed processing licenses");
 			return warnings;
 		} catch (SpdxListedLicenseException e) {
