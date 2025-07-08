@@ -94,7 +94,7 @@ public class LicenseTester implements ILicenseTester {
 				}
 			}
 		}
-		File negativeTestDir = new File (licenseDir.getPath() + File.separator + "bad");
+		File negativeTestDir = new File (licenseDir.getPath() + File.separator + "license" + File.separator + "bad");
 		if (negativeTestDir.exists() && negativeTestDir.isDirectory()) {
 			File[] negativeTests = negativeTestDir.listFiles(testFileFilter);
 			if (negativeTests != null) {
@@ -148,7 +148,7 @@ public class LicenseTester implements ILicenseTester {
 				}
 			}
 		}
-		File negativeTestDir = new File (exceptionDir.getPath() + File.separator + "bad");
+		File negativeTestDir = new File (exceptionDir.getPath() + File.separator + "exception" + File.separator + "bad");
 		if (negativeTestDir.exists() && negativeTestDir.isDirectory()) {
 			File[] negativeTests = negativeTestDir.listFiles(testFileFilter);
 			if (negativeTests != null) {
