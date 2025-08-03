@@ -57,6 +57,15 @@ import org.spdx.utility.compare.SpdxCompareException;
 import com.google.gson.Gson;
 
 /**
+ * Local class, used only for deserializing the expected-warnings JSON object.
+ */
+class ExpectedWarnings {
+	public List<List<String>> duplicateIDs;
+	public List<String> otherWarnings;
+	ExpectedWarnings() {}
+}
+
+/**
  * Converts input license text and metadata into various output formats.
  *
  * Supported input formats:
@@ -176,20 +185,20 @@ public class LicenseRDFAGenerator {
 		if (args.length > 5) {
 			Reader reader = null;
 			Gson gson = new Gson();
-			List<List<String>> jsonWarnings = new ArrayList<>();
+			ExpectedWarnings jsonWarnings = new ExpectedWarnings();
 			try {
-				// read JSON array of array of paired strings
+				// read JSON object with expected warnings format
 				File warningsFile = new File(args[5]);
 				if (warningsFile.exists()) {
 					reader = new FileReader(warningsFile);
 				} else {
 					reader = new StringReader(args[5]);
 				}
-				jsonWarnings = gson.fromJson(reader, ArrayList.class);
+				jsonWarnings = gson.fromJson(reader, ExpectedWarnings.class);
 
 				// convert JSON-parsed paired IDs into "Duplicates licenses" warnings
 				List<String> convertedWarnings = new ArrayList<String>();
-				for (List<String> expectedSame : jsonWarnings) {
+				for (List<String> expectedSame : jsonWarnings.duplicateIDs) {
 					for (int i = 0; i < expectedSame.size(); i++) {
 						for (int j = i + 1; j < expectedSame.size(); j++) {
 							String id1 = expectedSame.get(i);
@@ -200,6 +209,10 @@ public class LicenseRDFAGenerator {
 							convertedWarnings.add(pair2);
 						}
 					}
+				}
+				// add any other warnings that were included verbatim
+				for (String otherWarning : jsonWarnings.otherWarnings) {
+					convertedWarnings.add(otherWarning);
 				}
 				ignoredWarnings = convertedWarnings.toArray(new String[convertedWarnings.size()]);
 			} catch (IOException e) {
@@ -696,7 +709,7 @@ public class LicenseRDFAGenerator {
 		System.out.println("   [version] - Version of the SPDX license list");
 		System.out.println("   [releasedate] - Release date of the SPDX license list");
 		System.out.println("   [testfiles] - Directory of original text files to compare the generated licenses against");
-		System.out.println("   [ignoredwarnings] - Either a file name or a comma separated list of warnings to be ignored");
+		System.out.println("   [ignoredwarnings] - Either a file name or a JSON-formatted collection of warnings to be ignored");
 	}
 
 }
