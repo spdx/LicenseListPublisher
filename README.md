@@ -43,7 +43,7 @@ LicenseRDFAGenerator licenseXmlFileOrDir outputDirectory [version] [releasedate]
    [version] - Version of the SPDX license list
    [releasedate] - Release date of the SPDX license list
    [testfiles] - Directory of original text files to compare the generated licenses against
-   [ignoredwarnings] - Either a file name or a comma separated list of warnings to be ignored
+   [ignoredwarnings] - Either a file name or a JSON-formatted collection of warnings to be ignored
 ```
 
 ***WARNING:** Running the LicenseRDFAGenerator for a single file
