@@ -1,67 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-<suppress>
-   <notes><![CDATA[
-   file name: jackson-core-2.15.3.jar
-   Since the JSON input files are generated, this vulnerability can not occur
-   ]]></notes>
-   <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
-   <cve>CVE-2023-5072</cve>
-</suppress>
-<suppress>
-   <notes><![CDATA[
-   file name: jackson-core-2.15.3.jar
-   Since the JSON input files are generated, this vulnerability can not occur
-   ]]></notes>
-   <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
-   <cve>CVE-2023-5072</cve>
-</suppress>
-<suppress>
-   <notes><![CDATA[
-   file name: jackson-databind-2.15.3.jar
-   he vendor's perspective is that this is not a valid vulnerability report, because the steps of constructing a cyclic data structure and trying to serialize it cannot be achieved by an external attacker.
-   ]]></notes>
-   <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-   <cve>CVE-2023-35116</cve>
-</suppress>
-<suppress>
-   <notes><![CDATA[
-   file name: jakarta.json-2.0.1.jar
-   Since the JSON input files are generated, this vulnerability can not occur
-   ]]></notes>
-   <packageUrl regex="true">^pkg:maven/org\.glassfish/jakarta\.json@.*$</packageUrl>
-   <cve>CVE-2022-45688</cve>
-</suppress>
-<suppress>
-   <notes><![CDATA[
-   file name: jakarta.json-2.0.1.jar
-    Since the JSON input files are generated, this vulnerability can not occur
-   ]]></notes>
-   <packageUrl regex="true">^pkg:maven/org\.glassfish/jakarta\.json@.*$</packageUrl>
-   <cve>CVE-2023-5072</cve>
-</suppress>
-<suppress>
-   <notes><![CDATA[
-   file name: jsonld-java-0.13.4.jar
-   Since the JSON input files are generated, this vulnerability can not occur
-   ]]></notes>
-   <packageUrl regex="true">^pkg:maven/com\.github\.jsonld\-java/jsonld\-java@.*$</packageUrl>
-   <cve>CVE-2022-45688</cve>
-</suppress>
-<suppress>
-   <notes><![CDATA[
-   file name: jackson-core-2.15.3.jar
-   Since the JSON input files are generated, this vulnerability can not occur
-   ]]></notes>
-   <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
-   <cve>CVE-2022-45688</cve>
-</suppress>
-<suppress>
-   <notes><![CDATA[
-   file name: jsonld-java-0.13.4.jar
-   Since the JSON input files are generated, this vulnerability can not occur
-   ]]></notes>
-   <packageUrl regex="true">^pkg:maven/com\.github\.jsonld\-java/jsonld\-java@.*$</packageUrl>
-   <cve>CVE-2023-5072</cve>
-</suppress>
+   <suppress>
+      <notes><![CDATA[
+      file name: jackson-core-2.15.3.jar
+      Since the JSON input files are generated, this vulnerability can not occur
+      ]]></notes>
+      <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
+      <cve>CVE-2023-5072</cve>
+   </suppress>
+   <suppress>
+      <notes><![CDATA[
+      file name: jackson-core-2.15.3.jar
+      Since the JSON input files are generated, this vulnerability can not occur
+      ]]></notes>
+      <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
+      <cve>CVE-2023-5072</cve>
+   </suppress>
+   <suppress>
+      <notes><![CDATA[
+      file name: jackson-databind-2.15.3.jar
+      he vendor's perspective is that this is not a valid vulnerability report, because the steps of constructing a cyclic data structure and trying to serialize it cannot be achieved by an external attacker.
+      ]]></notes>
+      <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+      <cve>CVE-2023-35116</cve>
+   </suppress>
+   <suppress>
+      <notes><![CDATA[
+      file name: jakarta.json-2.0.1.jar
+      Since the JSON input files are generated, this vulnerability can not occur
+      ]]></notes>
+      <packageUrl regex="true">^pkg:maven/org\.glassfish/jakarta\.json@.*$</packageUrl>
+      <cve>CVE-2022-45688</cve>
+   </suppress>
+   <suppress>
+      <notes><![CDATA[
+      file name: jakarta.json-2.0.1.jar
+       Since the JSON input files are generated, this vulnerability can not occur
+      ]]></notes>
+      <packageUrl regex="true">^pkg:maven/org\.glassfish/jakarta\.json@.*$</packageUrl>
+      <cve>CVE-2023-5072</cve>
+   </suppress>
+   <suppress>
+      <notes><![CDATA[
+      file name: jsonld-java-0.13.4.jar
+      Since the JSON input files are generated, this vulnerability can not occur
+      ]]></notes>
+      <packageUrl regex="true">^pkg:maven/com\.github\.jsonld\-java/jsonld\-java@.*$</packageUrl>
+      <cve>CVE-2022-45688</cve>
+   </suppress>
+   <suppress>
+      <notes><![CDATA[
+      file name: jackson-core-2.15.3.jar
+      Since the JSON input files are generated, this vulnerability can not occur
+      ]]></notes>
+      <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
+      <cve>CVE-2022-45688</cve>
+   </suppress>
+   <suppress>
+      <notes><![CDATA[
+      file name: jsonld-java-0.13.4.jar
+      Since the JSON input files are generated, this vulnerability can not occur
+      ]]></notes>
+      <packageUrl regex="true">^pkg:maven/com\.github\.jsonld\-java/jsonld\-java@.*$</packageUrl>
+      <cve>CVE-2023-5072</cve>
+   </suppress>
+   <suppress>
+      <notes><![CDATA[
+      file name: icu4j-75.1.jar
+      This is a known false positive related to the CVE data
+      ]]></notes>
+      <packageUrl regex="true">^pkg:maven/com\.ibm\.icu/icu4j@.*$</packageUrl>
+      <cve>CVE-2025-5222</cve>
+   </suppress>
 </suppressions>
