@@ -43,6 +43,7 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.spdx.core.InvalidSPDXAnalysisException;
 import org.spdx.crossref.CrossRefHelper;
+import org.spdx.library.ListedLicenses;
 import org.spdx.library.SpdxModelFactory;
 import org.spdx.library.model.v2.SpdxConstantsCompatV2;
 import org.spdx.library.model.v2.license.SpdxListedLicenseException;
@@ -51,7 +52,6 @@ import org.spdx.licenseTemplate.LicenseTextHelper;
 import org.spdx.licenselistpublisher.licensegenerator.*;
 import org.spdx.licensexml.XmlLicenseProviderSingleFile;
 import org.spdx.licensexml.XmlLicenseProviderWithCrossRefDetails;
-import org.spdx.utility.compare.LicenseCompareHelper;
 import org.spdx.utility.compare.SpdxCompareException;
 
 import com.google.gson.Gson;
@@ -565,7 +565,7 @@ public class LicenseRDFAGenerator {
 					throws LicenseGeneratorException, InvalidSPDXAnalysisException, IOException, SpdxListedLicenseException, SpdxCompareException, InvalidLicenseTemplateException {
 		Iterator<ListedLicenseContainer> licenseIter = licenseProvider.getLicenseIterator();
 		try {
-			Map<String, String> addedLicIdTextMap = new HashMap<>();	// keep track for duplicate checking
+			Map<String, String[]> addedLicIdTextMap = new HashMap<>();	// keep track for duplicate checking
 			while (licenseIter.hasNext()) {
 				System.out.print(".");
 				ListedLicenseContainer licenseContainer = licenseIter.next();
@@ -576,21 +576,10 @@ public class LicenseRDFAGenerator {
 				addExternalMetaData(licenseContainer);
 				String licenseId = licenseContainer.getV2ListedLicense().getLicenseId();
 				if (licenseId != null && !licenseId.isEmpty()) {
-					// Check for duplicate licenses
-					if (!licenseContainer.getV2ListedLicense().isDeprecated()) {
-						Iterator<Entry<String, String>> addedLicenseTextIter = addedLicIdTextMap.entrySet().iterator();
-						while (addedLicenseTextIter.hasNext()) {
-							Entry<String, String> entry = addedLicenseTextIter.next();
-							if (LicenseTextHelper.isLicenseTextEquivalent(entry.getValue(), licenseContainer.getV2ListedLicense().getLicenseText())) {
-								warnings.add("Duplicates licenses: "+licenseContainer.getV2ListedLicense().getLicenseId()+", "+entry.getKey());
-							}
-						}
-						addedLicIdTextMap.put(licenseId, licenseContainer.getV2ListedLicense().getLicenseText());
-					}
 					checkText(licenseContainer.getV2ListedLicense().getLicenseText(), "License text for "+licenseId, warnings);
 					if (tester != null) {
 						List<String> testResults = tester.testLicense(licenseContainer);
-						if (testResults != null && testResults.size() > 0) {
+						if (testResults != null && !testResults.isEmpty()) {
 							for (String testResult:testResults) {
 								warnings.add("Test for license "+licenseId + " failed: "+testResult);
 							}
@@ -601,6 +590,18 @@ public class LicenseRDFAGenerator {
 								licenseContainer.getV3ListedLicense().setLicenseText(testText);
 							}
 						}
+					}
+					// Check for duplicate licenses
+					if (!licenseContainer.getV2ListedLicense().isDeprecated()) {
+						String[] licenseTokens = LicenseTextHelper.tokenizeLicenseText(
+								licenseContainer.getV2ListedLicense().getLicenseText(),
+								new HashMap<>());
+						for (Entry<String, String[]> entry : addedLicIdTextMap.entrySet()) {
+                            if (isLicenseTextEquivalent(entry.getValue(), licenseTokens)) {
+                                warnings.add("Duplicates licenses: " + licenseContainer.getV2ListedLicense().getLicenseId() + ", " + entry.getKey());
+                            }
+                        }
+						addedLicIdTextMap.put(licenseId, licenseTokens);
 					}
 					for (ILicenseFormatWriter writer : writers) {
 						if (writer instanceof LicenseTextFormatWriter) {
@@ -616,21 +617,20 @@ public class LicenseRDFAGenerator {
 			}
 			if (addedLicIdTextMap.size() == 1) {
 			    // Since we are only creating a single file, we should check the listed licenses for duplicates
-			    addedLicIdTextMap.entrySet().forEach(entry -> {
-		             String[] matchingLicenseIds;
+			    addedLicIdTextMap.forEach((key, value) -> {
                     try {
-                        matchingLicenseIds = LicenseCompareHelper.matchingStandardLicenseIds(entry.getValue());
-                        for (String matchingId:matchingLicenseIds) {
-                            if (!entry.getKey().equals(matchingId)) {
-                                warnings.add("Duplicates licenses: "+entry.getKey()+", "+matchingId);
+                        for (String stdLicenseId : ListedLicenses.getListedLicenses().getSpdxListedLicenseIds()) {
+                            String[] stdLicenseTokens = LicenseTextHelper.tokenizeLicenseText(
+                                    ListedLicenses.getListedLicenses().getListedLicenseByIdCompatV2(stdLicenseId).getLicenseText(),
+                                    new HashMap<>());
+                            if (isLicenseTextEquivalent(value, stdLicenseTokens)) {
+                                warnings.add("Duplicates licenses: " + key + ", " + stdLicenseId);
                             }
                         }
                     } catch (InvalidSPDXAnalysisException e) {
-                        warnings.add("Error comparing single license to existing listed licenses: "+e.getMessage());
-                    } catch (SpdxCompareException e) {
-                        warnings.add("Error comparing single license to existing listed licenses: "+e.getMessage());
+                        warnings.add("Error comparing single license to existing listed licenses: " + e.getMessage());
                     }
-			    });
+                });
 			}
 			return addedLicIdTextMap.keySet();
 		} finally {
@@ -639,6 +639,57 @@ public class LicenseRDFAGenerator {
 				//TODO: Is there a cleaner way to handle this?  The XmlLicenseProviderWithCrossRefDetails uses executorService which must be closed
 			}
 		}
+	}
+
+	/**
+	 * Returns true if two sets of license tokens is considered a match per
+	 * the SPDX License matching guidelines documented at spdx.org (currently <a href="https://spdx.github.io/spdx-spec/v2.3/license-matching-guidelines-and-templates/">license matching guidelines</a>)
+	 * There are 2 unimplemented features - bullets/numbering is not considered and comments with no whitespace between text is not skipped
+	 * @param licenseATokens normalized license tokens to compare
+	 * @param licenseBTokens normalized license tokens to compare
+	 * @return true if the license text is equivalent
+	 */
+	public static boolean isLicenseTextEquivalent(String[] licenseATokens, String[] licenseBTokens) {
+		//TODO: Move this to LicenseTextHelper and refactor
+		int bTokenCounter = 0;
+		int aTokenCounter = 0;
+		String nextAToken = LicenseTextHelper.getTokenAt(licenseATokens, aTokenCounter++);
+		String nextBToken = LicenseTextHelper.getTokenAt(licenseBTokens, bTokenCounter++);
+		while (nextAToken != null) {
+			if (nextBToken == null) {
+				// end of b stream
+				while (LicenseTextHelper.canSkip(nextAToken)) {
+					nextAToken = LicenseTextHelper.getTokenAt(licenseATokens, aTokenCounter++);
+				}
+				if (nextAToken != null) {
+					return false;	// there is more stuff in the license text B, so not equal
+				}
+			} else if (LicenseTextHelper.tokensEquivalent(nextAToken, nextBToken)) {
+				// just move onto the next set of tokens
+				nextAToken = LicenseTextHelper.getTokenAt(licenseATokens, aTokenCounter++);
+				nextBToken = LicenseTextHelper.getTokenAt(licenseBTokens, bTokenCounter++);
+			} else {
+				// see if we can skip through some B tokens to find a match
+				while (LicenseTextHelper.canSkip(nextBToken)) {
+					nextBToken = LicenseTextHelper.getTokenAt(licenseBTokens, bTokenCounter++);
+				}
+				// just to be sure, skip forward on the A license
+				while (LicenseTextHelper.canSkip(nextAToken)) {
+					nextAToken = LicenseTextHelper.getTokenAt(licenseATokens, aTokenCounter++);
+				}
+				if (!LicenseTextHelper.tokensEquivalent(nextAToken, nextBToken)) {
+					return false;
+				} else {
+					nextAToken = LicenseTextHelper.getTokenAt(licenseATokens, aTokenCounter++);
+					nextBToken = LicenseTextHelper.getTokenAt(licenseBTokens, bTokenCounter++);
+				}
+			}
+		}
+		// need to make sure B is at the end
+		while (LicenseTextHelper.canSkip(nextBToken)) {
+			nextBToken = LicenseTextHelper.getTokenAt(licenseBTokens, bTokenCounter++);
+		}
+		return (nextBToken == null);
 	}
 
 	/**

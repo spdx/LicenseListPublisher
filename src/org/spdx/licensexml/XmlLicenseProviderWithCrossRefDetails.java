@@ -25,10 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 import org.spdx.core.IModelCopyManager;
 import org.spdx.core.InvalidSPDXAnalysisException;
@@ -97,7 +94,7 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 			
 			ListedLicenseContainer retval = readyLicense.getKey();
 			try {
-				for (CrossRef crossRef:readyLicense.getValue().get()) {
+				for (CrossRef crossRef:readyLicense.getValue().get(2, TimeUnit.MINUTES)) {
 					retval.getV2ListedLicense().getCrossRef().add(crossRef);
 				}
 				
@@ -107,8 +104,11 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 			} catch (InvalidSPDXAnalysisException e) {
 				logger.error("Error setting cross refs",e);
 				warnings.add("Unable to set cross references due to error: "+e.getMessage());
-			}
-			urlDetailsInProgress.remove(retval);
+			} catch (TimeoutException e) {
+				logger.error("Timeout getting URL value.  URL values will not be filled in for license ID "+retval.getV2ListedLicense().getLicenseId(),e);
+				warnings.add("Timeout getting URL value.  URL values will not be filled in for license ID "+retval.getV2ListedLicense().getLicenseId());
+            }
+            urlDetailsInProgress.remove(retval);
 			fillCrossRefPool();
 			return retval;
 		}
