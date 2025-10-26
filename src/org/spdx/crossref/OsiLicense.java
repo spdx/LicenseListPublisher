@@ -27,49 +27,40 @@ import java.util.List;
  *
  */
 public class OsiLicense {
-	
-	public class IdentifierType {
-		String identifier;
-		String scheme;
-		/**
-		 * @return the identifier
-		 */
-		public String getIdentifier() {
-			return identifier;
+
+	public static class LinkType {
+		String href;
+
+		public String getHref() {
+			return href;
 		}
-		/**
-		 * @return the scheme
-		 */
-		public String getScheme() {
-			return scheme;
-		}
-		
 	}
-	
-	public class Link {
-		String note;
-		String url;
-		/**
-		 * @return the note
-		 */
-		public String getNote() {
-			return note;
+
+	public static class Links {
+		LinkType self;
+		LinkType html;
+		LinkType collection;
+
+		public LinkType getSelf() {
+			return self;
 		}
-		/**
-		 * @return the url
-		 */
-		public String getUrl() {
-			return url;
+
+		public LinkType getHtml() {
+			return html;
 		}
-		
-		
+
+		public LinkType getCollection() {
+			return collection;
+		}
 	}
 	
 	String id;
-	List<IdentifierType> identifiers;
-	List<Link> links;
+	Links _links;
 	String name;
+	String spdx_id;
 	List<String> keywords;
+	String version;
+	String submission_date;
 	/**
 	 * @return the id
 	 */
@@ -79,14 +70,8 @@ public class OsiLicense {
 	/**
 	 * @return the identifiers
 	 */
-	public List<IdentifierType> getIdentifiers() {
-		return identifiers;
-	}
-	/**
-	 * @return the links
-	 */
-	public List<Link> getLinks() {
-		return links;
+	public Links getLinks() {
+		return _links;
 	}
 	/**
 	 * @return the name
@@ -99,5 +84,14 @@ public class OsiLicense {
 	 */
 	public List<String> getKeywords() {
 		return keywords;
+	}
+	public String getSpdx_id() {
+		return spdx_id;
+	}
+	public String getVersion() {
+		return version;
+	}
+	public String getSubmission_date() {
+		return submission_date;
 	}
 }
