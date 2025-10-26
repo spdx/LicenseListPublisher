@@ -41,7 +41,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
         if [[ $SONAR_TOKEN != "" ]]; then
-           mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar
+           mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent javadoc:javadoc install sonar:sonar
         else
            mvn --batch-mode --update-snapshots verify
         fi
