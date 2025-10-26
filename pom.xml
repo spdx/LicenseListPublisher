@@ -105,15 +105,6 @@
 	</dependencies>
 	<profiles>
 		<profile>
-			<id>doclint-java8-disable</id>
-			<activation>
-				<jdk>[1.8,)</jdk>
-			</activation>
-			<properties>
-				<javadoc.opts>-Xdoclint:none</javadoc.opts>
-			</properties>
-		</profile>
-		<profile>
 			<id>release</id>
 			<build>
 				<plugins>
@@ -155,16 +146,12 @@
 						<version>3.12.0</version>
 						<configuration>
 							<quiet>true</quiet>
-							<source>8</source>
-							<javadocExecutable>${env.JAVA_HOME}/bin/javadoc</javadocExecutable>
-							<additionalparam>-Xdoclint:none</additionalparam>
+							<notimestamp>true</notimestamp>
+							<doclint>all,-missing</doclint>
 						</configuration>
 						<executions>
 							<execution>
 								<id>attach-javadocs</id>
-								<configuration>
-									<additionalparam>${javadoc.opts}</additionalparam>
-								</configuration>
 								<goals>
 									<goal>jar</goal>
 								</goals>
