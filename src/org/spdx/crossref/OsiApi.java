@@ -51,13 +51,12 @@ import com.google.gson.reflect.TypeToken;
  */
 public class OsiApi {
 	static final Logger logger = LoggerFactory.getLogger(OsiApi.class.getName());
-	public static final String OSI_PREFIX = "https://opensource.org/licenses";
-	private static final String API_BASE_URL = "https://api.opensource.org";
-	private static final String ALL_LICENSES_URL = API_BASE_URL + "/licenses/";
+	public static final String OSI_PREFIX = "https://opensource.org/license";
+	private static final String API_BASE_URL = "https://opensource.org/api";
+	private static final String ALL_LICENSES_URL = API_BASE_URL + "/license";
 	private static final int READ_TIMEOUT = 5000;
-	static final List<String> WHITE_LIST = Collections.unmodifiableList(Arrays.asList(
-			"osi.org")); // currently, we're not allowing any redirects to sites other than OSI
-	
+	static final List<String> WHITE_LIST = Collections.unmodifiableList(List.of(
+            "osi.org")); // currently, we're not allowing any redirects to sites other than OSI
 	private static class InstanceHolder {
 		private static final OsiApi INSTANCE = new OsiApi();
 	}
@@ -71,7 +70,19 @@ public class OsiApi {
 	}
 	
 	private boolean apiAvailable = false;
-	private Map<String, List<String>> urlToSpdxIds = new HashMap<>();
+	private final Map<String, String> urlToSpdxId = new HashMap<>();
+
+	/**
+	 * Normalized an OSI URL taking into account changes and redirects introduced by OSI which breaks
+	 * compatibility with non-normalized URLs
+	 * @param url URL pointing to an OSI license
+	 * @return normalized URL
+	 */
+	public static String normalizeOsiUrl(String url) {
+		return url.toLowerCase() // OSI changed the case on URLs like Apache-2.0 (now apache-2.0)
+				.replace("/licenses/", "/license/") // OSI changed the URLs for licenses removing the 's'
+				.replaceAll("(\\d)\\.(\\d)$", "$1-$2"); // OSI changed the URL ending in apache-2.0 to apache-2-0
+	}
 	
 	private OsiApi() {
 		try (BufferedReader reader = new BufferedReader(
@@ -87,22 +98,13 @@ public class OsiApi {
             for (OsiLicense osiLicense:osiLicenses) {
             	if (Objects.nonNull(osiLicense.getLinks()) &&
             			Objects.nonNull(osiLicense.getId()) && 
-            		 Objects.nonNull(osiLicense.getIdentifiers())) {
-            		List<String> spdxIds = new ArrayList<>();
-                	for (OsiLicense.IdentifierType identifier:osiLicense.getIdentifiers()) {
-                		if ("SPDX".equals(identifier.getScheme()) && 
-                				Objects.nonNull(identifier.getIdentifier())) {
-                			spdxIds.add(identifier.getIdentifier());
-                		}
-                	}
-                	if (!spdxIds.isEmpty()) {
-                		for (OsiLicense.Link link:osiLicense.getLinks()) {
-                			if (Objects.nonNull(link.getUrl())) {
-                				urlToSpdxIds.put(link.getUrl(), spdxIds);
-                			}
-                		}
-                	}
-                	
+            		 Objects.nonNull(osiLicense.getSpdx_id())) {
+					if (Objects.nonNull(osiLicense.getLinks().getSelf()) && Objects.nonNull(osiLicense.getLinks().getSelf().getHref())) {
+						urlToSpdxId.put(normalizeOsiUrl(osiLicense.getLinks().getSelf().getHref()), osiLicense.getSpdx_id());
+					}
+					if (Objects.nonNull(osiLicense.getLinks().getHtml()) && Objects.nonNull(osiLicense.getLinks().getHtml().getHref())) {
+						urlToSpdxId.put(normalizeOsiUrl(osiLicense.getLinks().getHtml().getHref()), osiLicense.getSpdx_id());
+					}
             	}
             }
 			apiAvailable = true;
@@ -123,9 +125,8 @@ public class OsiApi {
 		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
 		connection.setReadTimeout(READ_TIMEOUT);
 		int status = connection.getResponseCode();
-		if (status != HttpURLConnection.HTTP_OK && 
-			(status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM
-						|| status == HttpURLConnection.HTTP_SEE_OTHER)) {
+		if ((status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM
+                || status == HttpURLConnection.HTTP_SEE_OTHER)) {
 				// redirect
 			String redirectUrlStr = connection.getHeaderField("Location");
 			if (Objects.isNull(redirectUrlStr) || redirectUrlStr.isEmpty()) {
@@ -163,9 +164,10 @@ public class OsiApi {
 	 */
 	public void setCrossRefDetails(String url, SpdxListedLicense license,
 			CrossRef crossRef) throws InvalidSPDXAnalysisException {
-		Boolean isValidUrl = Valid.urlValidator(url);
-		List<String> spdxIds = urlToSpdxIds.get(url);
-    	Boolean isLiveUrl = Objects.nonNull(spdxIds) && spdxIds.contains(license.getId());
+		String normalizedUrl = normalizeOsiUrl(url);
+		Boolean isValidUrl = Valid.urlValidator(normalizedUrl);
+		String spdxId = urlToSpdxId.get(normalizedUrl);
+    	Boolean isLiveUrl = Objects.equals(spdxId, license.getId());
     	Boolean isWaybackUrl = false;
     	String currentDate = Timestamp.getTimestamp();
     	String matchStatus = "N/A";

@@ -61,7 +61,7 @@ public class OsiApiTest {
 		SpdxListedLicense apache20 = new SpdxListedLicense("Apache-2.0");
 		apache20.setLicenseText("Apache text");
 		CrossRef osiApacheCrossRef = new CrossRef();
-		String apache20OsiUrl = "https://opensource.org/licenses/Apache-2.0";
+		String apache20OsiUrl = "https://opensource.org/licenses/apache-2.0";
 		osiApacheCrossRef.setUrl(apache20OsiUrl);
 		OsiApi instance = OsiApi.getInstance();
 		assertTrue(instance.isApiAvailable());
@@ -75,7 +75,7 @@ public class OsiApiTest {
 		assertTrue(osiApacheCrossRef.getValid().get());
 		
 		// not OSI URL
-		String nonOsiUrl = "https://notopensource.org/licenses/Apache-2.0";
+		String nonOsiUrl = "https://notopensource.org/licenses/apache-2.0";
 		assertFalse(OsiApi.isOsiUrl(nonOsiUrl));
 		
 		// not matching URL
