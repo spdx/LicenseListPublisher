@@ -80,8 +80,6 @@ public class LicenseXmlDocument {
 	 * @param v2ModelStore model store for SPDX Spec version 2 license and exceptions
 	 * @param creationInfo Creation information to use for SPDX V3 licenses and exceptions
 	 * @param copyManager copyManager to use for copying data between model stores
-	 * @param currentListVersion version of the license list to include the license data
-	 * @param releaseDate Date the license list is released
 	 */
 	public LicenseXmlDocument(File file, IModelStore v2ModelStore, IModelStore v3ModelStore, 
 			IModelCopyManager copyManager, CreationInfo creationInfo) throws LicenseXmlException {
