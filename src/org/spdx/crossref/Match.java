@@ -46,11 +46,12 @@ public class Match implements Callable<String> {
 	 */
     public static String checkMatch(String url, SpdxListedLicense license){
     	try {
-			Document doc = Jsoup.connect(url).get();
+			Document doc = Jsoup.connect(url).timeout(30000).get();
 			String bodyText = doc.body().text();
 			return String.valueOf(LicenseCompareHelper.isStandardLicenseWithinText(bodyText, license));
 		} catch (IOException e) {
-			logger.warn("IO exception comparing license text for license ID "+license.getLicenseId()+" and URL "+url);
+			logger.warn("IO exception comparing license text for license ID {} and URL {}: {}", url,
+					license.getLicenseId(), e.getMessage());
 			return String.valueOf(false);
 		}
 	}

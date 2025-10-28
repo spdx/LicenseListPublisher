@@ -94,7 +94,7 @@ public class XmlLicenseProviderWithCrossRefDetails extends XmlLicenseProvider {
 			
 			ListedLicenseContainer retval = readyLicense.getKey();
 			try {
-				for (CrossRef crossRef:readyLicense.getValue().get(2, TimeUnit.MINUTES)) {
+				for (CrossRef crossRef:readyLicense.getValue().get(5, TimeUnit.MINUTES)) {
 					retval.getV2ListedLicense().getCrossRef().add(crossRef);
 				}
 				
