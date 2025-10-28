@@ -51,14 +51,15 @@ public class Live implements Callable<Boolean>  {
 	      // fake request coming from browser
 	      con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36");
 	      con.setRequestMethod("HEAD");
-	      con.setConnectTimeout(8500);
+	      con.setConnectTimeout(30000);
+		  con.setReadTimeout(30000);
 	      int responseCode = con.getResponseCode();
 	      return (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_NOT_MODIFIED
 	    		  || responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP);
 	    } catch (UnknownHostException e) {
 	    	return false;
 	    } catch (Exception e) {
-	    	logger.warn("Failed checking live status.",e.getMessage());
+	    	logger.warn("Failed checking live status for URL {}: {}", URLName, e.getMessage());
 	        return false;
 	    }
 	  }
