@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.spdx</groupId>
 	<artifactId>licenseListPublisher</artifactId>
-	<version>3.1.3</version>
+	<version>3.1.4-SNAPSHOT</version>
 	<name>License List Publisher</name>
 	<description>Tool that generates license data found in the license-list-data repository from the license-list-XML source</description>
 	<licenses>
@@ -30,7 +30,7 @@
   	  <url>https://github.com/spdx/LicenseListPublisher</url>
   	  <connection>scm:git:ssh://git@github.com:spdx/LicenseListPublisher</connection>
   	  <developerConnection>scm:git:git@github.com:spdx/LicenseListPublisher</developerConnection>
-  	  <tag>v3.1.3</tag>
+  	  <tag>master</tag>
     </scm>
 	<properties>
 	  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
