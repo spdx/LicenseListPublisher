@@ -620,12 +620,14 @@ public class LicenseRDFAGenerator {
 			    addedLicIdTextMap.forEach((key, value) -> {
                     try {
                         for (String stdLicenseId : ListedLicenses.getListedLicenses().getSpdxListedLicenseIds()) {
-                            String[] stdLicenseTokens = LicenseTextHelper.tokenizeLicenseText(
-                                    ListedLicenses.getListedLicenses().getListedLicenseByIdCompatV2(stdLicenseId).getLicenseText(),
-                                    new HashMap<>());
-                            if (isLicenseTextEquivalent(value, stdLicenseTokens)) {
-                                warnings.add("Duplicates licenses: " + key + ", " + stdLicenseId);
-                            }
+							if (!key.equals(stdLicenseId)) {
+								String[] stdLicenseTokens = LicenseTextHelper.tokenizeLicenseText(
+										ListedLicenses.getListedLicenses().getListedLicenseByIdCompatV2(stdLicenseId).getLicenseText(),
+										new HashMap<>());
+								if (isLicenseTextEquivalent(value, stdLicenseTokens)) {
+									warnings.add("Duplicates licenses: " + key + ", " + stdLicenseId);
+								}
+							}
                         }
                     } catch (InvalidSPDXAnalysisException e) {
                         warnings.add("Error comparing single license to existing listed licenses: " + e.getMessage());
