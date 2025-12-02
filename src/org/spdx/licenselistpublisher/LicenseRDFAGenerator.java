@@ -262,7 +262,7 @@ public class LicenseRDFAGenerator {
 				for (String warning:warnings) {
 					boolean ignore = false;
 					for (String ignoreStr:ignoredWarnings) {
-						if (warning.equalsIgnoreCase(ignoreStr)) {
+						if (warning.toLowerCase().startsWith(ignoreStr.toLowerCase())) {
 							ignore = true;
 							System.out.println("Ignoring warning '"+ignoreStr+"'");
 							break;
@@ -597,7 +597,7 @@ public class LicenseRDFAGenerator {
 								licenseContainer.getV2ListedLicense().getLicenseText(),
 								new HashMap<>());
 						for (Entry<String, String[]> entry : addedLicIdTextMap.entrySet()) {
-                            if (isLicenseTextEquivalent(entry.getValue(), licenseTokens)) {
+                            if (LicenseTextHelper.isLicenseTextEquivalent(entry.getValue(), licenseTokens)) {
                                 warnings.add("Duplicates licenses: " + licenseContainer.getV2ListedLicense().getLicenseId() + ", " + entry.getKey());
                             }
                         }
@@ -624,7 +624,7 @@ public class LicenseRDFAGenerator {
 								String[] stdLicenseTokens = LicenseTextHelper.tokenizeLicenseText(
 										ListedLicenses.getListedLicenses().getListedLicenseByIdCompatV2(stdLicenseId).getLicenseText(),
 										new HashMap<>());
-								if (isLicenseTextEquivalent(value, stdLicenseTokens)) {
+								if (LicenseTextHelper.isLicenseTextEquivalent(value, stdLicenseTokens)) {
 									warnings.add("Duplicates licenses: " + key + ", " + stdLicenseId);
 								}
 							}
@@ -641,57 +641,6 @@ public class LicenseRDFAGenerator {
 				//TODO: Is there a cleaner way to handle this?  The XmlLicenseProviderWithCrossRefDetails uses executorService which must be closed
 			}
 		}
-	}
-
-	/**
-	 * Returns true if two sets of license tokens is considered a match per
-	 * the SPDX License matching guidelines documented at spdx.org (currently <a href="https://spdx.github.io/spdx-spec/v2.3/license-matching-guidelines-and-templates/">license matching guidelines</a>)
-	 * There are 2 unimplemented features - bullets/numbering is not considered and comments with no whitespace between text is not skipped
-	 * @param licenseATokens normalized license tokens to compare
-	 * @param licenseBTokens normalized license tokens to compare
-	 * @return true if the license text is equivalent
-	 */
-	public static boolean isLicenseTextEquivalent(String[] licenseATokens, String[] licenseBTokens) {
-		//TODO: Move this to LicenseTextHelper and refactor
-		int bTokenCounter = 0;
-		int aTokenCounter = 0;
-		String nextAToken = LicenseTextHelper.getTokenAt(licenseATokens, aTokenCounter++);
-		String nextBToken = LicenseTextHelper.getTokenAt(licenseBTokens, bTokenCounter++);
-		while (nextAToken != null) {
-			if (nextBToken == null) {
-				// end of b stream
-				while (LicenseTextHelper.canSkip(nextAToken)) {
-					nextAToken = LicenseTextHelper.getTokenAt(licenseATokens, aTokenCounter++);
-				}
-				if (nextAToken != null) {
-					return false;	// there is more stuff in the license text B, so not equal
-				}
-			} else if (LicenseTextHelper.tokensEquivalent(nextAToken, nextBToken)) {
-				// just move onto the next set of tokens
-				nextAToken = LicenseTextHelper.getTokenAt(licenseATokens, aTokenCounter++);
-				nextBToken = LicenseTextHelper.getTokenAt(licenseBTokens, bTokenCounter++);
-			} else {
-				// see if we can skip through some B tokens to find a match
-				while (LicenseTextHelper.canSkip(nextBToken)) {
-					nextBToken = LicenseTextHelper.getTokenAt(licenseBTokens, bTokenCounter++);
-				}
-				// just to be sure, skip forward on the A license
-				while (LicenseTextHelper.canSkip(nextAToken)) {
-					nextAToken = LicenseTextHelper.getTokenAt(licenseATokens, aTokenCounter++);
-				}
-				if (!LicenseTextHelper.tokensEquivalent(nextAToken, nextBToken)) {
-					return false;
-				} else {
-					nextAToken = LicenseTextHelper.getTokenAt(licenseATokens, aTokenCounter++);
-					nextBToken = LicenseTextHelper.getTokenAt(licenseBTokens, bTokenCounter++);
-				}
-			}
-		}
-		// need to make sure B is at the end
-		while (LicenseTextHelper.canSkip(nextBToken)) {
-			nextBToken = LicenseTextHelper.getTokenAt(licenseBTokens, bTokenCounter++);
-		}
-		return (nextBToken == null);
 	}
 
 	/**
