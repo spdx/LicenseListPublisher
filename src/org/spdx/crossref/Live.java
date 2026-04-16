@@ -39,7 +39,7 @@ public class Live implements Callable<Boolean>  {
     public Live(String url) {
         this.url = url;
     }
-	
+
     /**
 	 * @param URLName the url in string form
 	 * @return true/false if the url is live or not
@@ -49,7 +49,7 @@ public class Live implements Callable<Boolean>  {
 	      HttpURLConnection.setFollowRedirects(true);
 	      HttpURLConnection con = (HttpURLConnection) new URL(URLName).openConnection();
 	      // fake request coming from browser
-	      con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36");
+	      con.setRequestProperty("User-Agent", "Mozilla/5.0 SPDX LicenseListPublisher (File issues on the https://github.com/spdx/LicenseListPublisher/ issue tracker.)");
 	      con.setRequestMethod("HEAD");
 	      con.setConnectTimeout(30000);
 		  con.setReadTimeout(30000);
@@ -63,7 +63,7 @@ public class Live implements Callable<Boolean>  {
 	        return false;
 	    }
 	  }
-	
+
 	@Override
 	public Boolean call() throws Exception {
 		return urlLinkExists(url);
