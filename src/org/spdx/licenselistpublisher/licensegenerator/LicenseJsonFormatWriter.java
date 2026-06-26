@@ -31,6 +31,7 @@ import org.spdx.licenselistpublisher.ListedLicenseContainer;
 import org.spdx.storage.listedlicense.ExceptionJson;
 import org.spdx.storage.listedlicense.LicenseJson;
 import org.spdx.storage.listedlicense.LicenseJsonTOC;
+import org.spdx.storage.listedlicense.SortableLicenseJson;
 import org.spdx.storage.listedlicense.SortableExceptionJsonTOC;
 
 import com.google.gson.Gson;
@@ -49,7 +50,7 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 	private File jsonFolder;
 	private File jsonFolderExceptions;
 	private File jsonFolderDetails;
-	LicenseJson licJson;
+	SortableLicenseJson licJson;
 	LicenseJsonTOC tableOfContentsJSON;
 	SortableExceptionJsonTOC jsonExceptionToc;
 	Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -66,7 +67,7 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 		this.jsonFolder = jsonFolder;
 		this.jsonFolderDetails = jsonFolderDetails;
 		this.jsonFolderExceptions = jsonFolderExceptions;
-		licJson = new LicenseJson();
+		licJson = new SortableLicenseJson();
 		tableOfContentsJSON = new LicenseJsonTOC(version, releaseDate);
 		jsonExceptionToc = new SortableExceptionJsonTOC(version, releaseDate);
 	}
@@ -119,6 +120,7 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 			throws IOException, InvalidSPDXAnalysisException, InvalidLicenseTemplateException {
 		SpdxListedLicense license = licenseContainer.getV2ListedLicense();
 		licJson.copyFrom(license);
+		licJson.sortCrossRef();
 		String licBaseHtmlFileName = LicenseHtmlFormatWriter.formLicenseHTMLFileName(license.getLicenseId());
 		String licHtmlFileName = licBaseHtmlFileName + ".html";
 		String licJsonFileName = licBaseHtmlFileName + ".json";
