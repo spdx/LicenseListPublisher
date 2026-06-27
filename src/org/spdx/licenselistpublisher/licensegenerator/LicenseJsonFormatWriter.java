@@ -19,8 +19,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.Collections;
-import java.util.Comparator;
 
 import org.spdx.core.InvalidSPDXAnalysisException;
 import org.spdx.library.model.v2.license.ListedLicenseException;
@@ -29,10 +27,9 @@ import org.spdx.licenseTemplate.InvalidLicenseTemplateException;
 import org.spdx.licenselistpublisher.ListedExceptionContainer;
 import org.spdx.licenselistpublisher.ListedLicenseContainer;
 import org.spdx.storage.listedlicense.ExceptionJson;
+import org.spdx.storage.listedlicense.ExceptionJsonTOC;
 import org.spdx.storage.listedlicense.LicenseJson;
 import org.spdx.storage.listedlicense.LicenseJsonTOC;
-import org.spdx.storage.listedlicense.SortableLicenseJson;
-import org.spdx.storage.listedlicense.SortableExceptionJsonTOC;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -50,9 +47,9 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 	private File jsonFolder;
 	private File jsonFolderExceptions;
 	private File jsonFolderDetails;
-	SortableLicenseJson licJson;
+	LicenseJson licJson;
 	LicenseJsonTOC tableOfContentsJSON;
-	SortableExceptionJsonTOC jsonExceptionToc;
+	ExceptionJsonTOC jsonExceptionToc;
 	Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
 	/**
@@ -67,9 +64,9 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 		this.jsonFolder = jsonFolder;
 		this.jsonFolderDetails = jsonFolderDetails;
 		this.jsonFolderExceptions = jsonFolderExceptions;
-		licJson = new SortableLicenseJson();
+		licJson = new LicenseJson();
 		tableOfContentsJSON = new LicenseJsonTOC(version, releaseDate);
-		jsonExceptionToc = new SortableExceptionJsonTOC(version, releaseDate);
+		jsonExceptionToc = new ExceptionJsonTOC(version, releaseDate);
 	}
 
 	/**
@@ -149,19 +146,10 @@ public class LicenseJsonFormatWriter implements ILicenseFormatWriter {
 	@Override
 	public void writeToC() throws IOException {
 		File tocJsonFile = new File(jsonFolder.getPath()+File.separator+LICENSE_TOC_JSON_FILE_NAME);
-		Collections.sort(tableOfContentsJSON.getLicenses(), new Comparator<LicenseJsonTOC.LicenseJson>() {
-
-		@Override
-		public int compare(
-				org.spdx.storage.listedlicense.LicenseJsonTOC.LicenseJson o1,
-				org.spdx.storage.listedlicense.LicenseJsonTOC.LicenseJson o2) {
-			return o1.getLicenseId().compareToIgnoreCase(o2.getLicenseId());
-		}
-		
-	});
+		tableOfContentsJSON.sort();
 		writeToFile(tocJsonFile, tableOfContentsJSON);
 		File exceptionJsonTocFile = new File(jsonFolder.getPath()+File.separator+EXCEPTION_JSON_TOC_FILE_NAME);
-		jsonExceptionToc.sortExceptions();
+		jsonExceptionToc.sort();
 		writeToFile(exceptionJsonTocFile, jsonExceptionToc);
 	}
 
